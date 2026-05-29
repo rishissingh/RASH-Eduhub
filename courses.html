@@ -19,9 +19,9 @@
    
    <section class="flex">
 
-      <a href="home.html" class="logo">RASH EduHub</a>
+      <a href="index.html" class="logo">RASH EduHub</a>
 
-      <form action="search.html" method="post" class="search-form">
+      <form action="courses.html" method="get" class="search-form">
          <input type="text" name="search_box" required placeholder="search courses..." maxlength="100">
          <button type="submit" class="fas fa-search"></button>
       </form>
@@ -62,11 +62,12 @@
    </div>
 
    <nav class="navbar">
-      <a href="home.html"><i class="fas fa-home"></i><span>Home</span></a>
+      <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
       <a href="about.html"><i class="fas fa-question"></i><span>About</span></a>
       <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>Courses</span></a>
       <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>Teachers</span></a>
       <a href="contact.html"><i class="fas fa-headset"></i><span>Contact Us</span></a>
+      <a href="creator.html"><i class="fas fa-video"></i><span>Creator Studio</span></a>
    </nav>
 
 </div>
@@ -75,9 +76,24 @@
 
    <h1 class="heading">Our Courses</h1>
 
-   <div class="box-container">
+   <div class="filter-section">
+      <div class="filter-chips" id="filter-chips">
+         <span class="chip active" data-category="all">All Courses</span>
+         <span class="chip" data-category="html">HTML</span>
+         <span class="chip" data-category="css">CSS</span>
+         <span class="chip" data-category="javascript">JavaScript</span>
+         <span class="chip" data-category="bootstrap">Bootstrap</span>
+         <span class="chip" data-category="jquery">jQuery</span>
+         <span class="chip" data-category="sass">SASS</span>
+         <span class="chip" data-category="php">PHP</span>
+         <span class="chip" data-category="mysql">MySQL</span>
+         <span class="chip" data-category="react">React</span>
+      </div>
+   </div>
 
-      <div class="box">
+   <div class="box-container" id="courses-grid">
+
+      <div class="box" data-category="html">
          <div class="tutor">
             <img src="images/pic-2.jpg" alt="">
             <div class="info">
@@ -93,7 +109,7 @@
          <a href="playlist.html" class="inline-btn">view playlist</a>
       </div>
 
-      <div class="box">
+      <div class="box" data-category="css">
          <div class="tutor">
             <img src="images/pic-3.jpg" alt="">
             <div class="info">
@@ -109,7 +125,7 @@
          <a href="playlist.html" class="inline-btn">view playlist</a>
       </div>
 
-      <div class="box">
+      <div class="box" data-category="javascript">
          <div class="tutor">
             <img src="images/pic-4.jpg" alt="">
             <div class="info">
@@ -125,7 +141,7 @@
          <a href="playlist.html" class="inline-btn">view playlist</a>
       </div>
 
-      <div class="box">
+      <div class="box" data-category="bootstrap">
          <div class="tutor">
             <img src="images/pic-5.jpg" alt="">
             <div class="info">
@@ -141,7 +157,7 @@
          <a href="playlist.html" class="inline-btn">view playlist</a>
       </div>
 
-      <div class="box">
+      <div class="box" data-category="jquery">
          <div class="tutor">
             <img src="images/pic-6.jpg" alt="">
             <div class="info">
@@ -157,7 +173,7 @@
          <a href="playlist.html" class="inline-btn">view playlist</a>
       </div>
 
-      <div class="box">
+      <div class="box" data-category="sass">
          <div class="tutor">
             <img src="images/pic-7.jpg" alt="">
             <div class="info">
@@ -173,7 +189,7 @@
          <a href="playlist.html" class="inline-btn">view playlist</a>
       </div>
 
-      <div class="box">
+      <div class="box" data-category="php">
          <div class="tutor">
             <img src="images/pic-8.jpg" alt="">
             <div class="info">
@@ -189,7 +205,7 @@
          <a href="playlist.html" class="inline-btn">view playlist</a>
       </div>
 
-      <div class="box">
+      <div class="box" data-category="mysql">
          <div class="tutor">
             <img src="images/pic-9.jpg" alt="">
             <div class="info">
@@ -205,7 +221,7 @@
          <a href="playlist.html" class="inline-btn">view playlist</a>
       </div>
 
-      <div class="box">
+      <div class="box" data-category="react">
          <div class="tutor">
             <img src="images/pic-1.jpg" alt="">
             <div class="info">
@@ -225,19 +241,6 @@
 
 </section>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 <footer class="footer">
 
    &copy; copyright @ 2026 by <span>RASH EduHub</span> | all rights reserved!
@@ -246,7 +249,9 @@
 
 <!-- custom js file link  -->
 <script src="js/script.js"></script>
+<script src="js/courses.js"></script>
 
    
 </body>
 </html>
+

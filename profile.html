@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>profile</title>
+
+   <!-- font awesome cdn link  -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+
+   <!-- custom css file link  -->
+   <link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+
+<header class="header">
+   
+   <section class="flex">
+
+      <a href="index.html" class="logo">RASH EduHub</a>
+
+      <form action="courses.html" method="get" class="search-form">
+         <input type="text" name="search_box" required placeholder="search courses..." maxlength="100">
+         <button type="submit" class="fas fa-search"></button>
+      </form>
+
+      <div class="icons">
+         <div id="menu-btn" class="fas fa-bars"></div>
+         <div id="search-btn" class="fas fa-search"></div>
+         <div id="user-btn" class="fas fa-user"></div>
+         <div id="toggle-btn" class="fas fa-sun"></div>
+      </div>
+
+      <div class="profile">
+         <img src="images/pic-1.jpg" class="image" alt="">
+         <h3 class="name">Harsh Singh</h3>
+         <p class="role">Student</p>
+         <a href="profile.html" class="btn">view profile</a>
+         <div class="flex-btn">
+            <a href="login.html" class="option-btn">login</a>
+            <a href="register.html" class="option-btn">register</a>
+         </div>
+      </div>
+
+   </section>
+
+</header>   
+
+<div class="side-bar">
+
+   <div id="close-btn">
+      <i class="fas fa-times"></i>
+   </div>
+
+   <div class="profile">
+      <img src="images/pic-1.jpg" class="image" alt="">
+      <h3 class="name">Rishi Singh</h3>
+      <p class="role">Student</p>
+      <a href="profile.html" class="btn">view profile</a>
+   </div>
+
+   <nav class="navbar">
+      <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
+      <a href="about.html"><i class="fas fa-question"></i><span>About</span></a>
+      <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>Courses</span></a>
+      <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>Teachers</span></a>
+      <a href="contact.html"><i class="fas fa-headset"></i><span>Contact Us</span></a>
+      <a href="creator.html"><i class="fas fa-video"></i><span>Creator Studio</span></a>
+   </nav>
+
+</div>
+
+<section class="user-profile">
+
+   <h1 class="heading">your profile</h1>
+
+   <div class="info">
+
+      <div class="user">
+         <img src="images/pic-1.jpg" alt="" id="profile-pic">
+         <h3 id="profile-name">Harsh Singh</h3>
+         <p>Student</p>
+         <a href="update.html" class="inline-btn">update profile</a>
+      </div>
+   
+      <div class="box-container">
+   
+         <div class="box">
+            <div class="flex">
+               <i class="fas fa-bookmark"></i>
+               <div>
+                  <span id="saved-playlists-count">4</span>
+                  <p>saved playlists</p>
+               </div>
+            </div>
+            <a href="courses.html" class="inline-btn">view playlists</a>
+         </div>
+   
+         <div class="box">
+            <div class="flex">
+               <i class="fas fa-heart"></i>
+               <div>
+                  <span id="liked-videos-count">33</span>
+                  <p>liked videos</p>
+               </div>
+            </div>
+            <a href="#" class="inline-btn">view likes</a>
+         </div>
+   
+         <div class="box">
+            <div class="flex">
+               <i class="fas fa-comment"></i>
+               <div>
+                  <span id="comment-count-display">12</span>
+                  <p>comments made</p>
+               </div>
+            </div>
+            <a href="watch-video.html" class="inline-btn">view comments</a>
+         </div>
+   
+      </div>
+
+      <div class="dashboard-grid">
+         <div class="progress-section">
+            <h3 class="section-subtitle">Course Progress</h3>
+            <div class="progress-list">
+               
+               <div class="progress-card">
+                  <div class="progress-card-info">
+                     <h4>Complete HTML Tutorial</h4>
+                     <p>Instructor: HK Singh</p>
+                  </div>
+                  <div class="progress-circle" style="--p: 100%;" id="html-progress-circle">
+                     <span class="progress-text" id="html-progress-text">100%</span>
+                  </div>
+               </div>
+
+               <div class="progress-card">
+                  <div class="progress-card-info">
+                     <h4>Complete CSS Tutorial</h4>
+                     <p>Instructor: SV Sir</p>
+                  </div>
+                  <div class="progress-circle" style="--p: 60%;" id="css-progress-circle">
+                     <span class="progress-text" id="css-progress-text">60%</span>
+                  </div>
+               </div>
+
+               <div class="progress-card">
+                  <div class="progress-card-info">
+                     <h4>Complete JS Tutorial</h4>
+                     <p>Instructor: RS Sir</p>
+                  </div>
+                  <div class="progress-circle" style="--p: 20%;" id="js-progress-circle">
+                     <span class="progress-text" id="js-progress-text">20%</span>
+                  </div>
+               </div>
+
+            </div>
+         </div>
+
+         <div class="achievements-section">
+            <h3 class="section-subtitle">Earned Badges</h3>
+            <div class="badge-grid" id="badges-container">
+               <div class="badge-card unlocked" title="Unlocked by registering an account!">
+                  <i class="fas fa-user-check"></i>
+                  <p>Joined Hub</p>
+               </div>
+               <div class="badge-card" id="badge-html-master" title="Unlocked by finishing the HTML course!">
+                  <i class="fas fa-medal"></i>
+                  <p>HTML Master</p>
+               </div>
+               <div class="badge-card" id="badge-quiz-wizard" title="Unlock by passing any course assessment quiz!">
+                  <i class="fas fa-magic"></i>
+                  <p>Quiz Wizard</p>
+               </div>
+               <div class="badge-card" id="badge-top-commenter" title="Unlock by writing at least 3 comments!">
+                  <i class="fas fa-trophy"></i>
+                  <p>Wordsmith</p>
+               </div>
+            </div>
+            
+            <div style="margin-top: 3rem; text-align: center;">
+               <button id="claim-cert-btn" class="btn" style="display: none;">Generate HTML Certificate</button>
+            </div>
+         </div>
+      </div>
+   </div>
+
+</section>
+
+<!-- Certificate Modal -->
+<div class="modal-overlay" id="certificate-modal-overlay">
+   <div class="certificate-modal">
+      <i class="fas fa-times close-modal-btn" id="close-modal-btn"></i>
+      <div class="cert-border">
+         <div class="cert-title">Certificate of Completion</div>
+         <p class="cert-body">This is proudly presented to</p>
+         <div class="cert-recipient" id="cert-student-name">Harsh Singh</div>
+         <p class="cert-body">for successfully mastering the course curriculum of</p>
+         <div class="cert-body"><strong class="cert-course" id="cert-course-name">Complete HTML Course</strong></div>
+         <p class="cert-body">offered by RASH EduHub</p>
+         <div class="cert-footer">
+            <div>
+               <p>Date: <strong id="cert-date">May 2026</strong></p>
+            </div>
+            <div>
+               <div class="cert-sig">RASH EduHub Admin</div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+
+<footer class="footer">
+
+   &copy; copyright @ 2026 by <span>RASH EduHub</span> | all rights reserved!
+
+</footer>
+
+<!-- custom js file link  -->
+<script src="js/script.js"></script>
+<script src="js/dashboard.js"></script>
+   
+</body>
+</html>
+
