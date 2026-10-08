@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Edit Course - RASH EduHub Studio</title>
+
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+   <header class="header"></header>
+   <div class="side-bar"></div>
+
+   <section style="min-height: 85vh; padding: 4rem 2rem;">
+      <div class="glass-card" style="max-width: 80rem; margin: 0 auto; padding: 4rem 3rem; border-radius: 2.4rem;">
+         <h2 style="font-size: 2.8rem; margin-bottom: 0.8rem; text-align: center; background: var(--main-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            Edit & Manage Course
+         </h2>
+         <p style="font-size: 1.5rem; color: var(--light-color); text-align: center; margin-bottom: 3rem;">
+            Update course details, replace lesson videos, upload new notes, or reorder the playlist.
+         </p>
+
+         <form id="edit-course-form">
+            <div class="form-group">
+               <label>Course Title *</label>
+               <input type="text" name="title" class="form-input" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+               <div class="form-group">
+                  <label>Category</label>
+                  <select name="category" class="form-input">
+                     <option value="Development">Development</option>
+                     <option value="Python">Python & Data</option>
+                     <option value="DSA">DSA & Algorithms</option>
+                     <option value="Design">UI/UX Design</option>
+                  </select>
+               </div>
+
+               <div class="form-group">
+                  <label>Price</label>
+                  <input type="text" name="price" class="form-input" required>
+               </div>
+            </div>
+
+            <div class="form-group">
+               <label>Course Description *</label>
+               <textarea name="description" class="form-input" required style="min-height: 10rem;"></textarea>
+            </div>
+
+            <!-- Playlist & Lessons Manager -->
+            <div style="margin-top: 3rem; padding-top: 2rem; border-top: var(--border);">
+               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                  <h3 style="font-size: 2.2rem; margin: 0;">Playlist Lessons & Media</h3>
+                  <button type="button" id="add-lesson-btn" class="btn" style="width: auto;">
+                     <i class="fas fa-plus"></i> + Add New Lesson Video
+                  </button>
+               </div>
+
+               <div id="wizard-lessons-list" style="margin-bottom: 3rem;"></div>
+            </div>
+
+            <button type="submit" class="btn" style="font-size: 1.6rem; padding: 1.2rem;"><i class="fas fa-save"></i> Save Course Changes</button>
+         </form>
+      </div>
+   </section>
+
+   <!-- ADD/EDIT LESSON MODAL -->
+   <div id="lesson-modal" class="modal-overlay">
+      <div class="modal-content">
+         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h3 style="font-size: 2.2rem; margin: 0;">Add / Edit Lesson Video</h3>
+            <button id="close-modal-btn" class="chip" style="font-size: 1.4rem;"><i class="fas fa-times"></i></button>
+         </div>
+
+         <div class="form-group">
+            <label>Lesson Title *</label>
+            <input type="text" id="modal-lesson-title" class="form-input" placeholder="e.g., 01. Introduction & Setup" required>
+         </div>
+
+         <div class="form-group">
+            <label>Lesson Description</label>
+            <textarea id="modal-lesson-desc" class="form-input" placeholder="Brief explanation of what is covered in this lesson..." style="min-height: 8rem;"></textarea>
+         </div>
+
+         <div class="form-group">
+            <label>Video Duration (mm:ss)</label>
+            <input type="text" id="modal-lesson-duration" class="form-input" value="10:00" placeholder="10:00">
+         </div>
+
+         <div class="form-group" style="padding: 1.5rem; background: var(--light-bg); border-radius: 1rem;">
+            <label style="margin-bottom: 0.8rem;"><i class="fas fa-file-video" style="color: var(--main-color);"></i> Upload MP4/WebM Video File or Enter Video URL</label>
+            <input type="file" id="lesson-video-file" accept="video/mp4,video/webm,video/ogg" class="form-input" style="padding: 0.8rem; margin-bottom: 1rem;">
+            <input type="text" id="lesson-video-url" class="form-input" placeholder="Enter Video File Path / URL (e.g. assets/videos/lesson1.mp4 or https://...)">
+         </div>
+
+         <button type="button" id="save-lesson-btn" class="btn" style="margin-top: 1rem;"><i class="fas fa-save"></i> Save Lesson to Playlist</button>
+      </div>
+   </div>
+
+   <footer class="footer" style="text-align: center; padding: 3rem; background: var(--glass-bg); border-top: var(--border); margin-top: 5rem;">
+      <p style="font-size: 1.6rem; color: var(--light-color);">&copy; 2026 <strong>RASH EduHub</strong>. All rights reserved.</p>
+   </footer>
+
+   <!-- Core Services -->
+   <script src="../js/services/db.js"></script>
+   <script src="../js/services/authService.js"></script>
+   <script src="../js/services/courseService.js"></script>
+   <script src="../js/services/userService.js"></script>
+   <script src="../js/services/videoStorageService.js"></script>
+
+   <!-- Components -->
+   <script src="../js/theme.js"></script>
+   <script src="../js/components/navbar.js"></script>
+   <script src="../js/components/sidebar.js"></script>
+   <script src="../js/pages/teacherDashboard.js"></script>
+</body>
+</html>

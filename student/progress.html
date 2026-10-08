@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Progress & Certificates - RASH EduHub</title>
+
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+   <header class="header"></header>
+   <div class="side-bar"></div>
+
+   <section style="padding-top: 3rem;">
+      <h1 class="heading">My Progression & Rewards</h1>
+      
+      <!-- Stats Summary -->
+      <div class="stats-grid mb-lg">
+         <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(37, 99, 235, 0.1); color: var(--main-color);">
+               <i class="fas fa-fire"></i>
+            </div>
+            <div class="stat-value" id="progress-streak">7 Days</div>
+            <div class="stat-label">Active Streak</div>
+         </div>
+         <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(0, 210, 190, 0.1); color: var(--accent-color);">
+               <i class="fas fa-bolt"></i>
+            </div>
+            <div class="stat-value" id="progress-xp">1,750 XP</div>
+            <div class="stat-label">Total Points</div>
+         </div>
+         <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--orange);">
+               <i class="fas fa-award"></i>
+            </div>
+            <div class="stat-value" id="progress-badges">4 Badges</div>
+            <div class="stat-label">Achievements</div>
+         </div>
+         <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--green);">
+               <i class="fas fa-certificate"></i>
+            </div>
+            <div class="stat-value" id="progress-certs">1</div>
+            <div class="stat-label">Certificates</div>
+         </div>
+      </div>
+
+      <div class="dashboard-grid">
+         <!-- Left Side: Analytics Charts -->
+         <div class="chart-container">
+            <h3 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 1.5rem;"><i class="fas fa-chart-line" style="color: var(--main-color);"></i> Weekly Learning Activity</h3>
+            <div style="position: relative; height: 300px; width: 100%;">
+               <canvas id="weeklyActivityChart"></canvas>
+            </div>
+         </div>
+
+         <!-- Right Side: Achievements Grid -->
+         <div class="achievements-section">
+            <h3 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 2rem;"><i class="fas fa-trophy" style="color: var(--orange);"></i> Unlocked Badges</h3>
+            <div id="badges-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+               <!-- Rendered dynamically -->
+            </div>
+         </div>
+      </div>
+
+      <!-- Certificates Gallery Section -->
+      <div style="margin-top: 4rem;">
+         <h3 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;"><i class="fas fa-graduation-cap" style="color: var(--main-color);"></i> Certified Achievements</h3>
+         <div id="certificates-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(32rem, 1fr)); gap: 2rem;">
+            <!-- Rendered dynamically -->
+         </div>
+      </div>
+   </section>
+
+   <footer class="footer">
+      <p style="font-size: 1.5rem; color: var(--light-color);">&copy; 2026 <strong>RASH EduHub</strong>. All rights reserved.</p>
+   </footer>
+
+   <!-- Core Services -->
+   <script src="../js/services/db.js"></script>
+   <script src="../js/services/authService.js"></script>
+   <script src="../js/services/courseService.js"></script>
+   <script src="../js/services/userService.js"></script>
+   <script src="../js/services/gamificationService.js"></script>
+
+   <!-- Components -->
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   <script src="../js/theme.js"></script>
+   <script src="../js/components/navbar.js"></script>
+   <script src="../js/components/sidebar.js"></script>
+   <script src="../js/pages/studentDashboard.js"></script>
+</body>
+</html>

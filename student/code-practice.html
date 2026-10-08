@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Smart Code Grader Sandbox - RASH EduHub</title>
+
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <link rel="stylesheet" href="../css/style.css">
+   <style>
+      .editor-container {
+         height: 480px;
+         border: var(--border);
+         border-radius: var(--radius-lg);
+         overflow: hidden;
+         margin-bottom: 2rem;
+         background: #1e1e1e;
+      }
+      .console-log {
+         background: #0f172a;
+         color: #38bdf8;
+         font-family: 'Courier New', Courier, monospace;
+         padding: 1.5rem;
+         border-radius: var(--radius-md);
+         font-size: 1.35rem;
+         min-height: 120px;
+         max-height: 250px;
+         overflow-y: auto;
+         border: 1px solid #1e293b;
+      }
+      .ai-metric-badge {
+         padding: 0.6rem 1.2rem;
+         border-radius: 0.8rem;
+         font-size: 1.3rem;
+         font-weight: 700;
+         display: inline-flex;
+         align-items: center;
+         gap: 0.6rem;
+      }
+   </style>
+</head>
+<body>
+
+   <header class="header"></header>
+   <div class="side-bar"></div>
+
+   <section style="padding-top: 3rem;">
+      <h1 class="heading">Smart Code Grader Sandbox</h1>
+
+      <!-- Split Layout: Left for prompt/description, Right for Code Editor -->
+      <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 3rem; align-items: start;">
+         
+         <!-- Challenge Prompt & Descriptions -->
+         <div class="sidebar-panel">
+            <div class="panel-card">
+               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                  <span class="badge badge-primary" id="challenge-category">Algorithms</span>
+                  <span class="badge badge-success" id="challenge-diff">Easy</span>
+               </div>
+               
+               <h2 id="challenge-title" style="font-size: 2.2rem; margin-bottom: 1.5rem; color: var(--black);">Find Two Sum</h2>
+               
+               <div id="challenge-desc" style="font-size: 1.5rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 2rem;">
+                  <!-- Dynamically loaded -->
+               </div>
+
+               <h4 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.8rem; color: var(--black);">Constraints:</h4>
+               <ul id="challenge-constraints" style="list-style: disc; margin-left: 2rem; font-size: 1.35rem; color: var(--light-color); margin-bottom: 2rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                  <!-- Dynamically loaded -->
+               </ul>
+
+               <!-- Test Cases Tab Container -->
+               <div style="border-top: var(--border); padding-top: 1.5rem;">
+                  <h4 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 1.2rem; color: var(--black);"><i class="fas fa-vial" style="color: var(--main-color);"></i> Sample Test Cases</h4>
+                  <div id="challenge-testcases" style="display: flex; flex-direction: column; gap: 1rem;">
+                     <!-- Dynamically loaded -->
+                  </div>
+               </div>
+            </div>
+
+            <!-- Challenge Submissions List -->
+            <div class="panel-card">
+               <h3 style="font-size: 1.7rem; margin-bottom: 1.5rem;"><i class="fas fa-history" style="color: var(--accent-color);"></i> Submission History</h3>
+               <div id="submission-history" style="display: flex; flex-direction: column; gap: 1rem; max-height: 20rem; overflow-y: auto;">
+                  <!-- Rendered dynamically -->
+               </div>
+            </div>
+         </div>
+
+         <!-- Editor Sandbox Console -->
+         <div>
+            <!-- Code config control header -->
+            <div class="glass-card" style="padding: 1.5rem; border-radius: var(--radius-lg) var(--radius-lg) 0 0; border-bottom: none; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+               <div style="display: flex; align-items: center; gap: 1rem;">
+                  <i class="fas fa-laptop-code" style="font-size: 1.8rem; color: var(--main-color);"></i>
+                  <select id="editor-lang" class="form-input" style="width: auto; padding: 0.6rem 1.2rem; font-size: 1.35rem;">
+                     <option value="python">Python</option>
+                     <option value="javascript">JavaScript</option>
+                     <option value="java">Java</option>
+                     <option value="cpp">C++</option>
+                  </select>
+               </div>
+
+               <div class="flex-btn" style="width: auto; gap: 0.8rem;">
+                  <button id="btn-run" class="ghost-btn" style="padding: 0.8rem 1.4rem; font-size: 1.3rem;"><i class="fas fa-play"></i> Run</button>
+                  <button id="btn-ai-eval" class="option-btn" style="padding: 0.8rem 1.4rem; font-size: 1.3rem; background: var(--main-gradient); color: #fff; border: none;"><i class="fas fa-brain"></i> AI Analysis</button>
+                  <button id="btn-submit" class="btn" style="width: auto; padding: 0.8rem 1.8rem; font-size: 1.3rem;"><i class="fas fa-cloud-upload-alt"></i> Submit</button>
+               </div>
+            </div>
+
+            <!-- Monaco Editor Embed -->
+            <div class="editor-container" id="monaco-container"></div>
+
+            <!-- AI Evaluation Panel -->
+            <div id="ai-eval-panel" class="panel-card" style="display: none; border-left: 4px solid var(--main-color); margin-bottom: 2rem;">
+               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                  <h3 style="font-size: 1.8rem; color: var(--black); margin: 0;"><i class="fas fa-microchip" style="color: var(--main-color);"></i> AI Smart Code Analysis Result</h3>
+                  <span id="ai-eval-quality-badge" class="badge badge-primary">Quality: 88.0%</span>
+               </div>
+
+               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                  <div style="background: var(--light-bg); padding: 1.2rem; border-radius: 0.8rem;">
+                     <span style="font-size: 1.2rem; color: var(--light-color); display: block;">Time Complexity:</span>
+                     <span id="ai-time-comp" class="ai-metric-badge" style="background: rgba(139, 92, 246, 0.15); color: var(--main-color); margin-top: 0.4rem;">
+                        <i class="fas fa-stopwatch"></i> O(n)
+                     </span>
+                  </div>
+
+                  <div style="background: var(--light-bg); padding: 1.2rem; border-radius: 0.8rem;">
+                     <span style="font-size: 1.2rem; color: var(--light-color); display: block;">Space Complexity:</span>
+                     <span id="ai-space-comp" class="ai-metric-badge" style="background: rgba(59, 130, 246, 0.15); color: var(--accent-color); margin-top: 0.4rem;">
+                        <i class="fas fa-database"></i> O(n)
+                     </span>
+                  </div>
+               </div>
+
+               <!-- Logic Flaws & Actionable Feedback -->
+               <div id="ai-flaws-section" style="margin-bottom: 1.5rem; display: none;">
+                  <h4 style="font-size: 1.4rem; font-weight: 700; color: var(--red); margin-bottom: 0.8rem;"><i class="fas fa-triangle-exclamation"></i> Potential Flaws Detected:</h4>
+                  <ul id="ai-flaws-list" style="list-style: disc; margin-left: 2rem; font-size: 1.3rem; color: var(--text-secondary);"></ul>
+               </div>
+
+               <div>
+                  <h4 style="font-size: 1.4rem; font-weight: 700; color: var(--black); margin-bottom: 0.8rem;"><i class="fas fa-lightbulb" style="color: gold;"></i> Actionable Feedback:</h4>
+                  <ul id="ai-feedback-list" style="list-style: check; margin-left: 2rem; font-size: 1.3rem; color: var(--light-color);"></ul>
+               </div>
+            </div>
+
+            <!-- Terminal Outputs -->
+            <div class="panel-card">
+               <h4 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 1.2rem; color: var(--black);"><i class="fas fa-terminal" style="color: var(--placeholder-color);"></i> Execution Console</h4>
+               <div class="console-log" id="console-output">Waiting for code execution...</div>
+               
+               <!-- Test Assertions Results List -->
+               <div id="test-results-panel" style="margin-top: 1.5rem; display: none;">
+                  <h4 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: var(--black);">Assertion Details:</h4>
+                  <div id="test-results-list" style="display: flex; flex-direction: column; gap: 0.8rem;"></div>
+               </div>
+            </div>
+         </div>
+
+      </div>
+   </section>
+
+   <footer class="footer">
+      <p style="font-size: 1.5rem; color: var(--light-color);">&copy; 2026 <strong>RASH EduHub</strong>. All rights reserved.</p>
+   </footer>
+
+   <!-- Core Services -->
+   <script src="../js/services/db.js"></script>
+   <script src="../js/services/authService.js"></script>
+   <script src="../js/services/courseService.js"></script>
+   <script src="../js/services/userService.js"></script>
+   <script src="../js/services/codeGraderService.js"></script>
+   <script src="../js/services/aiService.js"></script>
+
+   <!-- Monaco Editor Loader -->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs/loader.min.js"></script>
+
+   <!-- Components -->
+   <script src="../js/theme.js"></script>
+   <script src="../js/components/navbar.js"></script>
+   <script src="../js/components/sidebar.js"></script>
+
+   <!-- Code Grader controller logic -->
+   <script>
+      let editor = null;
+      let activeChallenge = null;
+
+      document.addEventListener('DOMContentLoaded', async () => {
+         const challenges = await CodeGraderService.getChallenges();
+         activeChallenge = challenges[0];
+
+         renderChallengeDetails(activeChallenge);
+         initMonacoEditor(activeChallenge);
+         bindCodeActionEvents();
+         renderSubmissionHistory();
+      });
+
+      function renderChallengeDetails(ch) {
+         if (!ch) return;
+         document.querySelector('#challenge-title').textContent = ch.title;
+         document.querySelector('#challenge-category').textContent = ch.category;
+         document.querySelector('#challenge-diff').textContent = ch.difficulty;
+         document.querySelector('#challenge-desc').innerHTML = ch.description;
+
+         const constraintsList = document.querySelector('#challenge-constraints');
+         constraintsList.innerHTML = ch.constraints.map(c => `<li>${c}</li>`).join('');
+
+         const tcList = document.querySelector('#challenge-testcases');
+         tcList.innerHTML = ch.testCases.filter(t => !t.isHidden).map((t, idx) => `
+            <div style="background: var(--light-bg); padding: 1.2rem; border-radius: 0.8rem; font-size: 1.3rem;">
+               <strong style="display: block; margin-bottom: 0.4rem; color: var(--black);">Test Case ${idx + 1}</strong>
+               <p style="color: var(--light-color);">Input: <code>${t.input}</code></p>
+               <p style="color: var(--light-color);">Expected Output: <code>${t.expected}</code></p>
+            </div>
+         `).join('');
+      }
+
+      function initMonacoEditor(ch) {
+         if (!ch) return;
+         require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' } });
+         require(['vs/editor/editor.main'], function () {
+            const defaultLang = 'python';
+            const starterCode = (ch.starterCode && ch.starterCode[defaultLang]) || 'def twoSum(nums, target):\n    return []';
+            const isDark = document.body.classList.contains('dark');
+
+            editor = monaco.editor.create(document.getElementById('monaco-container'), {
+               value: starterCode,
+               language: defaultLang,
+               theme: isDark ? 'vs-dark' : 'vs',
+               automaticLayout: true,
+               fontSize: 14,
+               tabSize: 4,
+               minimap: { enabled: false }
+            });
+
+            const langSelect = document.querySelector('#editor-lang');
+            langSelect.addEventListener('change', (e) => {
+               const lang = e.target.value;
+               const newCode = (ch.starterCode && ch.starterCode[lang]) || '';
+               const model = editor.getModel();
+               monaco.editor.setModelLanguage(model, lang);
+               editor.setValue(newCode);
+            });
+         });
+      }
+
+      function bindCodeActionEvents() {
+         const runBtn = document.querySelector('#btn-run');
+         const aiBtn = document.querySelector('#btn-ai-eval');
+         const submitBtn = document.querySelector('#btn-submit');
+         const outputConsole = document.querySelector('#console-output');
+         const resultsPanel = document.querySelector('#test-results-panel');
+         const resultsList = document.querySelector('#test-results-list');
+
+         if (!runBtn || !submitBtn) return;
+
+         runBtn.addEventListener('click', async () => {
+            if (!editor) return;
+            const code = editor.getValue();
+            const lang = document.querySelector('#editor-lang').value;
+            
+            outputConsole.textContent = 'Running test suites inside sandbox environment...';
+            resultsPanel.style.display = 'none';
+
+            const res = await CodeGraderService.runCode(activeChallenge.id, lang, code);
+            if (res.success) {
+               outputConsole.innerHTML = res.logs.join('<br>') + `<br><span style="color: #4ade80;">[Sandbox Execution finished with Score: ${res.score}/100</span>`;
+               
+               resultsPanel.style.display = 'block';
+               resultsList.innerHTML = res.testResults.map((tr, idx) => {
+                  const icon = tr.passed ? 'fa-check-circle' : 'fa-times-circle';
+                  const color = tr.passed ? 'var(--green)' : 'var(--red)';
+                  const label = tr.isHidden ? `Test Case ${idx + 1} (Hidden)` : `Test Case ${idx + 1}`;
+
+                  return `
+                     <div style="background: var(--light-bg); border-left: 3px solid ${color}; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; font-size: 1.3rem;">
+                        <div>
+                           <strong style="color: var(--black);">${label}</strong>
+                           ${!tr.isHidden ? `<p style="color: var(--light-color); font-size: 1.15rem; margin-top: 0.2rem;">Input: ${tr.input} | Expected: ${tr.expected} | Got: ${tr.output}</p>` : ''}
+                        </div>
+                        <i class="fas ${icon}" style="color: ${color}; font-size: 1.6rem;"></i>
+                     </div>
+                  `;
+               }).join('');
+            }
+         });
+
+         if (aiBtn) {
+            aiBtn.addEventListener('click', async () => {
+               if (!editor) return;
+               const code = editor.getValue();
+               const lang = document.querySelector('#editor-lang').value;
+
+               outputConsole.textContent = 'Analyzing source code structure, AST, and Big-O complexity via AI Evaluator...';
+               if (window.Toast) window.Toast.info('Analyzing code structure & AST...', 'AI Grader');
+
+               const aiRes = await AIService.evaluateCode({
+                  code,
+                  language: lang,
+                  problemDescription: activeChallenge ? activeChallenge.description : '',
+                  testCases: activeChallenge ? activeChallenge.testCases : []
+               });
+
+               const aiPanel = document.querySelector('#ai-eval-panel');
+               aiPanel.style.display = 'block';
+               document.querySelector('#ai-eval-quality-badge').textContent = `Quality Score: ${aiRes.code_quality_score}%`;
+               document.querySelector('#ai-time-comp').innerHTML = `<i class="fas fa-stopwatch"></i> ${aiRes.time_complexity}`;
+               document.querySelector('#ai-space-comp').innerHTML = `<i class="fas fa-database"></i> ${aiRes.space_complexity}`;
+
+               const flawsSection = document.querySelector('#ai-flaws-section');
+               const flawsList = document.querySelector('#ai-flaws-list');
+               if (aiRes.logic_flaws && aiRes.logic_flaws.length > 0) {
+                  flawsSection.style.display = 'block';
+                  flawsList.innerHTML = aiRes.logic_flaws.map(f => `<li>Line ${f.line || 'N/A'}: [${f.type}] ${f.description}</li>`).join('');
+               } else {
+                  flawsSection.style.display = 'none';
+               }
+
+               const feedbackList = document.querySelector('#ai-feedback-list');
+               feedbackList.innerHTML = (aiRes.actionable_feedback || ['Code looks clean and optimal.']).map(fb => `<li>${fb}</li>`).join('');
+
+               outputConsole.innerHTML = `<span style="color: #38bdf8;">[AI Evaluator Complete] Time Complexity: ${aiRes.time_complexity} &bull; Space: ${aiRes.space_complexity} &bull; Quality Score: ${aiRes.code_quality_score}/100</span>`;
+            });
+         }
+
+         submitBtn.addEventListener('click', async () => {
+            if (!editor) return;
+            const code = editor.getValue();
+            const lang = document.querySelector('#editor-lang').value;
+
+            outputConsole.textContent = 'Submitting code and generating score logs...';
+            resultsPanel.style.display = 'none';
+
+            const res = await CodeGraderService.submitCode(activeChallenge.id, lang, code);
+            if (res.success) {
+               outputConsole.innerHTML = `[Docker Sandbox] Submission accepted!<br><span style="color: #4ade80;">Status: ${res.submission.status} &bull; Score: ${res.submission.score}/100</span>`;
+               
+               if (window.Toast) {
+                  if (res.submission.score === 100) {
+                     window.Toast.success(`Challenge solved! Score: 100/100`, 'Accepted');
+                  } else {
+                     window.Toast.warning(`Solution failed some test cases. Score: ${res.submission.score}/100`, 'Incorrect');
+                  }
+               }
+
+               renderSubmissionHistory();
+            }
+         });
+      }
+
+      async function renderSubmissionHistory() {
+         const container = document.querySelector('#submission-history');
+         if (!container || !activeChallenge) return;
+
+         const list = await CodeGraderService.getSubmissions(activeChallenge.id);
+         if (!list || list.length === 0) {
+            container.innerHTML = `<p style="font-size: 1.25rem; color: var(--light-color); text-align: center; padding: 1.5rem;">No submissions yet.</p>`;
+            return;
+         }
+
+         container.innerHTML = list.map(s => {
+            const isAccepted = s.status === 'Accepted';
+            const color = isAccepted ? 'var(--green)' : 'var(--red)';
+            const timeStr = new Date(s.createdAt || s.submittedAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            return `
+               <div style="background: var(--light-bg); border-radius: 0.8rem; padding: 1rem 1.2rem; display: flex; justify-content: space-between; align-items: center; font-size: 1.3rem;">
+                  <div>
+                     <strong style="color: ${color};">${s.status}</strong>
+                     <span style="font-size: 1.15rem; color: var(--light-color); display: block;">Lang: ${s.language.toUpperCase()} &bull; Score: ${s.score}%</span>
+                  </div>
+                  <span style="font-size: 1.15rem; color: var(--light-color);">${timeStr}</span>
+               </div>
+            `;
+         }).join('');
+      }
+   </script>
+</body>
+</html>

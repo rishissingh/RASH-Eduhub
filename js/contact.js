@@ -1,22 +1,44 @@
 document.addEventListener('DOMContentLoaded', () => {
    const contactForm = document.getElementById('contact-form');
+   if (!contactForm) return;
 
    contactForm.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      const name = contactForm.querySelector('input[name="name"]').value.trim();
-      const email = contactForm.querySelector('input[name="email"]').value.trim();
-      const number = contactForm.querySelector('input[name="number"]').value.trim();
-      const msg = contactForm.querySelector('textarea[name="msg"]').value.trim();
+      const nameInput = contactForm.querySelector('input[name="name"]');
+      const emailInput = contactForm.querySelector('input[name="email"]');
+      const msgInput = contactForm.querySelector('textarea[name="msg"]');
 
-      if (!name || !email || !number || !msg) {
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      const message = msgInput.value.trim();
+
+      if (!name || !email || !message) {
          showToast("Please fill in all fields!", "error");
          return;
       }
 
-      // Simulate sending
-      showToast(`Thank you, ${name}! Your message has been sent successfully.`, "success");
-      contactForm.reset();
+      // Send to Express API
+      fetch('http://localhost:5000/api/contact', {
+         method: 'POST',
+         headers: {
+            'Content-Type': 'application/json'
+         },
+         body: JSON.stringify({ name, email, message })
+      })
+      .then(response => response.json())
+      .then(data => {
+         if (data.success) {
+            showToast(data.message || `Thank you, ${name}! Your message has been sent successfully.`, "success");
+            contactForm.reset();
+         } else {
+            showToast(data.message || "Failed to send message. Please try again.", "error");
+         }
+      })
+      .catch(err => {
+         console.error('Contact Form error:', err);
+         showToast("Network error. Please try again later.", "error");
+      });
    });
 
    function showToast(message, type = "success") {

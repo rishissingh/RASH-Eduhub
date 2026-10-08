@@ -1,0 +1,12 @@
+# RASH EduHub — Root AI Microservices Requirements
+opencv-python>=4.8.0
+mediapipe>=0.10.9
+numpy>=1.24.0
+pynput>=1.7.6
+requests>=2.31.0
+flask>=3.0.0
+flask-cors>=4.0.0
+fastapi>=0.109.0
+uvicorn>=0.27.0
+pydantic>=2.6.0
+scikit-learn>=1.3.0

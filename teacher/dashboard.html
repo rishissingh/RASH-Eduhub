@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Teacher Studio - RASH EduHub</title>
+
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+   <header class="header"></header>
+   <div class="side-bar"></div>
+
+   <section style="padding-top: 3rem; padding-bottom: 1rem;">
+      <div id="teacher-welcome-banner"></div>
+   </section>
+
+   <section style="padding-top: 1rem;">
+      <div class="home-grid">
+         <div class="box-container" id="teacher-stats-grid"></div>
+      </div>
+   </section>
+
+   <section class="courses">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+         <h1 class="heading" style="margin-bottom: 0;">My Published Courses</h1>
+         <a href="create-course.html" class="inline-btn"><i class="fas fa-plus"></i> Create Course</a>
+      </div>
+      <div class="box-container" id="teacher-courses-grid"></div>
+   </section>
+
+   <footer class="footer" style="text-align: center; padding: 3rem; background: var(--glass-bg); border-top: var(--border); margin-top: 5rem;">
+      <p style="font-size: 1.6rem; color: var(--light-color);">&copy; 2026 <strong>RASH EduHub</strong>. All rights reserved.</p>
+   </footer>
+
+   <!-- Core Services -->
+   <script src="../js/services/db.js"></script>
+   <script src="../js/services/authService.js"></script>
+   <script src="../js/services/courseService.js"></script>
+   <script src="../js/services/userService.js"></script>
+
+   <!-- Components -->
+   <script src="../js/theme.js"></script>
+   <script src="../js/components/navbar.js"></script>
+   <script src="../js/components/sidebar.js"></script>
+   <script src="../js/pages/teacherDashboard.js"></script>
+</body>
+</html>

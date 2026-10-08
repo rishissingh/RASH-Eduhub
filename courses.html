@@ -4,254 +4,77 @@
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>courses</title>
+   <title>Explore Courses - RASH EduHub</title>
 
-   <!-- font awesome cdn link  -->
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
-
-   <!-- custom css file link  -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
    <link rel="stylesheet" href="css/style.css">
-
 </head>
 <body>
 
-<header class="header">
-   
-   <section class="flex">
+   <header class="header"></header>
+   <div class="side-bar"></div>
 
-      <a href="index.html" class="logo">RASH EduHub</a>
+   <section class="courses">
+      <h1 class="heading">Explore Premium Courses</h1>
 
-      <form action="courses.html" method="get" class="search-form">
-         <input type="text" name="search_box" required placeholder="search courses..." maxlength="100">
-         <button type="submit" class="fas fa-search"></button>
-      </form>
+      <!-- Search & Filter Controls -->
+      <div class="glass-card" style="padding: 2.5rem; margin-bottom: 3.5rem; border-radius: 2rem;">
+         <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2rem;">
+            <div style="flex: 1 1 30rem; position: relative;">
+               <input type="text" id="course-search-input" class="form-input" placeholder="Search courses, topics, or teachers..." style="padding-left: 4.5rem;">
+               <i class="fas fa-search" style="position: absolute; left: 1.8rem; top: 50%; transform: translateY(-50%); font-size: 1.8rem; color: var(--light-color);"></i>
+            </div>
 
-      <div class="icons">
-         <div id="menu-btn" class="fas fa-bars"></div>
-         <div id="search-btn" class="fas fa-search"></div>
-         <div id="user-btn" class="fas fa-user"></div>
-         <div id="toggle-btn" class="fas fa-sun"></div>
-      </div>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+               <select id="filter-level" class="form-input" style="width: auto;">
+                  <option value="All">All Skill Levels</option>
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+               </select>
 
-      <div class="profile">
-         <img src="images/pic-1.jpg" class="image" alt="">
-         <h3 class="name">Adarsh Tiwari</h3>
-         <p class="role">Student</p>
-         <a href="profile.html" class="btn">view profile</a>
-         <div class="flex-btn">
-            <a href="login.html" class="option-btn">login</a>
-            <a href="register.html" class="option-btn">register</a>
+               <select id="filter-price" class="form-input" style="width: auto;">
+                  <option value="All">All Prices</option>
+                  <option value="Free">Free Courses</option>
+                  <option value="Paid">Paid Courses</option>
+               </select>
+
+               <select id="filter-sort" class="form-input" style="width: auto;">
+                  <option value="popular">Sort by Popularity</option>
+                  <option value="rating">Sort by Top Rated</option>
+                  <option value="newest">Sort by Newest</option>
+               </select>
+            </div>
+         </div>
+
+         <!-- Category Filter Chips -->
+         <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button class="chip category-chip active" data-category="All">All Categories</button>
+            <button class="chip category-chip" data-category="Development">Development</button>
+            <button class="chip category-chip" data-category="Python">Python & Data</button>
+            <button class="chip category-chip" data-category="DSA">DSA & Coding</button>
+            <button class="chip category-chip" data-category="Design">UI/UX Design</button>
          </div>
       </div>
 
+      <!-- Courses Catalog Grid -->
+      <div class="box-container" id="courses-catalog-grid"></div>
    </section>
 
-</header>   
+   <footer class="footer" style="text-align: center; padding: 3rem; background: var(--glass-bg); border-top: var(--border); margin-top: 5rem;">
+      <p style="font-size: 1.6rem; color: var(--light-color);">&copy; 2026 <strong>RASH EduHub</strong>. All rights reserved.</p>
+   </footer>
 
-<div class="side-bar">
+   <!-- Core Services -->
+   <script src="js/services/db.js"></script>
+   <script src="js/services/authService.js"></script>
+   <script src="js/services/courseService.js"></script>
+   <script src="js/services/userService.js"></script>
 
-   <div id="close-btn">
-      <i class="fas fa-times"></i>
-   </div>
-
-   <div class="profile">
-      <img src="images/pic-1.jpg" class="image" alt="">
-      <h3 class="name">Rishi Singh</h3>
-      <p class="role">Student</p>
-      <a href="profile.html" class="btn">view profile</a>
-   </div>
-
-   <nav class="navbar">
-      <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
-      <a href="about.html"><i class="fas fa-question"></i><span>About</span></a>
-      <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>Courses</span></a>
-      <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>Teachers</span></a>
-      <a href="contact.html"><i class="fas fa-headset"></i><span>Contact Us</span></a>
-      <a href="creator.html"><i class="fas fa-video"></i><span>Creator Studio</span></a>
-   </nav>
-
-</div>
-
-<section class="courses">
-
-   <h1 class="heading">Our Courses</h1>
-
-   <div class="filter-section">
-      <div class="filter-chips" id="filter-chips">
-         <span class="chip active" data-category="all">All Courses</span>
-         <span class="chip" data-category="html">HTML</span>
-         <span class="chip" data-category="css">CSS</span>
-         <span class="chip" data-category="javascript">JavaScript</span>
-         <span class="chip" data-category="bootstrap">Bootstrap</span>
-         <span class="chip" data-category="jquery">jQuery</span>
-         <span class="chip" data-category="sass">SASS</span>
-         <span class="chip" data-category="php">PHP</span>
-         <span class="chip" data-category="mysql">MySQL</span>
-         <span class="chip" data-category="react">React</span>
-      </div>
-   </div>
-
-   <div class="box-container" id="courses-grid">
-
-      <div class="box" data-category="html">
-         <div class="tutor">
-            <img src="images/pic-2.jpg" alt="">
-            <div class="info">
-               <h3>HK Singh</h3>
-               <span>21-10-2022</span>
-            </div>
-         </div>
-         <div class="thumb">
-            <img src="images/thumb-1.png" alt="">
-            <span>10 videos</span>
-         </div>
-         <h3 class="title">complete HTML tutorial</h3>
-         <a href="playlist.html" class="inline-btn">view playlist</a>
-      </div>
-
-      <div class="box" data-category="css">
-         <div class="tutor">
-            <img src="images/pic-3.jpg" alt="">
-            <div class="info">
-               <h3>SV Sir</h3>
-               <span>21-10-2022</span>
-            </div>
-         </div>
-         <div class="thumb">
-            <img src="images/thumb-2.png" alt="">
-            <span>10 videos</span>
-         </div>
-         <h3 class="title">complete CSS tutorial</h3>
-         <a href="playlist.html" class="inline-btn">view playlist</a>
-      </div>
-
-      <div class="box" data-category="javascript">
-         <div class="tutor">
-            <img src="images/pic-4.jpg" alt="">
-            <div class="info">
-               <h3>AD Tiwari</h3>
-               <span>21-10-2022</span>
-            </div>
-         </div>
-         <div class="thumb">
-            <img src="images/thumb-3.png" alt="">
-            <span>10 videos</span>
-         </div>
-         <h3 class="title">complete JS tutorial</h3>
-         <a href="playlist.html" class="inline-btn">view playlist</a>
-      </div>
-
-      <div class="box" data-category="bootstrap">
-         <div class="tutor">
-            <img src="images/pic-5.jpg" alt="">
-            <div class="info">
-               <h3>Priyanshu Sir</h3>
-               <span>21-10-2022</span>
-            </div>
-         </div>
-         <div class="thumb">
-            <img src="images/thumb-4.png" alt="">
-            <span>10 videos</span>
-         </div>
-         <h3 class="title">complete Boostrap tutorial</h3>
-         <a href="playlist.html" class="inline-btn">view playlist</a>
-      </div>
-
-      <div class="box" data-category="jquery">
-         <div class="tutor">
-            <img src="images/pic-6.jpg" alt="">
-            <div class="info">
-               <h3>RS Sir</h3>
-               <span>21-10-2022</span>
-            </div>
-         </div>
-         <div class="thumb">
-            <img src="images/thumb-5.png" alt="">
-            <span>10 videos</span>
-         </div>
-         <h3 class="title">complete JQuery tutorial</h3>
-         <a href="playlist.html" class="inline-btn">view playlist</a>
-      </div>
-
-      <div class="box" data-category="sass">
-         <div class="tutor">
-            <img src="images/pic-7.jpg" alt="">
-            <div class="info">
-               <h3>HK Singh</h3>
-               <span>21-10-2022</span>
-            </div>
-         </div>
-         <div class="thumb">
-            <img src="images/thumb-6.png" alt="">
-            <span>10 videos</span>
-         </div>
-         <h3 class="title">complete SASS tutorial</h3>
-         <a href="playlist.html" class="inline-btn">view playlist</a>
-      </div>
-
-      <div class="box" data-category="php">
-         <div class="tutor">
-            <img src="images/pic-8.jpg" alt="">
-            <div class="info">
-               <h3>HK Singh</h3>
-               <span>21-10-2022</span>
-            </div>
-         </div>
-         <div class="thumb">
-            <img src="images/thumb-7.png" alt="">
-            <span>10 videos</span>
-         </div>
-         <h3 class="title">complete PHP tutorial</h3>
-         <a href="playlist.html" class="inline-btn">view playlist</a>
-      </div>
-
-      <div class="box" data-category="mysql">
-         <div class="tutor">
-            <img src="images/pic-9.jpg" alt="">
-            <div class="info">
-               <h3>RS Sir</h3>
-               <span>21-10-2022</span>
-            </div>
-         </div>
-         <div class="thumb">
-            <img src="images/thumb-8.png" alt="">
-            <span>10 videos</span>
-         </div>
-         <h3 class="title">complete MySQL tutorial</h3>
-         <a href="playlist.html" class="inline-btn">view playlist</a>
-      </div>
-
-      <div class="box" data-category="react">
-         <div class="tutor">
-            <img src="images/pic-1.jpg" alt="">
-            <div class="info">
-               <h3>HK Singh</h3>
-               <span>21-10-2022</span>
-            </div>
-         </div>
-         <div class="thumb">
-            <img src="images/thumb-9.png" alt="">
-            <span>10 videos</span>
-         </div>
-         <h3 class="title">complete react tutorial</h3>
-         <a href="playlist.html" class="inline-btn">view playlist</a>
-      </div>
-
-   </div>
-
-</section>
-
-<footer class="footer">
-
-   &copy; copyright @ 2026 by <span>RASH EduHub</span> | all rights reserved!
-
-</footer>
-
-<!-- custom js file link  -->
-<script src="js/script.js"></script>
-<script src="js/courses.js"></script>
-
-   
+   <!-- Components -->
+   <script src="js/theme.js"></script>
+   <script src="js/components/navbar.js"></script>
+   <script src="js/components/sidebar.js"></script>
+   <script src="js/pages/coursesPage.js"></script>
 </body>
 </html>
-

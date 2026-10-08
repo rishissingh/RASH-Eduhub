@@ -4,162 +4,43 @@
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>watch</title>
+   <title>Watch Lesson Video - RASH EduHub</title>
 
-   <!-- font awesome cdn link  -->
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
-
-   <!-- custom css file link  -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
    <link rel="stylesheet" href="css/style.css">
-
+   <script>
+      // Redirect seamlessly to the modern student learning interface while preserving query params
+      const currentParams = window.location.search;
+      window.location.href = 'student/watch-video.html' + currentParams;
+   </script>
 </head>
 <body>
 
-<header class="header">
-   
-   <section class="flex">
+   <header class="header"></header>
+   <div class="side-bar"></div>
 
-      <a href="index.html" class="logo">RASH EduHub</a>
-
-      <form action="courses.html" method="get" class="search-form">
-         <input type="text" name="search_box" required placeholder="search courses..." maxlength="100">
-         <button type="submit" class="fas fa-search"></button>
-      </form>
-
-      <div class="icons">
-         <div id="menu-btn" class="fas fa-bars"></div>
-         <div id="search-btn" class="fas fa-search"></div>
-         <div id="user-btn" class="fas fa-user"></div>
-         <div id="toggle-btn" class="fas fa-sun"></div>
+   <section style="min-height: 70vh; display: flex; align-items: center; justify-content: center; padding: 4rem;">
+      <div class="glass-card text-center" style="padding: 4rem; max-width: 50rem;">
+         <i class="fas fa-spinner fa-spin" style="font-size: 4rem; color: var(--main-color); margin-bottom: 2rem;"></i>
+         <h3 style="font-size: 2.2rem; margin-bottom: 1rem;">Redirecting to Learning Workspace...</h3>
+         <p style="font-size: 1.5rem; color: var(--light-color);">Loading interactive video player and Groq AI Assistant.</p>
+         <a href="student/watch-video.html" class="inline-btn" style="margin-top: 2rem;">Click here if not redirected</a>
       </div>
-
-      <div class="profile">
-         <img src="images/pic-1.jpg" class="image" alt="">
-         <h3 class="name">Harsh Singh</h3>
-         <p class="role">Student</p>
-         <a href="profile.html" class="btn">view profile</a>
-         <div class="flex-btn">
-            <a href="login.html" class="option-btn">login</a>
-            <a href="register.html" class="option-btn">register</a>
-         </div>
-      </div>
-
    </section>
 
-</header>   
+   <footer class="footer" style="text-align: center; padding: 3rem; background: var(--glass-bg); border-top: var(--border); margin-top: 5rem;">
+      <p style="font-size: 1.6rem; color: var(--light-color);">&copy; 2026 <strong>RASH EduHub</strong>. All rights reserved.</p>
+   </footer>
 
-<div class="side-bar">
+   <!-- Core Services -->
+   <script src="js/services/db.js"></script>
+   <script src="js/services/authService.js"></script>
+   <script src="js/services/courseService.js"></script>
+   <script src="js/services/userService.js"></script>
 
-   <div id="close-btn">
-      <i class="fas fa-times"></i>
-   </div>
-
-   <div class="profile">
-      <img src="images/pic-1.jpg" class="image" alt="">
-      <h3 class="name">Rishi Singh</h3>
-      <p class="role">Student</p>
-      <a href="profile.html" class="btn">view profile</a>
-   </div>
-
-   <nav class="navbar">
-      <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
-      <a href="about.html"><i class="fas fa-question"></i><span>About</span></a>
-      <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>Courses</span></a>
-      <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>Teachers</span></a>
-      <a href="contact.html"><i class="fas fa-headset"></i><span>Contact Us</span></a>
-      <a href="creator.html"><i class="fas fa-video"></i><span>Creator Studio</span></a>
-   </nav>
-
-</div>
-
-<section class="watch-video">
-
-   <div class="video-layout">
-      <div class="video-container">
-         <div class="video">
-            <video src="images/vid-1.mp4" controls poster="images/post-1-1.png" id="video-player"></video>
-         </div>
-         <h3 class="title" id="video-title">Complete HTML Tutorial (Part 01)</h3>
-         <div class="info">
-            <p class="date"><i class="fas fa-calendar"></i><span>22-10-2022</span></p>
-            <p class="likes-count"><i class="fas fa-heart"></i><span id="likes-number">44</span> likes</p>
-         </div>
-         <div class="tutor">
-            <img src="images/pic-2.jpg" alt="" id="tutor-image">
-            <div>
-               <h3 id="tutor-name">HK Singh</h3>
-               <span>Web Developer</span>
-            </div>
-         </div>
-         <div class="flex">
-            <a href="playlist.html" class="inline-btn">view playlist</a>
-            <button class="inline-option-btn" id="like-video-btn"><i class="far fa-heart"></i><span>like</span></button>
-         </div>
-         <p class="description">
-           Choose RASH EduHub for personalized, flexible, and engaging learning that empowers you to succeed anytime, anywhere.
-         </p>
-      </div>
-
-      <div class="sidebar-panel">
-         <div class="panel-card">
-            <div class="panel-tabs">
-               <div class="panel-tab active" id="tab-notes">Notes</div>
-               <div class="panel-tab" id="tab-quiz">Quiz</div>
-            </div>
-            
-            <div class="tab-content" id="notes-section">
-               <div class="notes-container" id="notes-list">
-                  <!-- Loaded dynamically -->
-               </div>
-               <div class="notes-input-box">
-                  <textarea id="note-input" placeholder="Type a note..."></textarea>
-                  <button class="btn" id="add-note-btn"><i class="fas fa-plus"></i> Add Note at <span id="current-time-display">00:00</span></button>
-               </div>
-            </div>
-
-            <div class="tab-content" id="quiz-section" style="display: none;">
-               <div class="quiz-box">
-                  <div class="quiz-question" id="quiz-question">Loading Quiz...</div>
-                  <div class="quiz-options" id="quiz-options">
-                     <!-- Options loaded dynamically -->
-                  </div>
-                  <button class="btn" id="quiz-action-btn">Submit Answer</button>
-               </div>
-            </div>
-         </div>
-      </div>
-   </div>
-
-</section>
-
-<section class="comments">
-
-   <h1 class="heading"><span id="comment-count">0</span> comments</h1>
-
-   <form action="" class="add-comment" id="add-comment-form">
-      <h3>add comments</h3>
-      <textarea id="comment-input" placeholder="enter your comment" required maxlength="1000" cols="30" rows="10"></textarea>
-      <input type="submit" value="add comment" class="inline-btn">
-   </form>
-
-   <h1 class="heading">user comments</h1>
-
-   <div class="box-container" id="comments-list">
-      <!-- Loaded dynamically -->
-   </div>
-
-</section>
-
-<footer class="footer">
-
-   &copy; copyright @ 2026 by <span>RASH EduHub</span> | all rights reserved!
-
-</footer>
-
-<!-- custom js file link  -->
-<script src="js/script.js"></script>
-<script src="js/video-features.js"></script>
-   
+   <!-- Components -->
+   <script src="js/theme.js"></script>
+   <script src="js/components/navbar.js"></script>
+   <script src="js/components/sidebar.js"></script>
 </body>
 </html>
-

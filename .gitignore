@@ -1,0 +1,21 @@
+# Environment variables and secrets
+.env
+*.env
+server/.env
+
+# Dependencies
+node_modules/
+server/node_modules/
+.venv/
+venv/
+__pycache__/
+
+# Logs and Uploads
+*.log
+uploads/
+server/uploads/
+
+# IDE and OS files
+.vscode/
+.DS_Store
+Thumbs.db

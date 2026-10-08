@@ -4,161 +4,98 @@
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>tutor profile</title>
+   <title>Instructor Profile - RASH EduHub</title>
 
-   <!-- font awesome cdn link  -->
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
-
-   <!-- custom css file link  -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
    <link rel="stylesheet" href="css/style.css">
-
 </head>
 <body>
 
-<header class="header">
-   
-   <section class="flex">
+   <header class="header"></header>
+   <div class="side-bar"></div>
 
-      <a href="index.html" class="logo">RASH EduHub</a>
-
-      <form action="courses.html" method="get" class="search-form">
-         <input type="text" name="search_box" required placeholder="search courses..." maxlength="100">
-         <button type="submit" class="fas fa-search"></button>
-      </form>
-
-      <div class="icons">
-         <div id="menu-btn" class="fas fa-bars"></div>
-         <div id="search-btn" class="fas fa-search"></div>
-         <div id="user-btn" class="fas fa-user"></div>
-         <div id="toggle-btn" class="fas fa-sun"></div>
-      </div>
-
-      <div class="profile">
-         <img src="images/pic-1.jpg" class="image" alt="">
-         <h3 class="name">HK Singh</h3>
-         <p class="role">Teacher</p>
-         <a href="profile.html" class="btn">view profile</a>
-         <div class="flex-btn">
-            <a href="login.html" class="option-btn">login</a>
-            <a href="register.html" class="option-btn">register</a>
-         </div>
-      </div>
-
+   <section class="teacher-profile">
+      <!-- Dynamic instructor profile -->
+      <div id="teacher-profile-container"></div>
    </section>
 
-</header>   
+   <section class="courses">
+      <h1 class="heading">Published Courses</h1>
+      <div class="box-container" id="teacher-courses-container"></div>
+   </section>
 
-<div class="side-bar">
+   <footer class="footer" style="text-align: center; padding: 3rem; background: var(--glass-bg); border-top: var(--border); margin-top: 5rem;">
+      <p style="font-size: 1.6rem; color: var(--light-color);">&copy; 2026 <strong>RASH EduHub</strong>. All rights reserved.</p>
+   </footer>
 
-   <div id="close-btn">
-      <i class="fas fa-times"></i>
-   </div>
+   <!-- Core Services -->
+   <script src="js/services/db.js"></script>
+   <script src="js/services/authService.js"></script>
+   <script src="js/services/courseService.js"></script>
+   <script src="js/services/userService.js"></script>
 
-   <div class="profile">
-      <img src="images/pic-1.jpg" class="image" alt="">
-      <h3 class="name">SV Sir</h3>
-      <p class="role">Teacher</p>
-      <a href="profile.html" class="btn">view profile</a>
-   </div>
+   <!-- Components -->
+   <script src="js/theme.js"></script>
+   <script src="js/components/navbar.js"></script>
+   <script src="js/components/sidebar.js"></script>
 
-   <nav class="navbar">
-      <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
-      <a href="about.html"><i class="fas fa-question"></i><span>About</span></a>
-      <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>Courses</span></a>
-      <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>Teachers</span></a>
-      <a href="contact.html"><i class="fas fa-headset"></i><span>Contact Us</span></a>
-      <a href="creator.html"><i class="fas fa-video"></i><span>Creator Studio</span></a>
-   </nav>
+   <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+         const urlParams = new URLSearchParams(window.location.search);
+         const teacherId = urlParams.get('teacherId') || 'teacher-1';
 
-</div>
+         const teachers = await UserService.getUsersByRole('teacher');
+         const teacher = teachers.find(t => t.id === teacherId || t._id === teacherId) || teachers[0] || {
+            name: 'Harsh Singh',
+            role: 'teacher',
+            avatar: 'images/pic-1.jpg',
+            bio: 'Senior Full-Stack Architect & AI Educator'
+         };
 
-<section class="teacher-profile">
+         const profileContainer = document.querySelector('#teacher-profile-container');
+         if (profileContainer) {
+            profileContainer.innerHTML = `
+               <h1 class="heading">Instructor Profile</h1>
+               <div class="glass-card" style="padding: 3.5rem; border-radius: 2.4rem; margin-bottom: 3.5rem;">
+                  <div style="display: flex; align-items: center; gap: 2.5rem; flex-wrap: wrap;">
+                     <img src="${teacher.avatar || 'images/pic-1.jpg'}" alt="${teacher.name}" style="height: 12rem; width: 12rem; border-radius: 50%; object-fit: cover; border: 4px solid var(--main-color);">
+                     <div style="flex: 1;">
+                        <h2 style="font-size: 2.8rem; color: var(--black); margin-bottom: 0.5rem;">${teacher.name}</h2>
+                        <span class="badge badge-teacher" style="margin-bottom: 1rem;">Senior Instructor</span>
+                        <p style="font-size: 1.5rem; color: var(--light-color); margin-top: 1rem;">${teacher.bio || 'Experienced software mentor dedicated to practical tech education.'}</p>
+                     </div>
+                  </div>
+               </div>
+            `;
+         }
 
-   <h1 class="heading">profile details</h1>
+         const allCourses = await CourseService.getAllCourses();
+         const teacherCourses = allCourses.filter(c => c.teacherName === teacher.name || c.teacherId === teacher.id || c.teacherId === teacher._id);
+         const coursesContainer = document.querySelector('#teacher-courses-container');
 
-   <div class="details">
-      <div class="tutor">
-         <img src="images/pic-2.jpg" alt="">
-         <h3>HK Singh</h3>
-         <span>developer</span>
-      </div>
-      <div class="flex">
-         <p>total playlists : <span>4</span></p>
-         <p>total videos : <span>18</span></p>
-         <p>total likes : <span>1208</span></p>
-         <p>total comments : <span>52</span></p>
-      </div>
-   </div>
+         if (coursesContainer) {
+            if (teacherCourses.length === 0) {
+               coursesContainer.innerHTML = `
+                  <div class="glass-card text-center" style="padding: 4rem; grid-column: 1 / -1;">
+                     <p style="font-size: 1.6rem; color: var(--light-color);">No courses published by this instructor yet.</p>
+                  </div>
+               `;
+               return;
+            }
 
-</section>
-
-<section class="courses">
-
-   <h1 class="heading">our courses</h1>
-
-   <div class="box-container">
-
-      <div class="box">
-         <div class="thumb">
-            <img src="images/thumb-1.png" alt="">
-            <span>10 videos</span>
-         </div>
-         <h3 class="title">complete HTML tutorial</h3>
-         <a href="playlist.html" class="inline-btn">view playlist</a>
-      </div>
-
-      <div class="box">
-         <div class="thumb">
-            <img src="images/thumb-2.png" alt="">
-            <span>10 videos</span>
-         </div>
-         <h3 class="title">complete CSS tutorial</h3>
-         <a href="playlist.html" class="inline-btn">view playlist</a>
-      </div>
-
-      <div class="box">
-         <div class="thumb">
-            <img src="images/thumb-3.png" alt="">
-            <span>10 videos</span>
-         </div>
-         <h3 class="title">complete javascript tutorial</h3>
-         <a href="playlist.html" class="inline-btn">view playlist</a>
-      </div>
-
-      <div class="box">
-         <div class="thumb">
-            <img src="images/thumb-4.png" alt="">
-            <span>10 videos</span>
-         </div>
-         <h3 class="title">complete Boostrap tutorial</h3>
-         <a href="playlist.html" class="inline-btn">view playlist</a>
-      </div>
-
-   </div>
-
-</section>
-
-
-
-
-
-
-
-
-
-
-
-
-<footer class="footer">
-
- &copy; copyright @ 2026 by <span>mr. Harsh Singh</span> | all rights reserved!
-
-</footer>
-
-<!-- custom js file link  -->
-<script src="js/script.js"></script>
-
-   
+            coursesContainer.innerHTML = teacherCourses.map(c => `
+               <div class="box glass-card hover-lift">
+                  <div class="thumb img-zoom" style="height: 18rem; overflow: hidden; border-radius: 1rem; margin-bottom: 1.5rem;">
+                     <img src="${c.thumbnail}" alt="${c.title}">
+                  </div>
+                  <h3 class="title" style="font-size: 1.8rem; color: var(--black);">${c.title}</h3>
+                  <a href="playlist.html?courseId=${c.id || c._id}" class="inline-btn" style="width: 100%; text-align: center; margin-top: 1rem;">
+                     View Playlist
+                  </a>
+               </div>
+            `).join('');
+         }
+      });
+   </script>
 </body>
 </html>
-

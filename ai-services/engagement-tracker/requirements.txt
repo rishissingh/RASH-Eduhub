@@ -1,0 +1,9 @@
+# RASH EduHub — Engagement Tracker Dependencies
+opencv-python>=4.8.0
+mediapipe>=0.10.9
+numpy>=1.24.0
+pynput>=1.7.6
+requests>=2.31.0
+ultralytics>=8.0.0
+flask>=3.0.0
+flask-cors>=4.0.0

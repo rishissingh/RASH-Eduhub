@@ -1,64 +1,46 @@
-let toggleBtn = document.getElementById('toggle-btn');
-let body = document.body;
-let darkMode = localStorage.getItem('dark-mode');
+/**
+ * RASH EduHub — Global UI Event Handlers & Mobile Responsiveness
+ */
 
-const enableDarkMode = () =>{
-   toggleBtn.classList.replace('fa-sun', 'fa-moon');
-   body.classList.add('dark');
-   localStorage.setItem('dark-mode', 'enabled');
-}
-
-const disableDarkMode = () =>{
-   toggleBtn.classList.replace('fa-moon', 'fa-sun');
-   body.classList.remove('dark');
-   localStorage.setItem('dark-mode', 'disabled');
-}
-
-if(darkMode === 'enabled'){
-   enableDarkMode();
-}
-
-toggleBtn.onclick = (e) =>{
-   darkMode = localStorage.getItem('dark-mode');
-   if(darkMode === 'disabled'){
-      enableDarkMode();
-   }else{
-      disableDarkMode();
+document.addEventListener('DOMContentLoaded', () => {
+   // Theme toggle synchronization
+   if (window.ThemeManager) {
+      window.ThemeManager.updateIcons();
    }
-}
 
-let profile = document.querySelector('.header .flex .profile');
+   // Mobile menu & sidebar toggling delegation
+   document.addEventListener('click', (e) => {
+      const menuBtn = e.target.closest('#menu-btn');
+      const closeBtn = e.target.closest('#close-btn');
+      const sideBar = document.querySelector('.side-bar');
+      const body = document.body;
 
-document.querySelector('#user-btn').onclick = () =>{
-   profile.classList.toggle('active');
-   search.classList.remove('active');
-}
+      if (menuBtn && sideBar) {
+         sideBar.classList.toggle('active');
+         body.classList.toggle('active');
+      }
 
-let search = document.querySelector('.header .flex .search-form');
+      if (closeBtn && sideBar) {
+         sideBar.classList.remove('active');
+         body.classList.remove('active');
+      }
+   });
 
-document.querySelector('#search-btn').onclick = () =>{
-   search.classList.toggle('active');
-   profile.classList.remove('active');
-}
+   // Close popups & sidebar on scroll for small screens
+   window.addEventListener('scroll', () => {
+      const profile = document.querySelector('.header .flex .profile');
+      const search = document.querySelector('.header .flex .search-form');
+      const notifPopup = document.querySelector('#notif-popup');
+      const sideBar = document.querySelector('.side-bar');
+      const body = document.body;
 
-let sideBar = document.querySelector('.side-bar');
+      if (profile) profile.classList.remove('active');
+      if (search) search.classList.remove('active');
+      if (notifPopup) notifPopup.classList.remove('active');
 
-document.querySelector('#menu-btn').onclick = () =>{
-   sideBar.classList.toggle('active');
-   body.classList.toggle('active');
-}
-
-document.querySelector('#close-btn').onclick = () =>{
-   sideBar.classList.remove('active');
-   body.classList.remove('active');
-}
-
-window.onscroll = () =>{
-   profile.classList.remove('active');
-   search.classList.remove('active');
-
-   if(window.innerWidth < 1200){
-      sideBar.classList.remove('active');
-      body.classList.remove('active');
-   }
-}
+      if (window.innerWidth < 1200 && sideBar) {
+         sideBar.classList.remove('active');
+         body.classList.remove('active');
+      }
+   });
+});

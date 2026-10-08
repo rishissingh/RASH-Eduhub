@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Admin Command Center - RASH EduHub</title>
+
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+   <header class="header"></header>
+   <div class="side-bar"></div>
+
+   <section style="padding-top: 3rem;">
+      <div class="glass-card" style="padding: 3rem; background: var(--main-gradient); color: #fff; border-radius: 2rem; margin-bottom: 3rem;">
+         <span class="badge badge-admin" style="background: rgba(255,255,255,0.2); color: #fff; margin-bottom: 1rem;">Platform Super Admin</span>
+         <h1 style="font-size: 3.2rem; color: #fff; margin-bottom: 0.5rem;">System Overview & Command Center</h1>
+         <p style="font-size: 1.6rem; opacity: 0.9;">Monitor overall platform health, user distribution, course approvals, and system metrics.</p>
+      </div>
+
+      <div class="home-grid">
+         <div class="box-container" style="grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));">
+            <div class="box glass-card" style="text-align: center; padding: 2.5rem;">
+               <i class="fas fa-users" style="font-size: 3rem; color: var(--main-color); margin-bottom: 1rem;"></i>
+               <h3 style="font-size: 2.8rem; margin-bottom: 0.3rem;">25,412</h3>
+               <p style="font-size: 1.4rem; color: var(--light-color);">Registered Users</p>
+            </div>
+
+            <div class="box glass-card" style="text-align: center; padding: 2.5rem;">
+               <i class="fas fa-chalkboard-user" style="font-size: 3rem; color: var(--orange); margin-bottom: 1rem;"></i>
+               <h3 style="font-size: 2.8rem; margin-bottom: 0.3rem;">142</h3>
+               <p style="font-size: 1.4rem; color: var(--light-color);">Approved Instructors</p>
+            </div>
+
+            <div class="box glass-card" style="text-align: center; padding: 2.5rem;">
+               <i class="fas fa-book-open" style="font-size: 3rem; color: var(--accent-color); margin-bottom: 1rem;"></i>
+               <h3 style="font-size: 2.8rem; margin-bottom: 0.3rem;">158</h3>
+               <p style="font-size: 1.4rem; color: var(--light-color);">Active Courses</p>
+            </div>
+
+            <div class="box glass-card" style="text-align: center; padding: 2.5rem;">
+               <i class="fas fa-server" style="font-size: 3rem; color: var(--green); margin-bottom: 1rem;"></i>
+               <h3 style="font-size: 2.8rem; margin-bottom: 0.3rem;">99.9%</h3>
+               <p style="font-size: 1.4rem; color: var(--light-color);">Platform Uptime</p>
+            </div>
+         </div>
+      </div>
+   </section>
+
+   <footer class="footer" style="text-align: center; padding: 3rem; background: var(--glass-bg); border-top: var(--border); margin-top: 5rem;">
+      <p style="font-size: 1.6rem; color: var(--light-color);">&copy; 2026 <strong>RASH EduHub</strong>. All rights reserved.</p>
+   </footer>
+
+   <!-- Core Services -->
+   <script src="../js/services/db.js"></script>
+   <script src="../js/services/authService.js"></script>
+   <script src="../js/services/courseService.js"></script>
+   <script src="../js/services/userService.js"></script>
+
+   <!-- Components -->
+   <script src="../js/theme.js"></script>
+   <script src="../js/components/navbar.js"></script>
+   <script src="../js/components/sidebar.js"></script>
+
+   <script>
+      document.addEventListener('DOMContentLoaded', () => {
+         AuthService.guardRoute(['admin']);
+      });
+   </script>
+</body>
+</html>

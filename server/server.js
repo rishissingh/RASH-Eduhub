@@ -1,0 +1,101 @@
+/**
+ * RASH EduHub — Backend Server
+ * Node.js + Express + Supabase Database REST API
+ */
+
+require('dotenv').config({ path: require('path').join(__dirname, '.env'), override: true });
+const express = require('express');
+const cors = require('cors');
+const morgan = require('morgan');
+const path = require('path');
+const fs = require('fs');
+
+const { errorHandler } = require('./middleware/errorHandler');
+const { apiLimiter } = require('./middleware/rateLimiter');
+const { sanitizeBody } = require('./middleware/validator');
+const supabase = require('./supabaseClient');
+
+const app = express();
+
+// --------------- Security & Core Middleware ---------------
+app.use(cors());
+
+// Basic Security Headers
+app.use((req, res, next) => {
+   res.setHeader('X-Content-Type-Options', 'nosniff');
+   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+   res.setHeader('X-XSS-Protection', '1; mode=block');
+   next();
+});
+
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(sanitizeBody);
+app.use(morgan('dev'));
+
+// Apply global API rate limiter to all /api routes
+app.use('/api', apiLimiter);
+
+// Serve uploaded files statically
+const uploadDir = path.join(__dirname, process.env.UPLOAD_DIR || 'uploads');
+if (!fs.existsSync(uploadDir)) {
+   fs.mkdirSync(uploadDir, { recursive: true });
+}
+app.use('/uploads', express.static(uploadDir));
+
+// Serve frontend static files (images, css, js)
+app.use(express.static(path.join(__dirname, '..')));
+
+// --------------- API Routes ---------------
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/courses', require('./routes/courses'));
+app.use('/api/comments', require('./routes/comments'));
+app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/contact', require('./routes/contact'));
+app.use('/api/upload', require('./routes/upload'));
+app.use('/api/code', require('./routes/code'));
+app.use('/api/gamification', require('./routes/gamification'));
+app.use('/api/ai', require('./routes/ai-proxy'));
+
+// Advanced Platform Routes
+app.use('/api/admin', require('./routes/admin'));
+app.use('/api/reviews', require('./routes/reviews'));
+app.use('/api/bookmarks', require('./routes/bookmarks'));
+app.use('/api/progress', require('./routes/progress'));
+app.use('/api/activity', require('./routes/activityLog'));
+
+// Health check
+app.get('/api/health', (req, res) => {
+   res.json({
+      status: 'ok',
+      message: 'RASH EduHub API is running with Supabase Cloud Database',
+      version: '2.0.0',
+      environment: process.env.NODE_ENV || 'development',
+      timestamp: new Date().toISOString()
+   });
+});
+
+// Serve frontend index.html for non-API routes
+app.get('*', (req, res) => {
+   if (!req.path.startsWith('/api')) {
+      res.sendFile(path.join(__dirname, '..', 'index.html'));
+   }
+});
+
+// Global error handler
+app.use(errorHandler);
+
+// --------------- Database & Server Start ---------------
+const PORT = process.env.PORT || 5000;
+
+console.log('⚡ Initializing RASH EduHub Supabase Database connection...');
+if (require.main === module) {
+   app.listen(PORT, () => {
+      console.log(`🚀 RASH EduHub Server running on http://localhost:${PORT}`);
+      console.log(`📡 API Base URL: http://localhost:${PORT}/api`);
+      console.log(`☁️ Supabase Cloud Database connected.`);
+   });
+}
+
+module.exports = app;

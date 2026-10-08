@@ -4,306 +4,432 @@
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Home</title>
+   <title>RASH EduHub - Next-Gen EdTech Platform</title>
 
-   <!-- font awesome cdn link  -->
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+   <!-- Font Awesome CDN -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <!-- AOS Animations CDN -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+   <!-- Favicon -->
+   <link rel="icon" type="image/png" href="images/favicon.png">
 
-   <!-- custom css file link  -->
+   <!-- Custom CSS -->
    <link rel="stylesheet" href="css/style.css">
-
 </head>
 <body>
 
-<header class="header">
-   
-   <section class="flex">
+   <!-- Header Component Container -->
+   <header class="header"></header>
 
-      <a href="index.html" class="logo">RASH EduHub</a>
+   <!-- Sidebar Component Container -->
+   <div class="side-bar"></div>
 
-      <form action="courses.html" method="get" class="search-form">
-         <input type="text" name="search_box" required placeholder="search courses..." maxlength="100">
-         <button type="submit" class="fas fa-search"></button>
-      </form>
+   <!-- Hero Section -->
+   <section class="hero-section hero-animated-mesh">
+      <!-- Left Column: High-Impact Typography & CTAs -->
+      <div class="hero-content-col">
+         <div class="hero-pill-badge fade-in">
+            <span class="badge-live-pulse"></span>
+            <span>NEXT-GEN AI EDTECH ECOSYSTEM · 2026</span>
+         </div>
 
-      <div class="icons">
-         <div id="menu-btn" class="fas fa-bars"></div>
-         <div id="search-btn" class="fas fa-search"></div>
-         <div id="user-btn" class="fas fa-user"></div>
-         <div id="toggle-btn" class="fas fa-sun"></div>
-      </div>
+         <h1 class="hero-headline fade-in-up">
+            Master High-Impact Tech With <span class="hero-gradient-text">Intelligent Code</span> & Mentorship
+         </h1>
 
-      <div class="profile">
-         <img src="images/pic-1.jpg" class="image" alt="">
-         <h3 class="name">Harsh Singh</h3>
-         <p class="role">Student</p>
-         <a href="profile.html" class="btn">view profile</a>
-         <div class="flex-btn">
-            <a href="login.html" class="option-btn">login</a>
-            <a href="register.html" class="option-btn">register</a>
+         <p class="hero-subtext fade-in-up stagger-1">
+            Accelerate your engineering journey with interactive video playlists, automated code evaluation, downloadable notes, and personalized AI learning roadmaps.
+         </p>
+
+         <div class="hero-cta-row fade-in-up stagger-2">
+            <a href="courses.html" class="btn-hero-primary btn-shimmer">
+               <i class="fas fa-rocket"></i> Explore Curriculum
+            </a>
+            <a href="student/code-practice.html" class="btn-hero-glass">
+               <i class="fas fa-terminal"></i> Try Code Arena
+            </a>
+         </div>
+
+         <!-- Trust Proof Stack -->
+         <div class="hero-social-proof fade-in-up stagger-3">
+            <div class="avatar-stack">
+               <img src="images/pic-2.jpg" alt="Learner 1">
+               <img src="images/pic-3.jpg" alt="Learner 2">
+               <img src="images/pic-4.jpg" alt="Learner 3">
+               <img src="images/pic-5.jpg" alt="Learner 4">
+            </div>
+            <div class="proof-text">
+               <h4><i class="fas fa-star" style="color: #f59e0b;"></i> 4.9 / 5.0 Rating</h4>
+               <p>Empowering 25,000+ engineers worldwide</p>
+            </div>
          </div>
       </div>
 
+      <!-- Right Column: Interactive EdTech Glass Terminal Showcase -->
+      <div class="hero-visual-col">
+         <!-- Floating Top-Right Glass Badge -->
+         <div class="floating-glass-badge badge-top-right">
+            <div class="badge-icon-box" style="background: rgba(245, 158, 11, 0.12); color: #f59e0b;">
+               <i class="fas fa-star"></i>
+            </div>
+            <div>
+               <h4 style="font-size: 1.45rem; margin: 0; font-weight: 700; color: var(--black);">4.9 / 5.0</h4>
+               <span style="font-size: 1.2rem; color: var(--light-color);">25k+ Reviews</span>
+            </div>
+         </div>
+
+         <!-- Main Glassmorphic Code Terminal Card -->
+         <div class="terminal-showcase-card">
+            <!-- Window Title Bar with interactive tabs -->
+            <div class="terminal-header-bar">
+               <div class="mac-dots">
+                  <span class="mac-dot close"></span>
+                  <span class="mac-dot min"></span>
+                  <span class="mac-dot max"></span>
+               </div>
+               <div class="terminal-tabs-group">
+                  <button type="button" class="terminal-tab-btn active" data-tab="python">
+                     <i class="fab fa-python" style="color: #38bdf8;"></i>
+                     <span>model_train.py</span>
+                  </button>
+                  <button type="button" class="terminal-tab-btn" data-tab="react">
+                     <i class="fab fa-react" style="color: #61dafb;"></i>
+                     <span>arena_flow.tsx</span>
+                  </button>
+                  <button type="button" class="terminal-tab-btn" data-tab="sql">
+                     <i class="fas fa-database" style="color: #34d399;"></i>
+                     <span>rank_opt.sql</span>
+                  </button>
+               </div>
+               <div>
+                  <button type="button" id="terminal-run-btn" class="btn-terminal-run" title="Execute Sandbox Code">
+                     <i class="fas fa-play"></i>
+                     <span>Run</span>
+                  </button>
+               </div>
+            </div>
+
+            <!-- Code Editor Body -->
+            <div class="terminal-code-body" id="terminal-code-display">
+               <div class="code-line">
+                  <span class="code-num">1</span>
+                  <span><span class="tok-comment"># RASH EduHub Intelligent Skill Gap Analyzer</span></span>
+               </div>
+               <div class="code-line">
+                  <span class="code-num">2</span>
+                  <span><span class="tok-kw">def</span> <span class="tok-fn">build_learning_path</span>(student_skills, target_role):</span>
+               </div>
+               <div class="code-line">
+                  <span class="code-num">3</span>
+                  <span>&nbsp;&nbsp;&nbsp;&nbsp;gaps = <span class="tok-fn">evaluate_competency</span>(student_skills)</span>
+               </div>
+               <div class="code-line">
+                  <span class="code-num">4</span>
+                  <span>&nbsp;&nbsp;&nbsp;&nbsp;recommendations = <span class="tok-fn">rank_modules</span>(gaps, level=<span class="tok-str">"Mastery"</span>)</span>
+               </div>
+               <div class="code-line">
+                  <span class="code-num">5</span>
+                  <span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tok-kw">return</span> { <span class="tok-str">"accuracy"</span>: <span class="tok-num">0.994</span>, <span class="tok-str">"plan"</span>: recommendations }</span>
+               </div>
+            </div>
+
+            <!-- Terminal Output Footer -->
+            <div class="terminal-footer-status" id="terminal-status-bar">
+               <div class="pass-badge">
+                  <i class="fas fa-circle-check" id="terminal-status-icon"></i>
+                  <span id="terminal-status-text">All 14 Automated Tests Passed · 22ms</span>
+               </div>
+               <div id="terminal-status-metrics" style="color: #94a3b8; font-size: 1.15rem;">
+                  Memory: 14.2 MB · Score: 100%
+               </div>
+            </div>
+         </div>
+
+         <!-- Floating Bottom-Left Glass Badge -->
+         <div class="floating-glass-badge badge-bottom-left">
+            <div class="badge-icon-box" style="background: rgba(37, 99, 235, 0.12); color: var(--main-color);">
+               <i class="fas fa-bolt"></i>
+            </div>
+            <div>
+               <h4 style="font-size: 1.45rem; margin: 0; font-weight: 700; color: var(--black);">AI Grader</h4>
+               <span style="font-size: 1.2rem; color: var(--light-color);">Instant Feedback</span>
+            </div>
+         </div>
+
+         <!-- Floating Mid-Right Glass Badge -->
+         <div class="floating-glass-badge badge-mid-right">
+            <div class="badge-icon-box" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">
+               <i class="fas fa-award"></i>
+            </div>
+            <div>
+               <h4 style="font-size: 1.45rem; margin: 0; font-weight: 700; color: var(--black);">Accredited</h4>
+               <span style="font-size: 1.2rem; color: var(--light-color);">Certifications</span>
+            </div>
+         </div>
+      </div>
    </section>
 
-</header>   
-
-<div class="side-bar">
-
-   <div id="close-btn">
-      <i class="fas fa-times"></i>
-   </div>
-
-   <div class="profile">
-      <img src="images/pic-1.jpg" class="image" alt="">
-      <h3 class="name">Harsh singh</h3>
-      <p class="role">Student</p>
-      <a href="profile.html" class="btn">view profile</a>
-   </div>
-
-   <nav class="navbar">
-      <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
-      <a href="about.html"><i class="fas fa-question"></i><span>About</span></a>
-      <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>Courses</span></a>
-      <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>Teachers</span></a>
-      <a href="contact.html"><i class="fas fa-headset"></i><span>Contact Us</span></a>
-      <a href="creator.html"><i class="fas fa-video"></i><span>Creator Studio</span></a>
-   </nav>
-
-</div>
-
-<section class="home-grid">
-
-   <h1 class="heading">quick options</h1>
-
-   <div class="box-container">
-
-      <div class="box">
-         <h3 class="title">likes and comments</h3>
-         <p class="likes">total likes : <span>25</span></p>
-         <a href="#" class="inline-btn">view likes</a>
-         <p class="likes">total comments : <span>12</span></p>
-         <a href="#" class="inline-btn">view comments</a>
-         <p class="likes">saved playlists : <span>4</span></p>
-         <a href="#" class="inline-btn">view playlists</a>
+   <!-- Tech Stack & Engineering Marquee Ribbon -->
+   <section class="marquee-section">
+      <div class="marquee-header-label">
+         Engineered with Modern Industry Standards & Frameworks
       </div>
-
-      <div class="box">
-         <h3 class="title">top categories</h3>
-         <div class="flex">
-            <a href="#"><i class="fas fa-code"></i><span>Development</span></a>
-            <a href="#"><i class="fas fa-pen"></i><span>Design</span></a>
-            <a href="#"><i class="fas fa-cog"></i><span>Software</span></a>
-            <a href="#"><i class="fas fa-vial"></i><span>Debugging</span></a>
+      <div class="marquee-mask">
+         <div class="marquee-content-track">
+            <div class="marquee-item-badge"><i class="fab fa-python" style="color: #38bdf8;"></i> Python 3.12</div>
+            <div class="marquee-item-badge"><i class="fab fa-react" style="color: #61dafb;"></i> React 19</div>
+            <div class="marquee-item-badge"><i class="fab fa-js" style="color: #3178c6;"></i> TypeScript 5</div>
+            <div class="marquee-item-badge"><i class="fas fa-brain" style="color: #ec4899;"></i> PyTorch & LLMs</div>
+            <div class="marquee-item-badge"><i class="fab fa-node-js" style="color: #22c55e;"></i> Node.js LTS</div>
+            <div class="marquee-item-badge"><i class="fab fa-docker" style="color: #0284c7;"></i> Docker Engine</div>
+            <div class="marquee-item-badge"><i class="fas fa-database" style="color: #336791;"></i> PostgreSQL</div>
+            <div class="marquee-item-badge"><i class="fas fa-bolt" style="color: #eab308;"></i> Next.js 15</div>
+            <div class="marquee-item-badge"><i class="fab fa-aws" style="color: #ff9900;"></i> AWS Cloud Native</div>
+            <div class="marquee-item-badge"><i class="fas fa-cubes" style="color: #8b5cf6;"></i> Microservices</div>
+            <!-- Duplicated set for smooth infinite loop -->
+            <div class="marquee-item-badge"><i class="fab fa-python" style="color: #38bdf8;"></i> Python 3.12</div>
+            <div class="marquee-item-badge"><i class="fab fa-react" style="color: #61dafb;"></i> React 19</div>
+            <div class="marquee-item-badge"><i class="fab fa-js" style="color: #3178c6;"></i> TypeScript 5</div>
+            <div class="marquee-item-badge"><i class="fas fa-brain" style="color: #ec4899;"></i> PyTorch & LLMs</div>
+            <div class="marquee-item-badge"><i class="fab fa-node-js" style="color: #22c55e;"></i> Node.js LTS</div>
+            <div class="marquee-item-badge"><i class="fab fa-docker" style="color: #0284c7;"></i> Docker Engine</div>
+            <div class="marquee-item-badge"><i class="fas fa-database" style="color: #336791;"></i> PostgreSQL</div>
+            <div class="marquee-item-badge"><i class="fas fa-bolt" style="color: #eab308;"></i> Next.js 15</div>
+            <div class="marquee-item-badge"><i class="fab fa-aws" style="color: #ff9900;"></i> AWS Cloud Native</div>
+            <div class="marquee-item-badge"><i class="fas fa-cubes" style="color: #8b5cf6;"></i> Microservices</div>
          </div>
       </div>
+   </section>
 
-      <div class="box">
-         <h3 class="title">popular topics</h3>
-         <div class="flex">
-            <a href="#"><i class="fab fa-html5"></i><span>HTML</span></a>
-            <a href="#"><i class="fab fa-css3"></i><span>CSS</span></a>
-            <a href="#"><i class="fab fa-js"></i><span>javascript</span></a>
-            <a href="#"><i class="fab fa-react"></i><span>react</span></a>
-            <a href="#"><i class="fab fa-php"></i><span>PHP</span></a>
-            <a href="#"><i class="fab fa-bootstrap"></i><span>bootstrap</span></a>
-         </div>
-      </div>
-
-      <div class="box">
-         <h3 class="title">become a tutor</h3>
-         <p class="tutor">Smart learning, simplified—because education should be accessible to everyone.</p>
-         <a href="teachers.html" class="inline-btn">get started</a>
-      </div>
-
-   </nav>
-
-</div>
-
-<section class="home-grid">
-
-   <h1 class="heading">quick options</h1>
-
-   <div class="box-container">
-
-      <div class="box">
-         <h3 class="title">likes and comments</h3>
-         <p class="likes">total likes : <span>25</span></p>
-         <a href="#" class="inline-btn">view likes</a>
-         <p class="likes">total comments : <span>12</span></p>
-         <a href="#" class="inline-btn">view comments</a>
-         <p class="likes">saved playlists : <span>4</span></p>
-         <a href="#" class="inline-btn">view playlists</a>
-      </div>
-
-      <div class="box">
-         <h3 class="title">top categories</h3>
-         <div class="flex">
-            <a href="#"><i class="fas fa-code"></i><span>Development</span></a>
-            <a href="#"><i class="fas fa-pen"></i><span>Design</span></a>
-            <a href="#"><i class="fas fa-cog"></i><span>Software</span></a>
-            <a href="#"><i class="fas fa-vial"></i><span>Debugging</span></a>
-         </div>
-      </div>
-
-      <div class="box">
-         <h3 class="title">popular topics</h3>
-         <div class="flex">
-            <a href="#"><i class="fab fa-html5"></i><span>HTML</span></a>
-            <a href="#"><i class="fab fa-css3"></i><span>CSS</span></a>
-            <a href="#"><i class="fab fa-js"></i><span>javascript</span></a>
-            <a href="#"><i class="fab fa-react"></i><span>react</span></a>
-            <a href="#"><i class="fab fa-php"></i><span>PHP</span></a>
-            <a href="#"><i class="fab fa-bootstrap"></i><span>bootstrap</span></a>
-         </div>
-      </div>
-
-      <div class="box">
-         <h3 class="title">become a tutor</h3>
-         <p class="tutor">Smart learning, simplified—because education should be accessible to everyone.</p>
-         <a href="teachers.html" class="inline-btn">get started</a>
-      </div>
-
-   </div>
-
-</section>
-
-
-
-<section class="courses">
-
-   <h1 class="heading">our courses</h1>
-
-   <div class="box-container" id="courses-grid">
-
-      <div class="box">
-         <div class="tutor">
-            <img src="images/pic-2.jpg" alt="">
-            <div class="info">
-               <h3>HK Singh</h3>
-               <span>21-10-2022</span>
+   <!-- Statistics Counter Section -->
+   <section class="stats-section">
+      <div class="trendy-stats-grid">
+         <div class="trendy-stat-card card-interactive">
+            <div class="stat-icon-glow" style="background: rgba(37, 99, 235, 0.1); color: var(--main-color);">
+               <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="stat-info">
+               <div class="stat-number-wrap">
+                  <h3 class="stat-number" data-target="25000">0</h3>
+                  <span class="stat-suffix">+</span>
+               </div>
+               <p class="stat-label">Active Learners</p>
             </div>
          </div>
-         <div class="thumb">
-            <img src="images/thumb-1.png" alt="">
-            <span>10 videos</span>
-         </div>
-         <h3 class="title">complete HTML tutorial</h3>
-         <a href="playlist.html" class="inline-btn">view playlist</a>
-      </div>
 
-      <div class="box">
-         <div class="tutor">
-            <img src="images/pic-3.jpg" alt="">
-            <div class="info">
-               <h3>SV Sir</h3>
-               <span>21-10-2022</span>
+         <div class="trendy-stat-card card-interactive">
+            <div class="stat-icon-glow" style="background: rgba(14, 165, 233, 0.1); color: var(--accent-color);">
+               <i class="fas fa-play-circle"></i>
+            </div>
+            <div class="stat-info">
+               <div class="stat-number-wrap">
+                  <h3 class="stat-number" data-target="150">0</h3>
+                  <span class="stat-suffix">+</span>
+               </div>
+               <p class="stat-label">Curated Playlists</p>
             </div>
          </div>
-         <div class="thumb">
-            <img src="images/thumb-2.png" alt="">
-            <span>10 videos</span>
-         </div>
-         <h3 class="title">complete CSS tutorial</h3>
-         <a href="playlist.html" class="inline-btn">view playlist</a>
-      </div>
 
-      <div class="box">
-         <div class="tutor">
-            <img src="images/pic-4.jpg" alt="">
-            <div class="info">
-               <h3>RS Sir</h3>
-               <span>21-10-2022</span>
+         <div class="trendy-stat-card card-interactive">
+            <div class="stat-icon-glow" style="background: rgba(245, 158, 11, 0.1); color: var(--orange);">
+               <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+            <div class="stat-info">
+               <div class="stat-number-wrap">
+                  <h3 class="stat-number" data-target="50">0</h3>
+                  <span class="stat-suffix">+</span>
+               </div>
+               <p class="stat-label">Expert Mentors</p>
             </div>
          </div>
-         <div class="thumb">
-            <img src="images/thumb-3.png" alt="">
-            <span>10 videos</span>
-         </div>
-         <h3 class="title">complete JS tutorial</h3>
-         <a href="playlist.html" class="inline-btn">view playlist</a>
-      </div>
 
-      <div class="box">
-         <div class="tutor">
-            <img src="images/pic-5.jpg" alt="">
-            <div class="info">
-               <h3>Adarsh Sir</h3>
-               <span>21-10-2022</span>
+         <div class="trendy-stat-card card-interactive">
+            <div class="stat-icon-glow" style="background: rgba(16, 185, 129, 0.1); color: var(--green);">
+               <i class="fas fa-award"></i>
+            </div>
+            <div class="stat-info">
+               <div class="stat-number-wrap">
+                  <h3 class="stat-number" data-target="18000">0</h3>
+                  <span class="stat-suffix">+</span>
+               </div>
+               <p class="stat-label">Certified Graduates</p>
             </div>
          </div>
-         <div class="thumb">
-            <img src="images/thumb-4.png" alt="">
-            <span>10 videos</span>
+      </div>
+   </section>
+
+   <!-- Popular Categories Section -->
+   <section class="categories-section">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3.5rem; flex-wrap: wrap; gap: 1.5rem;">
+         <div>
+            <span class="badge" style="background: rgba(37, 99, 235, 0.08); color: var(--main-color); margin-bottom: 0.8rem; font-weight: 700; border: 1px solid rgba(37, 99, 235, 0.15); border-radius: var(--radius-pill); padding: 0.5rem 1.4rem;">
+               <i class="fas fa-layer-group"></i> CURRICULUM PATHWAYS
+            </span>
+            <h2 class="heading" style="margin-bottom: 0; padding-bottom: 0;">Explore Top Categories</h2>
          </div>
-         <h3 class="title">complete Boostrap tutorial</h3>
-         <a href="playlist.html" class="inline-btn">view playlist</a>
+         <a href="courses.html" class="btn-hero-glass" style="padding: 0.9rem 2rem; font-size: 1.4rem;">
+            All Categories <i class="fas fa-arrow-right"></i>
+         </a>
       </div>
 
-      <div class="box">
-         <div class="tutor">
-            <img src="images/pic-6.jpg" alt="">
-            <div class="info">
-               <h3>PT Sir</h3>
-               <span>21-10-2022</span>
+      <div class="trendy-categories-grid">
+         <a href="courses.html?category=Development" class="trendy-category-card card-interactive">
+            <div class="cat-icon-container" style="background: rgba(37, 99, 235, 0.1); color: var(--main-color);">
+               <i class="fas fa-code"></i>
+            </div>
+            <div class="cat-body">
+               <h3>Full Stack Development</h3>
+               <p>React 19, Node.js, Next.js, Cloud APIs & Microservices</p>
+               <div class="cat-footer">
+                  <span class="cat-count-pill">42+ Courses</span>
+                  <span class="cat-arrow-circle"><i class="fas fa-arrow-right"></i></span>
+               </div>
+            </div>
+         </a>
+
+         <a href="courses.html?category=Python" class="trendy-category-card card-interactive">
+            <div class="cat-icon-container" style="background: rgba(14, 165, 233, 0.1); color: var(--accent-color);">
+               <i class="fab fa-python"></i>
+            </div>
+            <div class="cat-body">
+               <h3>Python & Data Science</h3>
+               <p>Machine Learning, NumPy, Pandas, Neural Networks</p>
+               <div class="cat-footer">
+                  <span class="cat-count-pill">28+ Courses</span>
+                  <span class="cat-arrow-circle"><i class="fas fa-arrow-right"></i></span>
+               </div>
+            </div>
+         </a>
+
+         <a href="courses.html?category=DSA" class="trendy-category-card card-interactive">
+            <div class="cat-icon-container" style="background: rgba(245, 158, 11, 0.1); color: var(--orange);">
+               <i class="fas fa-diagram-project"></i>
+            </div>
+            <div class="cat-body">
+               <h3>DSA & Problem Solving</h3>
+               <p>LeetCode Patterns, Dynamic Programming & Trees</p>
+               <div class="cat-footer">
+                  <span class="cat-count-pill">35+ Courses</span>
+                  <span class="cat-arrow-circle"><i class="fas fa-arrow-right"></i></span>
+               </div>
+            </div>
+         </a>
+
+         <a href="courses.html?category=Design" class="trendy-category-card card-interactive">
+            <div class="cat-icon-container" style="background: rgba(16, 185, 129, 0.1); color: var(--green);">
+               <i class="fas fa-pen-nib"></i>
+            </div>
+            <div class="cat-body">
+               <h3>UI/UX & Product Design</h3>
+               <p>Figma Systems, Design Tokens, User Experience</p>
+               <div class="cat-footer">
+                  <span class="cat-count-pill">19+ Courses</span>
+                  <span class="cat-arrow-circle"><i class="fas fa-arrow-right"></i></span>
+               </div>
+            </div>
+         </a>
+      </div>
+   </section>
+
+   <!-- Featured Courses Section -->
+   <section class="courses">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+         <h1 class="heading" style="margin-bottom: 0;">Featured Courses</h1>
+         <a href="courses.html" class="inline-option-btn">View All Courses <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="box-container" id="featured-courses-container">
+         <!-- Dynamic Featured Courses rendered by home.js -->
+      </div>
+   </section>
+
+   <!-- Top Teachers Section -->
+   <section class="courses">
+      <h1 class="heading">Learn From Top Tutors</h1>
+      <div class="box-container" id="top-teachers-container">
+         <!-- Dynamic Teachers rendered by home.js -->
+      </div>
+   </section>
+
+   <!-- FAQ Section -->
+   <section style="padding: 4rem 2rem;">
+      <h1 class="heading">Frequently Asked Questions</h1>
+      <div class="d-flex flex-col" style="gap: 1.5rem; max-width: 90rem; margin: 0 auto;">
+         <div class="glass-card faq-box" style="padding: 2rem; cursor: pointer;">
+            <div class="faq-question d-flex justify-between align-center">
+               <h3 style="font-size: var(--text-lg); color: var(--black);">How do I get started as a student?</h3>
+               <i class="fas fa-chevron-down" style="font-size: 1.6rem; color: var(--main-color);"></i>
+            </div>
+            <div class="faq-answer" style="margin-top: 1.5rem; font-size: var(--text-base); color: var(--light-color); line-height: 1.7; display: none;">
+               Simply register for a free Student account, browse our course catalog, and click Enroll to instantly access video playlists, downloadable PDFs, and practice quizzes.
             </div>
          </div>
-         <div class="thumb">
-            <img src="images/thumb-5.png" alt="">
-            <span>10 videos</span>
-         </div>
-         <h3 class="title">complete JQuery tutorial</h3>
-         <a href="playlist.html" class="inline-btn">view playlist</a>
-      </div>
 
-      <div class="box">
-         <div class="tutor">
-            <img src="images/pic-7.jpg" alt="">
-            <div class="info">
-               <h3>HK Singh</h3>
-               <span>21-10-2022</span>
+         <div class="glass-card faq-box" style="padding: 2rem; cursor: pointer;">
+            <div class="faq-question d-flex justify-between align-center">
+               <h3 style="font-size: var(--text-lg); color: var(--black);">Can teachers upload courses and manage students?</h3>
+               <i class="fas fa-chevron-down" style="font-size: 1.6rem; color: var(--main-color);"></i>
+            </div>
+            <div class="faq-answer" style="margin-top: 1.5rem; font-size: var(--text-base); color: var(--light-color); line-height: 1.7; display: none;">
+               Yes! Teachers have a dedicated Teacher Studio where they can create courses, upload video lessons, attach PDF notes, design quizzes, and monitor student completion analytics.
             </div>
          </div>
-         <div class="thumb">
-            <img src="images/thumb-6.png" alt="">
-            <span>10 videos</span>
-         </div>
-         <h3 class="title">complete SASS tutorial</h3>
-         <a href="playlist.html" class="inline-btn">view playlist</a>
       </div>
+   </section>
 
-   </div>
+   <!-- Footer -->
+   <footer class="footer">
+      <div class="footer-grid">
+         <div class="footer-col">
+            <div style="display: flex; align-items: center; gap: 1.2rem; margin-bottom: 1.6rem;">
+               <img src="images/logo-icon.png" alt="RASH EduHub" style="width: 3.8rem; height: 3.8rem; object-fit: contain; border-radius: 1rem; background: #ffffff; padding: 0.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+               <h4 style="margin: 0; font-size: 1.9rem; font-weight: 800;">RASH EduHub</h4>
+            </div>
+            <a href="about.html">About Us</a>
+            <a href="courses.html">Our Catalog</a>
+            <a href="teachers.html">Tutors</a>
+            <a href="contact.html">Contact Us</a>
+         </div>
+         <div class="footer-col">
+            <h4>SaaS Workspace</h4>
+            <a href="login.html">Sign In</a>
+            <a href="register.html">Register</a>
+            <a href="student/dashboard.html">Student Portal</a>
+            <a href="teacher/dashboard.html">Teacher Studio</a>
+         </div>
+         <div class="footer-col">
+            <h4>Support</h4>
+            <a href="#">Help Center</a>
+            <a href="#">FAQ</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Use</a>
+         </div>
+         <div class="footer-col">
+            <h4>Connect</h4>
+            <div class="social-links">
+               <a href="#"><i class="fab fa-facebook-f"></i></a>
+               <a href="#"><i class="fab fa-twitter"></i></a>
+               <a href="#"><i class="fab fa-linkedin-in"></i></a>
+               <a href="#"><i class="fab fa-github"></i></a>
+            </div>
+         </div>
+      </div>
+      <p style="font-size: 1.5rem; color: var(--light-color); margin-top: 3rem; border-top: var(--border); padding-top: 2rem;">
+         &copy; 2026 <strong>RASH EduHub</strong>. All rights reserved. Built with passion for EdTech.
+      </p>
+   </footer>
 
-   <div class="more-btn">
-      <a href="courses.html" class="inline-option-btn">view all courses</a>
-   </div>
+   <!-- Core Service Scripts -->
+   <script src="js/services/db.js"></script>
+   <script src="js/services/authService.js"></script>
+   <script src="js/services/courseService.js"></script>
+   <script src="js/services/userService.js"></script>
 
-</section>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<footer class="footer">
-
-   &copy; copyright @ 2026 by <span> RASH EduHub </span> | all rights reserved!
-
-</footer>
-
-<!-- custom js file link  -->
-<script src="js/script.js"></script>
-<script src="js/home.js"></script>
-
-   
+   <!-- Component Scripts -->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+   <script src="js/theme.js"></script>
+   <script src="js/components/navbar.js"></script>
+   <script src="js/components/sidebar.js"></script>
+   <script src="js/pages/home.js"></script>
 </body>
 </html>

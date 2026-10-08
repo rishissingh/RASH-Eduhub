@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Upload Video & Notes - RASH EduHub</title>
+
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+   <header class="header"></header>
+   <div class="side-bar"></div>
+
+   <section style="min-height: 80vh; padding: 4rem 2rem;">
+      <div class="glass-card" style="max-width: 65rem; margin: 0 auto; padding: 4rem 3rem; border-radius: 2.4rem;">
+         <h2 style="font-size: 2.8rem; margin-bottom: 0.8rem; text-align: center; background: var(--main-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            Upload Video Lesson & Notes
+         </h2>
+         <p style="font-size: 1.5rem; color: var(--light-color); text-align: center; margin-bottom: 3rem;">
+            Step 2: Add video modules, duration, and downloadable PDF notes
+         </p>
+
+         <form id="upload-video-form">
+            <div class="form-group">
+               <label>Target Course *</label>
+               <select name="courseId" class="form-input" required></select>
+            </div>
+
+            <div class="form-group">
+               <label>Lesson Title *</label>
+               <input type="text" name="title" class="form-input" placeholder="e.g., 05. State Management & Hooks in Action" required>
+            </div>
+
+            <div class="form-group">
+               <label>Estimated Video Duration (mm:ss)</label>
+               <input type="text" name="duration" class="form-input" placeholder="15:30" value="15:30">
+            </div>
+
+            <div class="form-group">
+               <label>Lesson Summary / Notes Description</label>
+               <textarea name="description" class="form-input" placeholder="Summarize key code snippets or topics covered in this lesson video..."></textarea>
+            </div>
+
+            <div class="form-group" style="display: flex; align-items: center; gap: 1rem;">
+               <input type="checkbox" name="hasPdf" id="hasPdf" style="width: 2rem; height: 2rem; accent-color: var(--main-color);" checked>
+               <label for="hasPdf" style="margin-bottom: 0; cursor: pointer;">Attach Downloadable PDF Resource Notes</label>
+            </div>
+
+            <button type="submit" class="btn" style="margin-top: 1rem;"><i class="fas fa-upload"></i> Upload Lesson Video & Save</button>
+         </form>
+      </div>
+   </section>
+
+   <footer class="footer" style="text-align: center; padding: 3rem; background: var(--glass-bg); border-top: var(--border); margin-top: 5rem;">
+      <p style="font-size: 1.6rem; color: var(--light-color);">&copy; 2026 <strong>RASH EduHub</strong>. All rights reserved.</p>
+   </footer>
+
+   <!-- Core Services -->
+   <script src="../js/services/db.js"></script>
+   <script src="../js/services/authService.js"></script>
+   <script src="../js/services/courseService.js"></script>
+   <script src="../js/services/userService.js"></script>
+
+   <!-- Components -->
+   <script src="../js/theme.js"></script>
+   <script src="../js/components/navbar.js"></script>
+   <script src="../js/components/sidebar.js"></script>
+   <script src="../js/pages/teacherDashboard.js"></script>
+</body>
+</html>

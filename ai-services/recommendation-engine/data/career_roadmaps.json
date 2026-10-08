@@ -1,0 +1,80 @@
+{
+  "roadmaps": [
+    {
+      "id": "python-backend",
+      "title": "Python Backend Engineering",
+      "category": "Backend Development",
+      "market_demand": 0.92,
+      "required_skills": ["Variables & Data Types", "Control Flow", "Functions", "OOP Basics", "Database Fundamentals", "Web Development Basics", "API Development"],
+      "recommended_courses": [
+        {"id": "course-py-1", "title": "Complete Python Backend Bootcamp", "level": "Beginner"},
+        {"id": "course-api-1", "title": "Building Scalable APIs with FastAPI & Django", "level": "Intermediate"}
+      ],
+      "practice_modules": [
+        {"id": "mod-py-1", "title": "REST API Design & Authentication", "difficulty": "Intermediate"},
+        {"id": "mod-py-2", "title": "Database Schema Design & Query Optimization", "difficulty": "Advanced"}
+      ],
+      "recommended_readings": [
+        "Architecture Patterns with Python (O'Reilly)",
+        "Designing Data-Intensive Applications by Martin Kleppmann"
+      ]
+    },
+    {
+      "id": "data-engineering",
+      "title": "Data Engineering & Pipelines",
+      "category": "Data & AI",
+      "market_demand": 0.95,
+      "required_skills": ["Variables & Data Types", "Functions", "Data Structures", "Algorithms - Sorting", "Database Fundamentals", "SQL"],
+      "recommended_courses": [
+        {"id": "course-data-1", "title": "Data Engineering Essentials", "level": "Beginner"},
+        {"id": "course-spark-1", "title": "Apache Spark & Distributed Pipelines", "level": "Advanced"}
+      ],
+      "practice_modules": [
+        {"id": "mod-data-1", "title": "Building ETL Data Pipelines", "difficulty": "Intermediate"},
+        {"id": "mod-data-2", "title": "Big Data Query Optimization", "difficulty": "Advanced"}
+      ],
+      "recommended_readings": [
+        "Fundamentals of Data Engineering by Joe Reis & Matt Housley",
+        "Spark: The Definitive Guide"
+      ]
+    },
+    {
+      "id": "cpp-systems",
+      "title": "C++ Systems & High-Performance Computing",
+      "category": "Systems & Embedded",
+      "market_demand": 0.88,
+      "required_skills": ["Variables & Data Types", "Control Flow", "Functions", "Recursion", "OOP Basics", "Data Structures", "Algorithms - Sorting", "Algorithms - Graphs"],
+      "recommended_courses": [
+        {"id": "course-cpp-1", "title": "Modern C++ Programming (C++17/20)", "level": "Intermediate"},
+        {"id": "course-sys-1", "title": "Systems Programming & Memory Management", "level": "Advanced"}
+      ],
+      "practice_modules": [
+        {"id": "mod-cpp-1", "title": "Custom Memory Allocator Implementation", "difficulty": "Advanced"},
+        {"id": "mod-cpp-2", "title": "Multithreaded Lock-Free Queue", "difficulty": "Advanced"}
+      ],
+      "recommended_readings": [
+        "Effective Modern C++ by Scott Meyers",
+        "Computer Systems: A Programmer's Perspective"
+      ]
+    },
+    {
+      "id": "fullstack-web",
+      "title": "Modern Full-Stack Web Development",
+      "category": "Full Stack",
+      "market_demand": 0.90,
+      "required_skills": ["Variables & Data Types", "Functions", "Strings", "Web Development Basics", "API Development", "Database Fundamentals"],
+      "recommended_courses": [
+        {"id": "course-fs-1", "title": "Full-Stack Web Mastery (React + Node.js)", "level": "Beginner"},
+        {"id": "course-fs-2", "title": "Microservices Architecture & Deployment", "level": "Advanced"}
+      ],
+      "practice_modules": [
+        {"id": "mod-fs-1", "title": "Full-Stack E-Commerce Platform", "difficulty": "Intermediate"},
+        {"id": "mod-fs-2", "title": "Real-time Chat with WebSockets", "difficulty": "Intermediate"}
+      ],
+      "recommended_readings": [
+        "Full Stack Development with React & Node",
+        "Clean Code by Robert C. Martin"
+      ]
+    }
+  ]
+}

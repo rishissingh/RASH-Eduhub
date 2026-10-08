@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Create Course Wizard - RASH EduHub</title>
+
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+   <header class="header"></header>
+   <div class="side-bar"></div>
+
+   <section style="min-height: 85vh; padding: 4rem 2rem;" id="course-wizard-container">
+      
+      <!-- Stepper Header Navigation -->
+      <div class="glass-card" style="max-width: 85rem; margin: 0 auto 3rem auto; padding: 2rem; border-radius: 2rem;">
+         <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <button class="chip wizard-step-tab active" data-step="1"><strong>1.</strong> Basic Info</button>
+            <i class="fas fa-chevron-right" style="color: var(--light-color);"></i>
+            <button class="chip wizard-step-tab" data-step="2"><strong>2.</strong> Video Lessons</button>
+            <i class="fas fa-chevron-right" style="color: var(--light-color);"></i>
+            <button class="chip wizard-step-tab" data-step="3"><strong>3.</strong> Notes & PDF</button>
+            <i class="fas fa-chevron-right" style="color: var(--light-color);"></i>
+            <button class="chip wizard-step-tab" data-step="4"><strong>4.</strong> Student Preview</button>
+            <i class="fas fa-chevron-right" style="color: var(--light-color);"></i>
+            <button class="chip wizard-step-tab" data-step="5"><strong>5.</strong> Publish</button>
+         </div>
+      </div>
+
+      <div class="glass-card" style="max-width: 85rem; margin: 0 auto; padding: 4rem 3rem; border-radius: 2.4rem;">
+         
+         <!-- STEP 1: BASIC INFORMATION -->
+         <div class="wizard-step-panel" id="step-panel-1" style="display: block;">
+            <h2 style="font-size: 2.6rem; margin-bottom: 0.8rem; background: var(--main-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+               Step 1: Course Basic Information
+            </h2>
+            <p style="font-size: 1.5rem; color: var(--light-color); margin-bottom: 3rem;">Enter your course metadata, pricing, and cover image</p>
+
+            <div class="form-group">
+               <label>Course Title *</label>
+               <input type="text" name="title" class="form-input" placeholder="e.g., Master Full-Stack Web Architecture 2026" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem;">
+               <div class="form-group">
+                  <label>Category *</label>
+                  <select name="category" class="form-input">
+                     <option value="Development">Development</option>
+                     <option value="Python">Python & Data</option>
+                     <option value="DSA">DSA & Algorithms</option>
+                     <option value="Design">UI/UX Design</option>
+                     <option value="Software">Software Engineering</option>
+                  </select>
+               </div>
+
+               <div class="form-group">
+                  <label>Difficulty Level</label>
+                  <select name="difficulty" class="form-input">
+                     <option value="Beginner">Beginner</option>
+                     <option value="Intermediate">Intermediate</option>
+                     <option value="Advanced">Advanced</option>
+                     <option value="All Levels">All Levels</option>
+                  </select>
+               </div>
+
+                <div class="form-group">
+                   <label>Price (₹ INR or Free)</label>
+                   <input type="text" name="price" class="form-input" placeholder="e.g. ₹3,999 or Free" value="₹0 (Free)">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+               <div class="form-group">
+                  <label>Course Language</label>
+                  <select name="language" class="form-input">
+                     <option value="English">English</option>
+                     <option value="Hindi">Hindi / Hinglish</option>
+                     <option value="Spanish">Spanish</option>
+                  </select>
+               </div>
+
+               <div class="form-group">
+                  <label>Cover Thumbnail</label>
+                  <select name="thumbnail" class="form-input">
+                     <option value="images/thumb-1.png">Web Development Thumbnail</option>
+                     <option value="images/thumb-2.png">CSS & Design Thumbnail</option>
+                     <option value="images/thumb-3.png">JavaScript & Tech Thumbnail</option>
+                     <option value="images/thumb-4.png">Bootstrap & Styling Thumbnail</option>
+                  </select>
+               </div>
+            </div>
+
+            <div class="form-group">
+               <label>Course Description *</label>
+               <textarea name="description" class="form-input" placeholder="Describe the course overview, goals, and target audience..." required></textarea>
+            </div>
+
+            <button type="button" id="step1-next-btn" class="btn" style="margin-top: 1rem;">Next: Add Video Lessons <i class="fas fa-arrow-right"></i></button>
+         </div>
+
+         <!-- STEP 2: COURSE CONTENT & LESSON BUILDER -->
+         <div class="wizard-step-panel" id="step-panel-2" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+               <div>
+                  <h2 style="font-size: 2.6rem; margin: 0; background: var(--main-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                     Step 2: Video Lessons Builder
+                  </h2>
+                  <p style="font-size: 1.5rem; color: var(--light-color);">Upload multiple video lessons, set order, and video duration</p>
+               </div>
+               <button type="button" id="add-lesson-btn" class="btn" style="width: auto;">
+                  <i class="fas fa-plus-circle"></i> + Add Lesson Video
+               </button>
+            </div>
+
+            <div id="wizard-lessons-list" style="margin-bottom: 3rem;"></div>
+
+            <button type="button" id="step2-next-btn" class="btn">Next: Attach Notes & PDF Resources <i class="fas fa-arrow-right"></i></button>
+         </div>
+
+         <!-- STEP 3: UPLOAD NOTES & RESOURCES -->
+         <div class="wizard-step-panel" id="step-panel-3" style="display: none;">
+            <h2 style="font-size: 2.6rem; margin-bottom: 0.8rem; background: var(--main-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+               Step 3: Attach Notes & Study Resources
+            </h2>
+            <p style="font-size: 1.5rem; color: var(--light-color); margin-bottom: 3rem;">Attach downloadable PDF, DOCX, PPT, or ZIP study materials for students</p>
+
+            <div style="padding: 2rem; background: var(--light-bg); border-radius: 1.4rem; margin-bottom: 3rem;">
+               <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1.5rem;">
+                  <i class="fas fa-file-pdf" style="font-size: 3.5rem; color: var(--red);"></i>
+                  <div>
+                     <h4 style="font-size: 1.6rem; margin-bottom: 0.3rem;">Official Cheat Sheet & Study Notes</h4>
+                     <span style="font-size: 1.3rem; color: var(--light-color);">Auto-linked to your course lessons for instant student download</span>
+                  </div>
+               </div>
+               <input type="file" accept=".pdf,.docx,.ppt,.zip" class="form-input" style="padding: 1rem;">
+            </div>
+
+            <button type="button" id="step3-next-btn" class="btn">Next: Preview Course <i class="fas fa-arrow-right"></i></button>
+         </div>
+
+         <!-- STEP 4: COURSE PREVIEW -->
+         <div class="wizard-step-panel" id="step-panel-4" style="display: none;">
+            <h2 style="font-size: 2.6rem; margin-bottom: 0.8rem; background: var(--main-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+               Step 4: Interactive Student Preview
+            </h2>
+            <p style="font-size: 1.5rem; color: var(--light-color); margin-bottom: 3rem;">Review how your course will look to students before publishing</p>
+
+            <div id="step4-preview-container" style="margin-bottom: 3rem;"></div>
+
+            <button type="button" id="publish-course-btn" onclick="handlePublishCourse()" class="btn" style="font-size: 1.8rem; padding: 1.4rem;">
+               <i class="fas fa-rocket"></i> Publish Course to LMS Catalog
+            </button>
+         </div>
+
+      </div>
+   </section>
+
+   <!-- ADD/EDIT LESSON MODAL -->
+   <div id="lesson-modal" class="modal-overlay">
+      <div class="modal-content">
+         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h3 style="font-size: 2.2rem; margin: 0;">Add / Edit Lesson Video</h3>
+            <button id="close-modal-btn" class="chip" style="font-size: 1.4rem;"><i class="fas fa-times"></i></button>
+         </div>
+
+         <div class="form-group">
+            <label>Lesson Title *</label>
+            <input type="text" id="modal-lesson-title" class="form-input" placeholder="e.g., 01. Introduction & Setup" required>
+         </div>
+
+         <div class="form-group">
+            <label>Lesson Description</label>
+            <textarea id="modal-lesson-desc" class="form-input" placeholder="Brief explanation of what is covered in this lesson..." style="min-height: 8rem;"></textarea>
+         </div>
+
+         <div class="form-group">
+            <label>Video Duration (mm:ss)</label>
+            <input type="text" id="modal-lesson-duration" class="form-input" value="10:00" placeholder="10:00">
+         </div>
+
+         <!-- VIDEO FILE UPLOADER & LINK SELECTOR -->
+         <div class="form-group" style="padding: 1.5rem; background: var(--light-bg); border-radius: 1rem;">
+            <label style="margin-bottom: 0.8rem;"><i class="fas fa-file-video" style="color: var(--main-color);"></i> Upload MP4/WebM Video File or Enter Video URL</label>
+            <input type="file" id="lesson-video-file" accept="video/mp4,video/webm,video/ogg" class="form-input" style="padding: 0.8rem; margin-bottom: 1rem;">
+            <input type="text" id="lesson-video-url" class="form-input" placeholder="Enter Video File Path / URL (e.g. assets/videos/lesson1.mp4 or https://...)">
+         </div>
+
+         <button type="button" id="save-lesson-btn" class="btn" style="margin-top: 1rem;"><i class="fas fa-save"></i> Save Lesson to Playlist</button>
+      </div>
+   </div>
+
+   <footer class="footer" style="text-align: center; padding: 3rem; background: var(--glass-bg); border-top: var(--border); margin-top: 5rem;">
+      <p style="font-size: 1.6rem; color: var(--light-color);">&copy; 2026 <strong>RASH EduHub</strong>. All rights reserved.</p>
+   </footer>
+
+   <!-- Core Services -->
+   <script src="../js/services/db.js"></script>
+   <script src="../js/services/authService.js"></script>
+   <script src="../js/services/courseService.js"></script>
+   <script src="../js/services/userService.js"></script>
+   <script src="../js/services/videoStorageService.js"></script>
+
+   <!-- Components -->
+   <script src="../js/theme.js"></script>
+   <script src="../js/components/navbar.js"></script>
+   <script src="../js/components/sidebar.js"></script>
+   <script src="../js/pages/teacherDashboard.js"></script>
+</body>
+</html>

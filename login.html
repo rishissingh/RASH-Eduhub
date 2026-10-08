@@ -4,111 +4,93 @@
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>login</title>
+   <title>Sign In - RASH EduHub</title>
 
-   <!-- font awesome cdn link  -->
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
-
-   <!-- custom css file link  -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
    <link rel="stylesheet" href="css/style.css">
 
+   <!-- Google Identity Services -->
+   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
-<header class="header">
-   
-   <section class="flex">
+   <header class="header"></header>
+   <div class="side-bar"></div>
 
-      <a href="index.html" class="logo">RASH EduHub</a>
+   <section style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 4rem 2rem;">
+      <div class="glass-card google-auth-card" style="width: 100%; max-width: 48rem; padding: 4rem 3rem; border-radius: 2.4rem;">
+         
+         <div style="text-align: center; margin-bottom: 3rem;">
+            <a href="index.html" style="display: block; text-align: center; text-decoration: none;">
+               <img src="images/logo.png" alt="RASH EduHub" class="auth-brand-logo">
+            </a>
+            <h2 style="font-size: 2.8rem; margin-bottom: 0.8rem; color: var(--black);">
+               Welcome Back
+            </h2>
+            <p style="font-size: 1.5rem; color: var(--light-color);">Sign in with your Google account to continue</p>
+         </div>
 
-      <form action="courses.html" method="get" class="search-form">
-         <input type="text" name="search_box" required placeholder="search courses..." maxlength="100">
-         <button type="submit" class="fas fa-search"></button>
-      </form>
+         <!-- Google Sign-In Button Container -->
+         <div class="google-signin-wrapper">
+            <div id="google-signin-btn"></div>
+         </div>
 
-      <div class="icons">
-         <div id="menu-btn" class="fas fa-bars"></div>
-         <div id="search-btn" class="fas fa-search"></div>
-         <div id="user-btn" class="fas fa-user"></div>
-         <div id="toggle-btn" class="fas fa-sun"></div>
-      </div>
-
-      <div class="profile">
-         <img src="images/pic-1.jpg" class="image" alt="">
-         <h3 class="name">Harsh singh</h3>
-         <p class="role">Student</p>
-         <a href="profile.html" class="btn">view profile</a>
-         <div class="flex-btn">
-            <a href="login.html" class="option-btn">login</a>
-            <a href="register.html" class="option-btn">register</a>
+         <div style="text-align: center; margin-top: 2.5rem; font-size: 1.5rem; color: var(--light-color);">
+            New to RASH EduHub? <a href="register.html" style="color: var(--main-color); font-weight: 600;">Register Now</a>
          </div>
       </div>
-
    </section>
 
-</header>   
+   <!-- Role Picker Modal (shown on first-time sign-in) -->
+   <div id="role-picker-modal" class="role-picker-overlay" style="display: none;">
+      <div class="role-picker-modal glass-card">
+         <div style="text-align: center; margin-bottom: 2.5rem;">
+            <div class="google-auth-icon-wrapper" style="margin-bottom: 1.5rem;">
+               <i class="fas fa-user-plus"></i>
+            </div>
+            <h2 style="font-size: 2.4rem; margin-bottom: 0.8rem; background: var(--main-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+               Welcome to RASH EduHub!
+            </h2>
+            <p style="font-size: 1.4rem; color: var(--light-color);">Choose how you'd like to use the platform</p>
+         </div>
 
-<div class="side-bar">
+         <div class="role-select-grid">
+            <div class="role-card active" data-role="student" id="role-card-student">
+               <input type="radio" name="google-role" value="student" checked>
+               <i class="fas fa-user-graduate"></i>
+               <span>Student</span>
+               <p>Learn & practice challenge assignments</p>
+            </div>
 
-   <div id="close-btn">
-      <i class="fas fa-times"></i>
+            <div class="role-card" data-role="teacher" id="role-card-teacher">
+               <input type="radio" name="google-role" value="teacher">
+               <i class="fas fa-chalkboard-user"></i>
+               <span>Teacher</span>
+               <p>Upload videos, quizzes & grade challenges</p>
+            </div>
+         </div>
+
+         <button id="role-confirm-btn" class="btn" style="margin-top: 2rem; width: 100%;">
+            <i class="fas fa-rocket"></i> Get Started
+         </button>
+      </div>
    </div>
 
-   <div class="profile">
-      <img src="images/pic-1.jpg" class="image" alt="">
-      <h3 class="name">Rish Singh</h3>
-      <p class="role">Student</p>
-      <a href="profile.html" class="btn">view profile</a>
-   </div>
+   <footer class="footer">
+      <p style="font-size: 1.5rem; color: var(--light-color);">&copy; 2026 <strong>RASH EduHub</strong>. All rights reserved.</p>
+   </footer>
 
-   <nav class="navbar">
-      <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
-      <a href="about.html"><i class="fas fa-question"></i><span>About</span></a>
-      <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>Courses</span></a>
-      <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>Teachers</span></a>
-      <a href="contact.html"><i class="fas fa-headset"></i><span>Contact Us</span></a>
-      <a href="creator.html"><i class="fas fa-video"></i><span>Creator Studio</span></a>
-   </nav>
+   <!-- Core Service Scripts -->
+   <script src="js/services/db.js"></script>
+   <script src="js/services/googleConfig.js"></script>
+   <script src="js/services/authService.js"></script>
+   <script src="js/services/courseService.js"></script>
+   <script src="js/services/userService.js"></script>
 
-</div>
-
-<section class="form-container">
-
-   <form action="" method="post" enctype="multipart/form-data">
-      <h3>login now</h3>
-      <p>your email <span>*</span></p>
-      <input type="email" name="email" placeholder="enter your email" required maxlength="50" class="box">
-      <p>your password <span>*</span></p>
-      <input type="password" name="pass" placeholder="enter your password" required maxlength="20" class="box">
-      <input type="submit" value="login new" name="submit" class="btn">
-   </form>
-
-</section>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<footer class="footer">
-
-    &copy; copyright @ 2026 by <span>RASH EduHub</span> | all rights reserved!
-
-</footer>
-
-<!-- custom js file link  -->
-<script src="js/script.js"></script>
-
-   
+   <!-- Component Scripts -->
+   <script src="js/theme.js"></script>
+   <script src="js/components/navbar.js"></script>
+   <script src="js/components/sidebar.js"></script>
+   <script src="js/pages/authPage.js"></script>
 </body>
 </html>
-

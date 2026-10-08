@@ -4,119 +4,89 @@
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>update</title>
+   <title>Update Profile - RASH EduHub</title>
 
-   <!-- font awesome cdn link  -->
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
-
-   <!-- custom css file link  -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
    <link rel="stylesheet" href="css/style.css">
-
 </head>
 <body>
 
-<header class="header">
-   
-   <section class="flex">
+   <header class="header"></header>
+   <div class="side-bar"></div>
 
-      <a href="index.html" class="logo">RASH EduHub</a>
+   <section style="min-height: 80vh; padding: 4rem 2rem;">
+      <div class="glass-card" style="max-width: 55rem; margin: 0 auto; padding: 4rem 3rem; border-radius: 2.4rem;">
+         <h2 style="font-size: 2.8rem; margin-bottom: 0.8rem; text-align: center; background: var(--main-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            Update Profile Information
+         </h2>
+         <p style="font-size: 1.5rem; color: var(--light-color); text-align: center; margin-bottom: 3rem;">Update your account name, bio, and preferences</p>
 
-      <form action="courses.html" method="get" class="search-form">
-         <input type="text" name="search_box" required placeholder="search courses..." maxlength="100">
-         <button type="submit" class="fas fa-search"></button>
-      </form>
+         <form id="update-profile-form">
+            <div class="form-group">
+               <label>Full Name</label>
+               <input type="text" name="name" class="form-input" placeholder="Enter your full name" required>
+            </div>
 
-      <div class="icons">
-         <div id="menu-btn" class="fas fa-bars"></div>
-         <div id="search-btn" class="fas fa-search"></div>
-         <div id="user-btn" class="fas fa-user"></div>
-         <div id="toggle-btn" class="fas fa-sun"></div>
+            <div class="form-group">
+               <label>Email Address</label>
+               <input type="email" name="email" class="form-input" disabled style="opacity: 0.7;" placeholder="Your email address">
+            </div>
+
+            <div class="form-group">
+               <label>About / Bio</label>
+               <textarea name="bio" class="form-input" placeholder="Tell the community about yourself..." style="min-height: 9rem;"></textarea>
+            </div>
+
+            <button type="submit" class="btn" style="margin-top: 1rem;"><i class="fas fa-save"></i> Save Profile Changes</button>
+         </form>
       </div>
-
-      <div class="profile">
-         <img src="images/pic-1.jpg" class="image" alt="">
-         <h3 class="name">Harsh Singh</h3>
-         <p class="role">student</p>
-         <a href="profile.html" class="btn">view profile</a>
-         <div class="flex-btn">
-            <a href="login.html" class="option-btn">login</a>
-            <a href="register.html" class="option-btn">register</a>
-         </div>
-      </div>
-
    </section>
 
-</header>   
+   <footer class="footer" style="text-align: center; padding: 3rem; background: var(--glass-bg); border-top: var(--border); margin-top: 5rem;">
+      <p style="font-size: 1.6rem; color: var(--light-color);">&copy; 2026 <strong>RASH EduHub</strong>. All rights reserved.</p>
+   </footer>
 
-<div class="side-bar">
+   <!-- Core Services -->
+   <script src="js/services/db.js"></script>
+   <script src="js/services/authService.js"></script>
+   <script src="js/services/courseService.js"></script>
+   <script src="js/services/userService.js"></script>
 
-   <div id="close-btn">
-      <i class="fas fa-times"></i>
-   </div>
+   <!-- Components -->
+   <script src="js/theme.js"></script>
+   <script src="js/components/navbar.js"></script>
+   <script src="js/components/sidebar.js"></script>
+   <script>
+      document.addEventListener('DOMContentLoaded', () => {
+         const user = AuthService.getCurrentUser();
+         if (!user) {
+            window.location.href = 'login.html';
+            return;
+         }
 
-   <div class="profile">
-      <img src="images/pic-1.jpg" class="image" alt="">
-      <h3 class="name">Rishi Singh</h3>
-      <p class="role">student</p>
-      <a href="profile.html" class="btn">view profile</a>
-   </div>
+         const form = document.querySelector('#update-profile-form');
+         if (form) {
+            form.querySelector('[name="name"]').value = user.name || '';
+            form.querySelector('[name="email"]').value = user.email || '';
+            form.querySelector('[name="bio"]').value = user.bio || '';
 
-   <nav class="navbar">
-      <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
-      <a href="about.html"><i class="fas fa-question"></i><span>About</span></a>
-      <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>Courses</span></a>
-      <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>Teachers</span></a>
-      <a href="contact.html"><i class="fas fa-headset"></i><span>Contact Us</span></a>
-      <a href="creator.html"><i class="fas fa-video"></i><span>Creator Studio</span></a>
-   </nav>
+            form.addEventListener('submit', async (e) => {
+               e.preventDefault();
+               const name = form.querySelector('[name="name"]').value;
+               const bio = form.querySelector('[name="bio"]').value;
 
-</div>
-
-<section class="form-container">
-
-   <form action="" method="post" enctype="multipart/form-data">
-      <h3>update profile</h3>
-      <p>update name</p>
-      <input type="text" name="name" placeholder="shaikh anas" maxlength="50" class="box">
-      <p>update email</p>
-      <input type="email" name="email" placeholder="shaikh@gmail.come" maxlength="50" class="box">
-      <p>previous password</p>
-      <input type="password" name="old_pass" placeholder="enter your old password" maxlength="20" class="box">
-      <p>new password</p>
-      <input type="password" name="new_pass" placeholder="enter your old password" maxlength="20" class="box">
-      <p>confirm password</p>
-      <input type="password" name="c_pass" placeholder="confirm your new password" maxlength="20" class="box">
-      <p>update pic</p>
-      <input type="file" accept="image/*" class="box">
-      <input type="submit" value="update profile" name="submit" class="btn">
-   </form>
-
-</section>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<footer class="footer">
-
-    &copy; copyright @ 2026 by <span>mr. Harsh Singh</span> | all rights reserved!
-
-</footer>
-
-<!-- custom js file link  -->
-<script src="js/script.js"></script>
-
-   
+               const res = await UserService.updateProfile({ name, bio });
+               if (res.success) {
+                  if (window.Toast) window.Toast.success('Profile updated successfully!', 'Saved');
+                  setTimeout(() => {
+                     window.location.href = 'profile.html';
+                  }, 800);
+               } else {
+                  if (window.Toast) window.Toast.error(res.message || 'Update failed', 'Error');
+               }
+            });
+         }
+      });
+   </script>
 </body>
 </html>
-

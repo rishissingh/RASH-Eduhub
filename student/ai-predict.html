@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>AI Marks Predictor - RASH EduHub</title>
+
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+   <header class="header"></header>
+   <div class="side-bar"></div>
+
+   <section style="padding: 4rem 2rem;">
+      <div style="text-align: center; max-width: 80rem; margin: 0 auto 4rem auto;">
+         <span class="badge badge-primary" style="padding: 0.8rem 1.6rem; font-size: 1.3rem; margin-bottom: 1.5rem;">
+            <i class="fas fa-brain"></i> AI Machine Learning Predictor
+         </span>
+         <h1 style="font-size: 3.8rem; background: var(--main-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem;">
+            AI Student Performance & Marks Predictor
+         </h1>
+         <p style="font-size: 1.6rem; color: var(--light-color); line-height: 1.7;">
+            Adjust your study habits, sleep schedules, and academic metrics below to generate instant AI final mark projections and personalized study recommendations.
+         </p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 3rem; align-items: start;">
+         
+         <!-- Sliders Input Card -->
+         <div class="glass-card" style="padding: 3rem; border-radius: 2.4rem;">
+            <h3 style="font-size: 2.2rem; margin-bottom: 2.5rem; color: var(--black);">Academic & Lifestyle Metrics</h3>
+
+            <!-- Study Hours Slider -->
+            <div class="form-group" style="margin-bottom: 2.5rem;">
+               <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
+                  <label style="margin: 0;"><i class="fas fa-clock" style="color: var(--main-color);"></i> Daily Study Hours</label>
+                  <span id="val-slider-study" style="font-size: 1.6rem; font-weight: 700; color: var(--main-color);">5 hrs</span>
+               </div>
+               <input type="range" id="slider-study" class="predict-slider" min="1" max="12" step="0.5" value="5" data-unit=" hrs" style="width: 100%; accent-color: var(--main-color); cursor: pointer;">
+            </div>
+
+            <!-- Attendance Slider -->
+            <div class="form-group" style="margin-bottom: 2.5rem;">
+               <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
+                  <label style="margin: 0;"><i class="fas fa-user-check" style="color: var(--accent-color);"></i> Class Attendance %</label>
+                  <span id="val-slider-attendance" style="font-size: 1.6rem; font-weight: 700; color: var(--accent-color);">85%</span>
+               </div>
+               <input type="range" id="slider-attendance" class="predict-slider" min="40" max="100" step="1" value="85" data-unit="%" style="width: 100%; accent-color: var(--accent-color); cursor: pointer;">
+            </div>
+
+            <!-- Sleep Hours Slider -->
+            <div class="form-group" style="margin-bottom: 2.5rem;">
+               <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
+                  <label style="margin: 0;"><i class="fas fa-bed" style="color: var(--orange);"></i> Sleep Duration</label>
+                  <span id="val-slider-sleep" style="font-size: 1.6rem; font-weight: 700; color: var(--orange);">7 hrs</span>
+               </div>
+               <input type="range" id="slider-sleep" class="predict-slider" min="4" max="10" step="0.5" value="7" data-unit=" hrs" style="width: 100%; accent-color: var(--orange); cursor: pointer;">
+            </div>
+
+            <!-- Mid Sem Score Slider -->
+            <div class="form-group" style="margin-bottom: 2.5rem;">
+               <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
+                  <label style="margin: 0;"><i class="fas fa-pen-to-square" style="color: var(--green);"></i> Mid-Semester Average %</label>
+                  <span id="val-slider-midsem" style="font-size: 1.6rem; font-weight: 700; color: var(--green);">78%</span>
+               </div>
+               <input type="range" id="slider-midsem" class="predict-slider" min="30" max="100" step="1" value="78" data-unit="%" style="width: 100%; accent-color: var(--green); cursor: pointer;">
+            </div>
+
+            <!-- Assignments Slider -->
+            <div class="form-group" style="margin-bottom: 2.5rem;">
+               <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
+                  <label style="margin: 0;"><i class="fas fa-file-signature" style="color: var(--main-color);"></i> Assignment Scores %</label>
+                  <span id="val-slider-assignment" style="font-size: 1.6rem; font-weight: 700; color: var(--main-color);">82%</span>
+               </div>
+               <input type="range" id="slider-assignment" class="predict-slider" min="30" max="100" step="1" value="82" data-unit="%" style="width: 100%; accent-color: var(--main-color); cursor: pointer;">
+            </div>
+
+            <!-- CGPA Slider -->
+            <div class="form-group" style="margin-bottom: 2.5rem;">
+               <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
+                  <label style="margin: 0;"><i class="fas fa-graduation-cap" style="color: var(--accent-color);"></i> Previous CGPA</label>
+                  <span id="val-slider-cgpa" style="font-size: 1.6rem; font-weight: 700; color: var(--accent-color);">8.0</span>
+               </div>
+               <input type="range" id="slider-cgpa" class="predict-slider" min="4.0" max="10.0" step="0.1" value="8.0" data-unit="" style="width: 100%; accent-color: var(--accent-color); cursor: pointer;">
+            </div>
+
+            <button id="run-predict-btn" class="btn" style="margin-top: 1rem; font-size: 1.6rem;">
+               <i class="fas fa-calculator"></i> Calculate AI Performance Projection
+            </button>
+         </div>
+
+         <!-- AI Projection & Charts Display -->
+         <div>
+            <!-- Prediction Results Card -->
+            <div class="glass-card" style="padding: 3rem; border-radius: 2.4rem; margin-bottom: 3rem; text-align: center;">
+               <span style="font-size: 1.3rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--light-color);">Projected Final Score</span>
+               <h2 id="res-predicted-score" style="font-size: 5.5rem; background: var(--main-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 1rem 0;">--%</h2>
+
+               <div style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 2rem;">
+                  <div>
+                     <span style="font-size: 1.2rem; color: var(--light-color); display: block;">Expected Grade</span>
+                     <strong id="res-expected-grade" style="font-size: 2.2rem; color: var(--black);">--</strong>
+                  </div>
+                  <div>
+                     <span style="font-size: 1.2rem; color: var(--light-color); display: block;">Pass Probability</span>
+                     <strong id="res-pass-prob" style="font-size: 2.2rem; color: var(--green);">--%</strong>
+                  </div>
+                  <div>
+                     <span style="font-size: 1.2rem; color: var(--light-color); display: block;">Risk Assessment</span>
+                     <span id="res-risk-level" class="badge badge-primary" style="margin-top: 0.4rem;">Analyzing</span>
+                  </div>
+               </div>
+            </div>
+
+            <!-- Charts Container -->
+            <div class="glass-card" style="padding: 2.5rem; border-radius: 2.4rem; margin-bottom: 3rem;">
+               <h4 style="font-size: 1.8rem; margin-bottom: 1.5rem; text-align: center;">Subject Strength Radar</h4>
+               <canvas id="radar-chart-canvas" style="max-height: 25rem;"></canvas>
+            </div>
+
+            <div class="glass-card" style="padding: 2.5rem; border-radius: 2.4rem;">
+               <h4 style="font-size: 1.8rem; margin-bottom: 1.5rem; text-align: center;">Academic Metric Breakdown</h4>
+               <canvas id="bar-chart-canvas" style="max-height: 22rem;"></canvas>
+            </div>
+         </div>
+      </div>
+
+      <!-- AI Recommendations & Plan Section -->
+      <div style="margin-top: 4rem; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;">
+         <div class="glass-card" style="padding: 3rem; border-radius: 2.4rem;">
+            <h3 style="font-size: 2.2rem; margin-bottom: 2rem;"><i class="fas fa-wand-magic-sparkles" style="color: var(--main-color);"></i> AI Recommendations</h3>
+            <div id="res-recommendations"></div>
+         </div>
+
+         <div class="glass-card" style="padding: 3rem; border-radius: 2.4rem;">
+            <h3 style="font-size: 2.2rem; margin-bottom: 2rem;"><i class="fas fa-calendar-check" style="color: var(--accent-color);"></i> Personalized Study Schedule</h3>
+            <div id="res-daily-plan"></div>
+         </div>
+      </div>
+   </section>
+
+   <footer class="footer" style="text-align: center; padding: 3rem; background: var(--glass-bg); border-top: var(--border); margin-top: 5rem;">
+      <p style="font-size: 1.6rem; color: var(--light-color);">&copy; 2026 <strong>RASH EduHub</strong>. All rights reserved.</p>
+   </footer>
+
+   <!-- Core Services -->
+   <script src="../js/services/db.js"></script>
+   <script src="../js/services/authService.js"></script>
+   <script src="../js/services/courseService.js"></script>
+   <script src="../js/services/userService.js"></script>
+   <script src="../js/services/aiService.js"></script>
+
+   <!-- Chart.js Library CDN -->
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+   <!-- Components -->
+   <script src="../js/theme.js"></script>
+   <script src="../js/components/navbar.js"></script>
+   <script src="../js/components/sidebar.js"></script>
+   <script src="../js/pages/aiPredict.js"></script>
+</body>
+</html>
