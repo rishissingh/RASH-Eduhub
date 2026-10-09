@@ -14,6 +14,12 @@ if (!supabaseUrl || !supabaseKey) {
    process.exit(1);
 }
 
+if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+   console.log('🔑 Supabase Client initialized with Service Role Key.');
+} else {
+   console.warn('⚠️ Supabase Client initialized with Anon Key.');
+}
+
 const supabase = createClient(supabaseUrl, supabaseKey, {
    auth: {
       persistSession: false,
