@@ -48,8 +48,14 @@ if (!fs.existsSync(uploadDir)) {
 }
 app.use('/uploads', express.static(uploadDir));
 
-// Serve frontend static files (images, css, js)
-app.use(express.static(path.join(__dirname, '..')));
+// Serve frontend static files (images, css, js) with no-cache for scripts
+app.use(express.static(path.join(__dirname, '..'), {
+   setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.html') || filePath.endsWith('.js')) {
+         res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+      }
+   }
+}));
 
 // --------------- API Routes ---------------
 app.use('/api/auth', require('./routes/auth'));
