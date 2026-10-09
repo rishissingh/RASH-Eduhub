@@ -73,6 +73,22 @@ Anyone can visit this URL to use your application frontend, browse courses, log 
 
 ---
 
+## ⏰ Keeping Render Server Awake 24/7 with Uptime Robot
+
+Render's free tier Web Service spins down (goes to sleep) after 15 minutes of inactivity. Pinging your site every 5 minutes prevents it from going to sleep.
+
+### Uptime Robot Configuration Settings:
+1. Log into [UptimeRobot.com](https://uptimerobot.com/).
+2. Click **+ Add New Monitor**.
+3. Configure the monitor:
+   - **Monitor Type**: `HTTP(s)`
+   - **Friendly Name**: `RASH EduHub Keep-Alive`
+   - **URL (or IP)**: `https://rash-eduhub.onrender.com/ping` (or `https://rash-eduhub.onrender.com/health`)
+   - **Monitoring Interval**: `Every 5 minutes`
+4. Click **Create Monitor**.
+
+---
+
 ## ⚡ Alternative Option: Host Frontend on Vercel & Backend on Render
 
 If you want your frontend hosted separately on Vercel:

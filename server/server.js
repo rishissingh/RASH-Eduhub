@@ -33,6 +33,11 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(sanitizeBody);
 app.use(morgan('dev'));
 
+// --------------- Uptime Robot & Health Check Endpoints ---------------
+// Ultra-fast ping endpoints placed before rate limiting (perfect for Uptime Robot & Render Keep-Alive)
+app.get('/ping', (req, res) => res.status(200).send('OK'));
+app.get('/health', (req, res) => res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() }));
+
 // Apply global API rate limiter to all /api routes
 app.use('/api', apiLimiter);
 
