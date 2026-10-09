@@ -3,7 +3,22 @@
  * Replaces direct LocalStorage queries with network requests to the Node/Express backend.
  */
 
-const API_BASE_URL = 'http://localhost:5000/api';
+/**
+ * Dynamic API Base URL determination:
+ * - On production (Render / live domain): uses relative '/api' route served by Express
+ * - On local development (live-server / dev server on localhost): uses 'http://localhost:5000/api'
+ */
+const getApiBaseUrl = () => {
+   const hostname = window.location.hostname;
+   const port = window.location.port;
+
+   if (port === '5000' || (!hostname.includes('localhost') && !hostname.includes('127.0.0.1'))) {
+      return '/api';
+   }
+   return 'http://localhost:5000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 /**
  * Central authenticated API request helper

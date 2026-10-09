@@ -64,12 +64,25 @@ Scroll down to the **Environment Variables** section on Render and add your secr
 
 ---
 
-### Step 5: Click "Create Web Service"
+### Step 5: Authorize Live Origin in Google Cloud Console (Fixes `origin_mismatch`)
+Google blocks sign-in requests from unauthorized domains (`Error 400: origin_mismatch`). You must authorize your live Render domain:
+
+1. Go to **[Google Cloud Console Credentials](https://console.cloud.google.com/apis/credentials)**.
+2. Under **OAuth 2.0 Client IDs**, click your client ID (`837078721619-6mqtv...`).
+3. Under **Authorized JavaScript origins**, click **+ ADD URI** and enter:
+   `https://rash-eduhub.onrender.com`
+4. Under **Authorized redirect URIs** (if applicable), click **+ ADD URI** and enter:
+   `https://rash-eduhub.onrender.com`
+5. Click **SAVE** (changes take 1–5 minutes to take effect).
+
+---
+
+### Step 6: Click "Create Web Service"
 - Render will start pulling code from your GitHub repository, running `npm install`, and starting `server.js`.
 - In 1–2 minutes, Render will output your live URL:  
   🌐 **`https://rash-eduhub.onrender.com`**
 
-Anyone can visit this URL to use your application frontend, browse courses, log in, practice code, and interact with Supabase database!
+Anyone can visit this URL to use your application frontend, browse courses, log in with Google, practice code, and interact with Supabase database!
 
 ---
 

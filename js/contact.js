@@ -18,8 +18,13 @@ document.addEventListener('DOMContentLoaded', () => {
          return;
       }
 
+      // Determine dynamic API URL
+      const apiBase = (typeof window.EduHubDB !== 'undefined' && window.EduHubDB.API_BASE_URL)
+         ? window.EduHubDB.API_BASE_URL
+         : (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1') ? 'http://localhost:5000/api' : '/api');
+
       // Send to Express API
-      fetch('http://localhost:5000/api/contact', {
+      fetch(`${apiBase}/contact`, {
          method: 'POST',
          headers: {
             'Content-Type': 'application/json'
