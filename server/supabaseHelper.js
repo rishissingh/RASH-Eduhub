@@ -120,17 +120,31 @@ function formatContactMessage(c) {
 
 function formatCodeChallenge(ch) {
    if (!ch) return null;
+
+   const topics = Array.isArray(ch.topic) ? ch.topic : (ch.category ? [ch.category] : ['Algorithms']);
+   const sampleCases = Array.isArray(ch.sample_test_cases) && ch.sample_test_cases.length > 0 
+      ? ch.sample_test_cases 
+      : (Array.isArray(ch.test_cases) ? ch.test_cases.filter(t => !t.isHidden) : []);
+
    return {
-      _id: ch.id,
-      id: ch.id,
+      _id: ch.code_id || ch.id,
+      id: ch.code_id || ch.id,
+      dbId: ch.id,
+      codeId: ch.code_id || ch.id,
       title: ch.title,
       description: ch.description,
       difficulty: ch.difficulty || 'Easy',
-      category: ch.category || 'JavaScript',
-      starterCode: ch.starter_code || '',
-      testCases: ch.test_cases || [],
+      topic: topics,
+      category: topics.join(' · '),
+      inputFormat: ch.input_format || ch.inputFormat || '',
+      outputFormat: ch.output_format || ch.outputFormat || '',
+      constraints: Array.isArray(ch.constraints) ? ch.constraints : [],
+      sampleTestCases: sampleCases,
+      // IMPORTANT: hidden_test_cases are intentionally omitted from public API formatting
+      starterCode: ch.starter_code || {},
+      supportedLanguages: ch.supported_languages || ["python", "java", "cpp", "javascript"],
       solution: ch.solution || '',
-      points: ch.points || 50,
+      points: ch.points || 100,
       createdAt: ch.created_at
    };
 }

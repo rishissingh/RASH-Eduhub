@@ -91,15 +91,22 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 
 -- 6. Code Challenges Table
 CREATE TABLE IF NOT EXISTS code_challenges (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  id TEXT PRIMARY KEY,
+  code_id TEXT,
   title TEXT NOT NULL,
-  description TEXT NOT NULL,
   difficulty TEXT DEFAULT 'Easy',
-  category TEXT DEFAULT 'JavaScript',
-  starter_code TEXT,
-  test_cases JSONB DEFAULT '[]'::jsonb,
+  topic JSONB DEFAULT '[]'::jsonb,
+  category TEXT DEFAULT 'Algorithms',
+  description TEXT NOT NULL,
+  input_format TEXT,
+  output_format TEXT,
+  constraints JSONB DEFAULT '[]'::jsonb,
+  sample_test_cases JSONB DEFAULT '[]'::jsonb,
+  hidden_test_cases JSONB DEFAULT '[]'::jsonb,
+  starter_code JSONB DEFAULT '{}'::jsonb,
+  supported_languages JSONB DEFAULT '["python", "java", "cpp", "javascript"]'::jsonb,
   solution TEXT,
-  points INTEGER DEFAULT 50,
+  points INTEGER DEFAULT 100,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

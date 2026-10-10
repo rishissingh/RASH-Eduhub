@@ -182,15 +182,20 @@ async function renderCourses() {
                   <span><i class="fas fa-user-graduate"></i> ${c.studentsCount} Students</span>
                </div>
 
-               ${isEnrolled ? `
-                  <a href="student/watch-video.html?courseId=${c.id || c._id}" class="option-btn" style="width: 100%; text-align: center;">
-                     <i class="fas fa-play"></i> Continue Learning
+               <div class="flex-btn" style="gap: 1rem;">
+                  <a href="notes.html?courseId=${c.id || c._id}" class="option-btn" style="text-align: center;" title="View Course Notes">
+                     <i class="fas fa-book-open"></i> Notes
                   </a>
-               ` : `
-                  <button class="btn" style="width: 100%;" onclick="handleEnroll('${c.id || c._id}')">
-                     <i class="fas fa-graduation-cap"></i> Enroll Now
-                  </button>
-               `}
+                  ${isEnrolled ? `
+                     <a href="student/watch-video.html?courseId=${c.id || c._id}" class="btn" style="text-align: center;">
+                        <i class="fas fa-play"></i> Watch
+                     </a>
+                  ` : `
+                     <button class="btn" onclick="handleEnroll('${c.id || c._id}')">
+                        <i class="fas fa-graduation-cap"></i> Enroll
+                     </button>
+                  `}
+               </div>
             </div>
          </div>
       `;

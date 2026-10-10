@@ -82,7 +82,10 @@ function renderPlaylistDetails(course) {
                <h2 style="font-size: 2.8rem; color: var(--black); margin-bottom: 1.2rem; line-height: 1.3;">${course.title}</h2>
                <p style="font-size: 1.5rem; color: var(--light-color); line-height: 1.7; margin-bottom: 2.5rem;">${course.description}</p>
                
-               <div class="flex-btn" style="gap: 1.5rem;">
+               <div class="flex-btn" style="gap: 1.2rem; flex-wrap: wrap;">
+                  <a href="notes.html?courseId=${course.id || course._id}" class="option-btn" style="text-align: center;">
+                     <i class="fas fa-book-open"></i> View Course Notes
+                  </a>
                   <a href="teacher_profile.html?teacherId=${course.teacherId || ''}" class="inline-btn" style="text-align: center;">
                      <i class="fas fa-user"></i> View Instructor
                   </a>

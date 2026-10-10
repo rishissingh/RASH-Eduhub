@@ -432,20 +432,35 @@ function renderLessonDetails() {
 
    const notesContainer = document.querySelector('#tab-notes-content');
    if (notesContainer) {
-      const pdfLink = currentVideo.notes || currentVideo.pdfAttachment || 'assets/pdf/html5_cheatsheet.pdf';
+      const activeLessonId = currentVideo.lessonId || currentVideo.id;
+      const notesData = window.CourseNotesService ? window.CourseNotesService.getNotesByLessonId(activeLessonId) : null;
+      const summaryText = notesData ? notesData.summary : `Official lecture cheat sheet and comprehensive study notes for ${currentVideo.title}.`;
+      const notesUrl = `notes.html?courseId=${currentCourse.id || currentCourse._id}&lessonId=${activeLessonId}`;
 
       notesContainer.innerHTML = `
-         <div style="padding: 2rem; background: var(--light-bg); border-radius: 1.2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;">
-            <div style="display: flex; align-items: center; gap: 1.5rem;">
-               <i class="fas fa-file-pdf" style="font-size: 3.5rem; color: var(--red);"></i>
-               <div>
-                  <h4 style="font-size: 1.6rem; margin-bottom: 0.3rem;">Official Lecture Cheat Sheet & PDF Notes</h4>
-                  <span style="font-size: 1.3rem; color: var(--light-color);">Curated study material for ${currentVideo.title}</span>
+         <div style="padding: 2.5rem; background: var(--light-bg); border-radius: 1.6rem; border: var(--border);">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 2rem;">
+               <div style="display: flex; align-items: center; gap: 1.5rem;">
+                  <i class="fas fa-book-bookmark" style="font-size: 3.5rem; color: var(--main-color);"></i>
+                  <div>
+                     <h4 style="font-size: 1.8rem; margin-bottom: 0.3rem; color: var(--black);">Official Lecture Notes & Revision Guide</h4>
+                     <span style="font-size: 1.35rem; color: var(--light-color);">Curated study material for <strong>${currentVideo.title}</strong></span>
+                  </div>
+               </div>
+               
+               <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                  <a href="${notesUrl}" class="btn" style="width: auto; font-size: 1.35rem; padding: 0.9rem 1.8rem;">
+                     <i class="fas fa-book-open"></i> Open Interactive Notes
+                  </a>
+                  <a href="${notesUrl}" target="_blank" class="option-btn" style="width: auto; font-size: 1.35rem; padding: 0.9rem 1.6rem;">
+                     <i class="fas fa-download"></i> Print / Save PDF
+                  </a>
                </div>
             </div>
-            <a href="../${pdfLink}" download class="btn" style="width: auto;">
-               <i class="fas fa-download"></i> Download PDF
-            </a>
+
+            <p style="font-size: 1.45rem; color: var(--light-color); line-height: 1.7; background: var(--card-bg); padding: 1.5rem 1.8rem; border-radius: 1.2rem; margin: 0; border: var(--border);">
+               <strong>💡 Notes Overview:</strong> ${summaryText}
+            </p>
          </div>
       `;
    }

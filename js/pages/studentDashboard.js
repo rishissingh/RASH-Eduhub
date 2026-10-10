@@ -450,9 +450,14 @@ function renderMyCourses(enrolledCourses) {
             <img src="../${c.thumbnail}" alt="${c.title}" style="width: 100%; height: 100%; object-fit: cover;">
          </div>
          <h3 class="title" style="font-size: 1.8rem; color: var(--black);">${c.title}</h3>
-         <a href="watch-video.html?courseId=${c.id}" class="inline-btn" style="width: 100%; text-align: center; margin-top: 1rem;">
-            Watch Videos & Notes
-         </a>
+         <div class="flex-btn" style="gap: 1rem; margin-top: 1.2rem;">
+            <a href="notes.html?courseId=${c.id}" class="option-btn" style="text-align: center;">
+               <i class="fas fa-book-open"></i> Notes
+            </a>
+            <a href="watch-video.html?courseId=${c.id}" class="btn" style="text-align: center;">
+               <i class="fas fa-play"></i> Watch
+            </a>
+         </div>
       </div>
    `).join('');
 }

@@ -1,12 +1,13 @@
 /**
  * RASH EduHub — Supabase Database Seed Script (v2.0)
- * Seeds the Supabase PostgreSQL database with initial data.
+ * Seeds the Supabase PostgreSQL database with initial courses, detailed notes, and code challenges.
  *
  * Usage: node seed.js
  */
 
 require('dotenv').config({ path: require('path').join(__dirname, '.env'), override: true });
 const { supabase } = require('./supabaseHelper');
+const { COURSE_NOTES_DATA } = require('../js/services/notesData');
 const bcrypt = require('bcryptjs');
 
 async function seedSupabase() {
@@ -27,7 +28,7 @@ async function seedSupabase() {
             experience: '8+ Years',
             rating: 4.9,
             students_count: 15400,
-            courses_count: 2,
+            courses_count: 4,
             bio: 'Passionate software engineer and educator with expertise in modern Web Tech, React, and Microservices.'
          },
          {
@@ -53,7 +54,7 @@ async function seedSupabase() {
             experience: '7+ Years',
             rating: 4.9,
             students_count: 18900,
-            courses_count: 2,
+            courses_count: 1,
             bio: 'Machine Learning specialist, AI researcher, and mentor helping students master Python and AI.'
          },
          {
@@ -92,22 +93,34 @@ async function seedSupabase() {
          }
       }
 
-      // Get teacher ID for courses
-      const { data: teacherUser } = await supabase
+      // Get teacher Users
+      const { data: harshTeacher } = await supabase
          .from('users')
          .select('id, name, avatar, title')
          .eq('email', 'harsh@eduhub.com')
          .single();
 
-      if (teacherUser) {
+      const { data: adarshTeacher } = await supabase
+         .from('users')
+         .select('id, name, avatar, title')
+         .eq('email', 'adarsh@eduhub.com')
+         .single();
+
+      const { data: svTeacher } = await supabase
+         .from('users')
+         .select('id, name, avatar, title')
+         .eq('email', 'sv@eduhub.com')
+         .single();
+
+      if (harshTeacher) {
          const sampleCourses = [
             {
                title: 'Complete Modern Web Development 2026',
-               description: 'Master HTML5, CSS3, JavaScript, Flexbox, CSS Grid, and responsive frontend architecture from scratch.',
-               tutor_name: teacherUser.name,
-               tutor_avatar: teacherUser.avatar,
-               tutor_title: teacherUser.title,
-               tutor_id: teacherUser.id,
+               description: 'Master HTML5, CSS3, JavaScript, Flexbox, CSS Grid, and responsive frontend architecture from scratch with full interactive lecture notes.',
+               tutor_name: harshTeacher.name,
+               tutor_avatar: harshTeacher.avatar,
+               tutor_title: harshTeacher.title,
+               tutor_id: harshTeacher.id,
                category: 'Development',
                thumb: 'images/thumb-1.png',
                date: '2026-01-15',
@@ -118,25 +131,34 @@ async function seedSupabase() {
                playlists: [
                   {
                      _id: 'lesson_1',
+                     id: 'lesson_1',
                      title: '01. HTML5 Semantic Layouts & Best Practices',
                      description: 'Learn structure and semantic HTML tags.',
                      video: 'https://vjs.zencdn.net/v/oceans.mp4',
+                     notes: COURSE_NOTES_DATA['lesson_1']?.content || '',
+                     pdfAttachment: 'notes.html?courseId=c1&lessonId=lesson_1',
                      duration: '14:20',
                      order: 1
                   },
                   {
                      _id: 'lesson_2',
+                     id: 'lesson_2',
                      title: '02. Modern CSS3 Flexbox & Glassmorphism Design',
                      description: 'Master flex properties and sleek glass UI.',
                      video: 'https://vjs.zencdn.net/v/oceans.mp4',
+                     notes: COURSE_NOTES_DATA['lesson_2']?.content || '',
+                     pdfAttachment: 'notes.html?courseId=c1&lessonId=lesson_2',
                      duration: '22:15',
                      order: 2
                   },
                   {
                      _id: 'lesson_3',
+                     id: 'lesson_3',
                      title: '03. JavaScript ES6+ Fundamentals & DOM Manipulation',
                      description: 'Deep dive into JS variables, arrow functions, and DOM events.',
                      video: 'https://vjs.zencdn.net/v/oceans.mp4',
+                     notes: COURSE_NOTES_DATA['lesson_3']?.content || '',
+                     pdfAttachment: 'notes.html?courseId=c1&lessonId=lesson_3',
                      duration: '35:40',
                      order: 3
                   }
@@ -144,11 +166,11 @@ async function seedSupabase() {
             },
             {
                title: 'Advanced React & Next.js Full-Stack Masterclass',
-               description: 'Build enterprise-grade full-stack web applications with Next.js, Server Components, and Supabase backend.',
-               tutor_name: teacherUser.name,
-               tutor_avatar: teacherUser.avatar,
-               tutor_title: teacherUser.title,
-               tutor_id: teacherUser.id,
+               description: 'Build enterprise-grade full-stack web applications with Next.js, Server Components, and Supabase backend with complete notes.',
+               tutor_name: harshTeacher.name,
+               tutor_avatar: harshTeacher.avatar,
+               tutor_title: harshTeacher.title,
+               tutor_id: harshTeacher.id,
                category: 'Development',
                thumb: 'images/thumb-2.png',
                date: '2026-02-01',
@@ -159,18 +181,202 @@ async function seedSupabase() {
                playlists: [
                   {
                      _id: 'lesson_101',
+                     id: 'lesson_101',
                      title: '01. Next.js 14 App Router Architecture',
                      description: 'Understanding Server vs Client Components.',
                      video: 'https://vjs.zencdn.net/v/oceans.mp4',
+                     notes: COURSE_NOTES_DATA['lesson_101']?.content || '',
+                     pdfAttachment: 'notes.html?courseId=c2&lessonId=lesson_101',
                      duration: '28:10',
                      order: 1
                   },
                   {
                      _id: 'lesson_102',
+                     id: 'lesson_102',
                      title: '02. Supabase Authentication & Database Integration',
                      description: 'Hooking up Supabase OAuth and Row Level Security.',
                      video: 'https://vjs.zencdn.net/v/oceans.mp4',
+                     notes: COURSE_NOTES_DATA['lesson_102']?.content || '',
+                     pdfAttachment: 'notes.html?courseId=c2&lessonId=lesson_102',
                      duration: '40:00',
+                     order: 2
+                  }
+               ]
+            },
+            {
+               title: 'Data Structures & Algorithms in Java & C++',
+               description: 'Master Big O notation, Arrays, Linked Lists, Trees, and Graph Traversals (BFS/DFS) with detailed algorithmic notes.',
+               tutor_name: harshTeacher.name,
+               tutor_avatar: harshTeacher.avatar,
+               tutor_title: harshTeacher.title,
+               tutor_id: harshTeacher.id,
+               category: 'DSA',
+               thumb: 'images/thumb-3.png',
+               date: '2026-01-10',
+               status: 'active',
+               enrolled_count: 9800,
+               lessons_count: 3,
+               rating: 4.9,
+               playlists: [
+                  {
+                     _id: 'lesson_201',
+                     id: 'lesson_201',
+                     title: '01. Arrays, String Manipulation & Dynamic Memory',
+                     description: 'Big O analysis, two pointer technique, and memory management.',
+                     video: 'https://vjs.zencdn.net/v/oceans.mp4',
+                     notes: COURSE_NOTES_DATA['lesson_201']?.content || '',
+                     pdfAttachment: 'notes.html?courseId=c3&lessonId=lesson_201',
+                     duration: '25:30',
+                     order: 1
+                  },
+                  {
+                     _id: 'lesson_202',
+                     id: 'lesson_202',
+                     title: '02. Linked Lists, Stacks & Queue Data Structures',
+                     description: 'Node pointers, LIFO Stacks, and FIFO Queues.',
+                     video: 'https://vjs.zencdn.net/v/oceans.mp4',
+                     notes: COURSE_NOTES_DATA['lesson_202']?.content || '',
+                     pdfAttachment: 'notes.html?courseId=c3&lessonId=lesson_202',
+                     duration: '31:15',
+                     order: 2
+                  },
+                  {
+                     _id: 'lesson_203',
+                     id: 'lesson_203',
+                     title: '03. Binary Search Trees & Graph Traversal (BFS & DFS)',
+                     description: 'BST invariants, Tree traversals, BFS and DFS algorithms.',
+                     video: 'https://vjs.zencdn.net/v/oceans.mp4',
+                     notes: COURSE_NOTES_DATA['lesson_203']?.content || '',
+                     pdfAttachment: 'notes.html?courseId=c3&lessonId=lesson_203',
+                     duration: '42:00',
+                     order: 3
+                  }
+               ]
+            },
+            {
+               title: 'Python Data Science & Machine Learning Bootcamp',
+               description: 'Complete hands-on Python data science course with NumPy, Pandas, Scikit-Learn machine learning pipelines and lecture notes.',
+               tutor_name: adarshTeacher ? adarshTeacher.name : harshTeacher.name,
+               tutor_avatar: adarshTeacher ? adarshTeacher.avatar : harshTeacher.avatar,
+               tutor_title: adarshTeacher ? adarshTeacher.title : harshTeacher.title,
+               tutor_id: adarshTeacher ? adarshTeacher.id : harshTeacher.id,
+               category: 'Python',
+               thumb: 'images/thumb-4.png',
+               date: '2026-01-22',
+               status: 'active',
+               enrolled_count: 11400,
+               lessons_count: 3,
+               rating: 4.9,
+               playlists: [
+                  {
+                     _id: 'lesson_301',
+                     id: 'lesson_301',
+                     title: '01. Python Fundamentals & Data Structures',
+                     description: 'Lists, Tuples, Dicts, List Comprehensions, and OOP in Python.',
+                     video: 'https://vjs.zencdn.net/v/oceans.mp4',
+                     notes: COURSE_NOTES_DATA['lesson_301']?.content || '',
+                     pdfAttachment: 'notes.html?courseId=c4&lessonId=lesson_301',
+                     duration: '20:10',
+                     order: 1
+                  },
+                  {
+                     _id: 'lesson_302',
+                     id: 'lesson_302',
+                     title: '02. NumPy & Pandas for Data Manipulation',
+                     description: 'Array vectorization, DataFrame filtering, GroupBy and Aggregations.',
+                     video: 'https://vjs.zencdn.net/v/oceans.mp4',
+                     notes: COURSE_NOTES_DATA['lesson_302']?.content || '',
+                     pdfAttachment: 'notes.html?courseId=c4&lessonId=lesson_302',
+                     duration: '34:20',
+                     order: 2
+                  },
+                  {
+                     _id: 'lesson_303',
+                     id: 'lesson_303',
+                     title: '03. Scikit-Learn Machine Learning Models',
+                     description: 'Supervised Learning, Random Forests, train-test splits, and evaluation metrics.',
+                     video: 'https://vjs.zencdn.net/v/oceans.mp4',
+                     notes: COURSE_NOTES_DATA['lesson_303']?.content || '',
+                     pdfAttachment: 'notes.html?courseId=c4&lessonId=lesson_303',
+                     duration: '45:00',
+                     order: 3
+                  }
+               ]
+            },
+            {
+               title: 'UI/UX Design Masterclass & Glassmorphism Systems',
+               description: 'Learn modern visual hierarchy, typography design tokens, Figma prototyping, and glassmorphism styling.',
+               tutor_name: svTeacher ? svTeacher.name : harshTeacher.name,
+               tutor_avatar: svTeacher ? svTeacher.avatar : harshTeacher.avatar,
+               tutor_title: svTeacher ? svTeacher.title : harshTeacher.title,
+               tutor_id: svTeacher ? svTeacher.id : harshTeacher.id,
+               category: 'Design',
+               thumb: 'images/thumb-5.png',
+               date: '2026-02-10',
+               status: 'active',
+               enrolled_count: 5300,
+               lessons_count: 2,
+               rating: 4.8,
+               playlists: [
+                  {
+                     _id: 'lesson_401',
+                     id: 'lesson_401',
+                     title: '01. Visual Hierarchy, Typography & Design Tokens',
+                     description: 'Design principles, typography pairing, and CSS design tokens.',
+                     video: 'https://vjs.zencdn.net/v/oceans.mp4',
+                     notes: COURSE_NOTES_DATA['lesson_401']?.content || '',
+                     pdfAttachment: 'notes.html?courseId=c5&lessonId=lesson_401',
+                     duration: '18:45',
+                     order: 1
+                  },
+                  {
+                     _id: 'lesson_402',
+                     id: 'lesson_402',
+                     title: '02. Figma Prototyping & Modern Glassmorphism',
+                     description: 'Figma Auto Layout 5.0 and Glassmorphism CSS design system.',
+                     video: 'https://vjs.zencdn.net/v/oceans.mp4',
+                     notes: COURSE_NOTES_DATA['lesson_402']?.content || '',
+                     pdfAttachment: 'notes.html?courseId=c5&lessonId=lesson_402',
+                     duration: '26:30',
+                     order: 2
+                  }
+               ]
+            },
+            {
+               title: 'Full-Stack Node.js, Express & PostgreSQL Database Architecture',
+               description: 'Build robust REST APIs with Express.js middleware, security headers, PostgreSQL schema design, and Supabase pooling.',
+               tutor_name: harshTeacher.name,
+               tutor_avatar: harshTeacher.avatar,
+               tutor_title: harshTeacher.title,
+               tutor_id: harshTeacher.id,
+               category: 'Development',
+               thumb: 'images/thumb-6.png',
+               date: '2026-02-15',
+               status: 'active',
+               enrolled_count: 7600,
+               lessons_count: 2,
+               rating: 4.9,
+               playlists: [
+                  {
+                     _id: 'lesson_501',
+                     id: 'lesson_501',
+                     title: '01. Express REST API Design & Middleware',
+                     description: 'Routing, middleware pipelines, JWT auth guards, and error handling.',
+                     video: 'https://vjs.zencdn.net/v/oceans.mp4',
+                     notes: COURSE_NOTES_DATA['lesson_501']?.content || '',
+                     pdfAttachment: 'notes.html?courseId=c6&lessonId=lesson_501',
+                     duration: '29:40',
+                     order: 1
+                  },
+                  {
+                     _id: 'lesson_502',
+                     id: 'lesson_502',
+                     title: '02. PostgreSQL Schema, Queries & Supabase Integration',
+                     description: 'Relational DB design, foreign keys, SQL JOINs, and Supabase integration.',
+                     video: 'https://vjs.zencdn.net/v/oceans.mp4',
+                     notes: COURSE_NOTES_DATA['lesson_502']?.content || '',
+                     pdfAttachment: 'notes.html?courseId=c6&lessonId=lesson_502',
+                     duration: '37:15',
                      order: 2
                   }
                ]
@@ -187,49 +393,30 @@ async function seedSupabase() {
             if (!existingCourse) {
                await supabase.from('courses').insert([c]);
                console.log(` ✅ Created course: ${c.title}`);
+            } else {
+               // Update existing course to ensure latest playlists & notes are populated
+               await supabase.from('courses').update({ playlists: c.playlists, videos: c.playlists, description: c.description }).eq('id', existingCourse.id);
+               console.log(` 🔄 Updated course notes & lessons: ${c.title}`);
             }
          }
       }
 
-      // Seed Code Challenges
-      const sampleChallenges = [
-         {
-            title: 'Two Sum Problem',
-            description: 'Given an array of integers `nums` and an integer `target`, return indices of the two numbers such that they add up to `target`.',
-            difficulty: 'Easy',
-            category: 'Algorithms',
-            starter_code: 'function twoSum(nums, target) {\n   // Write your code here\n}',
-            test_cases: [
-               { input: '[2, 7, 11, 15], target = 9', expected: '[0, 1]', isHidden: false },
-               { input: '[3, 2, 4], target = 6', expected: '[1, 2]', isHidden: false },
-               { input: '[3, 3], target = 6', expected: '[0, 1]', isHidden: true }
-            ],
-            points: 50
-         },
-         {
-            title: 'Reverse a String',
-            description: 'Write a function that reverses a given string in-place or returns a reversed string.',
-            difficulty: 'Easy',
-            category: 'Strings',
-            starter_code: 'function reverseString(str) {\n   return str.split("").reverse().join("");\n}',
-            test_cases: [
-               { input: '"hello"', expected: '"olleh"', isHidden: false },
-               { input: '"EduHub"', expected: '"buhUdE"', isHidden: false }
-            ],
-            points: 40
-         }
-      ];
+      // Seed 5 Standard Code Arena DSA Challenges
+      const { CODE_CHALLENGES_SEED } = require('./codeChallengesSeed');
 
-      for (const ch of sampleChallenges) {
+      for (const ch of CODE_CHALLENGES_SEED) {
          const { data: existingCh } = await supabase
             .from('code_challenges')
             .select('id')
-            .eq('title', ch.title)
+            .eq('id', ch.id)
             .maybeSingle();
 
          if (!existingCh) {
             await supabase.from('code_challenges').insert([ch]);
-            console.log(` ✅ Created code challenge: ${ch.title}`);
+            console.log(` ✅ Created Code Arena challenge: [${ch.id}] ${ch.title}`);
+         } else {
+            await supabase.from('code_challenges').update(ch).eq('id', ch.id);
+            console.log(` 🔄 Updated Code Arena challenge: [${ch.id}] ${ch.title}`);
          }
       }
 

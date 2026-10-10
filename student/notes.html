@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Course Notes & PDF Study Material - RASH EduHub</title>
+
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <link rel="stylesheet" href="../css/style.css">
+   <style>
+      .notes-header-card {
+         background: var(--main-gradient);
+         color: #ffffff;
+         padding: 3rem;
+         border-radius: 2.4rem;
+         margin-bottom: 3rem;
+         box-shadow: 0 10px 30px rgba(37, 99, 235, 0.2);
+      }
+      .note-box {
+         padding: 1.8rem;
+         border-radius: 1.4rem;
+         margin: 2rem 0;
+         font-size: 1.45rem;
+         line-height: 1.7;
+      }
+      .note-tip {
+         background: rgba(16, 185, 129, 0.1);
+         border-left: 4px solid var(--green);
+         color: var(--black);
+      }
+      .note-important {
+         background: rgba(239, 68, 68, 0.1);
+         border-left: 4px solid var(--red);
+         color: var(--black);
+      }
+      .notes-content-body {
+         font-size: 1.55rem;
+         line-height: 1.8;
+         color: var(--black);
+      }
+      .notes-content-body h3 {
+         font-size: 2.2rem;
+         margin: 2.5rem 0 1rem 0;
+         color: var(--main-color);
+      }
+      .notes-content-body ul, .notes-content-body ol {
+         margin: 1rem 0 1.5rem 2rem;
+      }
+      .notes-content-body li {
+         margin-bottom: 0.8rem;
+      }
+      .takeaways-card {
+         background: var(--light-bg);
+         border-radius: 1.8rem;
+         padding: 2.5rem;
+         margin-top: 3rem;
+         border: var(--border);
+      }
+      @media print {
+         .header, .side-bar, .footer, .no-print {
+            display: none !important;
+         }
+         body {
+            background: #fff !important;
+            color: #000 !important;
+         }
+         .glass-card {
+            box-shadow: none !important;
+            border: 1px solid #ccc !important;
+         }
+      }
+   </style>
+</head>
+<body>
+
+   <header class="header no-print"></header>
+   <div class="side-bar no-print"></div>
+
+   <section style="padding: 3rem 2rem; min-height: 85vh;">
+      <div style="max-width: 110rem; margin: 0 auto;">
+         
+         <!-- Header Banner & Lesson Switcher -->
+         <div class="notes-header-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 2rem;">
+               <div>
+                  <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.2rem; flex-wrap: wrap;">
+                     <span class="badge" style="background: rgba(255,255,255,0.25); color: #fff; font-weight: 700;" id="notes-category-badge">Development</span>
+                     <span class="badge" style="background: rgba(255,255,255,0.2); color: #fff;" id="notes-author-tag"><i class="fas fa-user-graduate"></i> Instructor: Harsh Singh</span>
+                  </div>
+                  <h1 style="font-size: 3.2rem; color: #fff; margin-bottom: 0.8rem; font-weight: 800;" id="notes-course-title">Complete Modern Web Development 2026</h1>
+                  <p style="font-size: 1.6rem; opacity: 0.95;" id="notes-lesson-title"><i class="fas fa-book-open"></i> 01. HTML5 Semantic Layouts & Best Practices</p>
+               </div>
+
+               <div class="no-print" style="display: flex; gap: 1.2rem; flex-wrap: wrap; align-items: center;">
+                  <a href="../courses.html" id="notes-back-course-btn" class="option-btn" style="background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.4); width: auto;">
+                     <i class="fas fa-arrow-left"></i> Course Catalog
+                  </a>
+                  <a href="#" id="notes-watch-video-btn" class="btn" style="background: #fff; color: var(--main-color); font-weight: 700; width: auto;">
+                     <i class="fas fa-play-circle"></i> Watch Video Lesson
+                  </a>
+               </div>
+            </div>
+         </div>
+
+         <div style="display: grid; grid-template-columns: 2.8fr 1fr; gap: 3rem; align-items: start;">
+            
+            <!-- Main Interactive Notes Container -->
+            <div>
+               <!-- Quick Actions Toolbar -->
+               <div class="glass-card no-print" style="padding: 1.8rem 2.5rem; border-radius: 1.8rem; margin-bottom: 2.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+                  <div style="display: flex; align-items: center; gap: 1.2rem;">
+                     <i class="fas fa-file-pdf" style="font-size: 2.4rem; color: var(--red);"></i>
+                     <strong style="font-size: 1.6rem; color: var(--black);">Official Study Notes & Cheat Sheet</strong>
+                  </div>
+
+                  <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                     <button id="btn-print-notes" class="btn" style="width: auto; padding: 0.8rem 1.6rem; font-size: 1.3rem;">
+                        <i class="fas fa-print"></i> Print / Save PDF
+                     </button>
+                     <button id="btn-copy-notes" class="option-btn" style="width: auto; padding: 0.8rem 1.6rem; font-size: 1.3rem;">
+                        <i class="fas fa-copy"></i> Copy Text
+                     </button>
+                     <button id="btn-ask-ai-notes" class="chip" style="font-size: 1.3rem; padding: 0.8rem 1.4rem;" title="Ask Groq AI Assistant">
+                        <i class="fas fa-robot"></i> Ask AI Teacher
+                     </button>
+                  </div>
+               </div>
+
+               <!-- Executive Summary Card -->
+               <div class="glass-card" style="padding: 2.5rem; border-radius: 2rem; margin-bottom: 2.5rem; border-left: 5px solid var(--main-color);">
+                  <h3 style="font-size: 1.9rem; color: var(--black); margin-bottom: 0.8rem;"><i class="fas fa-bullseye" style="color: var(--main-color);"></i> Lesson Executive Summary</h3>
+                  <p style="font-size: 1.5rem; color: var(--light-color); line-height: 1.7; margin: 0;" id="notes-summary-text">
+                     Executive summary loading...
+                  </p>
+               </div>
+
+               <!-- Detailed Lecture Body -->
+               <div class="glass-card" style="padding: 3.5rem 3rem; border-radius: 2.4rem;">
+                  <div id="notes-main-body" class="notes-content-body">
+                     <!-- Populated dynamically via notesPage.js -->
+                  </div>
+
+                  <!-- Key Takeaways Section -->
+                  <div class="takeaways-card">
+                     <h3 style="font-size: 2rem; color: var(--black); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+                        <i class="fas fa-key" style="color: var(--orange);"></i> Key Takeaways & Revision Cheat Sheet
+                     </h3>
+                     <ul id="notes-takeaways-list" style="margin: 0; padding-left: 2rem; font-size: 1.45rem; line-height: 1.8; color: var(--black);">
+                        <!-- Populated dynamically -->
+                     </ul>
+                  </div>
+               </div>
+            </div>
+
+            <!-- Lessons Selection Sidebar -->
+            <div class="no-print" style="position: sticky; top: 9rem;">
+               <div class="glass-card" style="padding: 2.2rem; border-radius: 2rem;">
+                  <h3 style="font-size: 1.9rem; color: var(--black); margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: var(--border);">
+                     <i class="fas fa-list-ol" style="color: var(--main-color);"></i> Course Playlist Notes
+                  </h3>
+                  <div id="notes-lessons-sidebar" style="display: flex; flex-direction: column; gap: 1rem; max-height: 55rem; overflow-y: auto;">
+                     <!-- Populated dynamically -->
+                  </div>
+               </div>
+            </div>
+
+         </div>
+      </div>
+   </section>
+
+   <footer class="footer no-print" style="text-align: center; padding: 3rem; background: var(--glass-bg); border-top: var(--border); margin-top: 5rem;">
+      <p style="font-size: 1.6rem; color: var(--light-color);">&copy; 2026 <strong>RASH EduHub</strong>. All rights reserved.</p>
+   </footer>
+
+   <!-- Core Services -->
+   <script src="../js/services/db.js"></script>
+   <script src="../js/services/authService.js"></script>
+   <script src="../js/services/courseService.js"></script>
+   <script src="../js/services/notesData.js"></script>
+
+   <!-- Components -->
+   <script src="../js/theme.js"></script>
+   <script src="../js/components/navbar.js"></script>
+   <script src="../js/components/sidebar.js"></script>
+   <script src="../js/pages/notesPage.js"></script>
+</body>
+</html>

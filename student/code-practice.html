@@ -4,7 +4,7 @@
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Smart Code Grader Sandbox - RASH EduHub</title>
+   <title>Code Arena - Online Judge Sandbox - RASH EduHub</title>
 
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
    <link rel="stylesheet" href="../css/style.css">
@@ -38,6 +38,22 @@
          align-items: center;
          gap: 0.6rem;
       }
+      .problem-select-chip {
+         padding: 0.6rem 1.4rem;
+         border-radius: 1rem;
+         font-size: 1.3rem;
+         font-weight: 700;
+         cursor: pointer;
+         border: var(--border);
+         background: var(--light-bg);
+         color: var(--black);
+         transition: all 0.25s ease;
+      }
+      .problem-select-chip.active {
+         background: var(--main-gradient);
+         color: #ffffff;
+         border-color: transparent;
+      }
    </style>
 </head>
 <body>
@@ -46,7 +62,26 @@
    <div class="side-bar"></div>
 
    <section style="padding-top: 3rem;">
-      <h1 class="heading">Smart Code Grader Sandbox</h1>
+      
+      <!-- Code Arena Problem Selector Bar -->
+      <div class="glass-card" style="padding: 2rem; margin-bottom: 2.5rem; border-radius: 2rem;">
+         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 1.5rem;">
+            <div>
+               <h2 style="font-size: 2.2rem; color: var(--black); margin: 0;"><i class="fas fa-trophy" style="color: gold;"></i> Code Arena Online Judge</h2>
+               <span style="font-size: 1.3rem; color: var(--light-color);">Select a DSA challenge to solve in Python, Java, C++, or JavaScript</span>
+            </div>
+            <select id="arena-problem-select" class="form-input" style="width: auto; font-size: 1.4rem; padding: 0.8rem 1.4rem;">
+               <option value="CA001">CA001: Two Sum (Easy)</option>
+               <option value="CA002">CA002: Binary Search (Easy)</option>
+               <option value="CA003">CA003: Maximum Subarray Sum (Medium)</option>
+               <option value="CA004">CA004: Valid Parentheses (Easy)</option>
+               <option value="CA005">CA005: Rotate Array Right by K (Medium)</option>
+            </select>
+         </div>
+
+         <!-- Problem Chips Nav -->
+         <div id="problem-chips-container" style="display: flex; gap: 1rem; flex-wrap: wrap;"></div>
+      </div>
 
       <!-- Split Layout: Left for prompt/description, Right for Code Editor -->
       <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 3rem; align-items: start;">
@@ -54,15 +89,27 @@
          <!-- Challenge Prompt & Descriptions -->
          <div class="sidebar-panel">
             <div class="panel-card">
-               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                  <span class="badge badge-primary" id="challenge-category">Algorithms</span>
+               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.8rem;">
+                  <div style="display: flex; gap: 0.8rem; align-items: center;" id="challenge-topics-container"></div>
                   <span class="badge badge-success" id="challenge-diff">Easy</span>
                </div>
                
-               <h2 id="challenge-title" style="font-size: 2.2rem; margin-bottom: 1.5rem; color: var(--black);">Find Two Sum</h2>
+               <h2 id="challenge-title" style="font-size: 2.4rem; margin-bottom: 1.5rem; color: var(--black);">Two Sum</h2>
                
                <div id="challenge-desc" style="font-size: 1.5rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 2rem;">
                   <!-- Dynamically loaded -->
+               </div>
+
+               <!-- Input & Output Specifications -->
+               <div style="background: var(--light-bg); padding: 1.5rem; border-radius: 1.2rem; margin-bottom: 2rem; border: var(--border);">
+                  <div style="margin-bottom: 1.2rem;">
+                     <strong style="font-size: 1.4rem; color: var(--black); display: block; margin-bottom: 0.4rem;">📥 Input Format:</strong>
+                     <span id="challenge-input-format" style="font-size: 1.3rem; color: var(--light-color);">First line: n. Second line: n integers. Third line: target.</span>
+                  </div>
+                  <div>
+                     <strong style="font-size: 1.4rem; color: var(--black); display: block; margin-bottom: 0.4rem;">📤 Output Format:</strong>
+                     <span id="challenge-output-format" style="font-size: 1.3rem; color: var(--light-color);">Print the output value.</span>
+                  </div>
                </div>
 
                <h4 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.8rem; color: var(--black);">Constraints:</h4>
@@ -93,19 +140,19 @@
             <!-- Code config control header -->
             <div class="glass-card" style="padding: 1.5rem; border-radius: var(--radius-lg) var(--radius-lg) 0 0; border-bottom: none; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                <div style="display: flex; align-items: center; gap: 1rem;">
-                  <i class="fas fa-laptop-code" style="font-size: 1.8rem; color: var(--main-color);"></i>
+                  <i class="fas fa-code" style="font-size: 1.8rem; color: var(--main-color);"></i>
                   <select id="editor-lang" class="form-input" style="width: auto; padding: 0.6rem 1.2rem; font-size: 1.35rem;">
-                     <option value="python">Python</option>
-                     <option value="javascript">JavaScript</option>
+                     <option value="python">Python 3</option>
+                     <option value="javascript">JavaScript (Node.js)</option>
                      <option value="java">Java</option>
                      <option value="cpp">C++</option>
                   </select>
                </div>
 
                <div class="flex-btn" style="width: auto; gap: 0.8rem;">
-                  <button id="btn-run" class="ghost-btn" style="padding: 0.8rem 1.4rem; font-size: 1.3rem;"><i class="fas fa-play"></i> Run</button>
+                  <button id="btn-run" class="ghost-btn" style="padding: 0.8rem 1.4rem; font-size: 1.3rem;"><i class="fas fa-play"></i> Run Code</button>
                   <button id="btn-ai-eval" class="option-btn" style="padding: 0.8rem 1.4rem; font-size: 1.3rem; background: var(--main-gradient); color: #fff; border: none;"><i class="fas fa-brain"></i> AI Analysis</button>
-                  <button id="btn-submit" class="btn" style="width: auto; padding: 0.8rem 1.8rem; font-size: 1.3rem;"><i class="fas fa-cloud-upload-alt"></i> Submit</button>
+                  <button id="btn-submit" class="btn" style="width: auto; padding: 0.8rem 1.8rem; font-size: 1.3rem;"><i class="fas fa-paper-plane"></i> Submit Solution</button>
                </div>
             </div>
 
@@ -150,7 +197,7 @@
             <!-- Terminal Outputs -->
             <div class="panel-card">
                <h4 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 1.2rem; color: var(--black);"><i class="fas fa-terminal" style="color: var(--placeholder-color);"></i> Execution Console</h4>
-               <div class="console-log" id="console-output">Waiting for code execution...</div>
+               <div class="console-log" id="console-output">Waiting for code submission...</div>
                
                <!-- Test Assertions Results List -->
                <div id="test-results-panel" style="margin-top: 1.5rem; display: none;">
@@ -186,34 +233,90 @@
    <!-- Code Grader controller logic -->
    <script>
       let editor = null;
+      let allChallenges = [];
       let activeChallenge = null;
 
       document.addEventListener('DOMContentLoaded', async () => {
-         const challenges = await CodeGraderService.getChallenges();
-         activeChallenge = challenges[0];
+         allChallenges = await CodeGraderService.getChallenges();
+         
+         const urlParams = new URLSearchParams(window.location.search);
+         const problemIdParam = urlParams.get('id');
 
+         activeChallenge = allChallenges.find(c => String(c.id) === String(problemIdParam) || String(c.codeId) === String(problemIdParam)) || allChallenges[0];
+
+         renderProblemChips(allChallenges, activeChallenge);
          renderChallengeDetails(activeChallenge);
          initMonacoEditor(activeChallenge);
          bindCodeActionEvents();
          renderSubmissionHistory();
       });
 
+      function renderProblemChips(challenges, current) {
+         const selectEl = document.querySelector('#arena-problem-select');
+         const chipsContainer = document.querySelector('#problem-chips-container');
+
+         if (selectEl) {
+            selectEl.value = current.id || current.codeId || 'CA001';
+            selectEl.addEventListener('change', (e) => {
+               const targetId = e.target.value;
+               switchChallenge(targetId);
+            });
+         }
+
+         if (chipsContainer) {
+            chipsContainer.innerHTML = challenges.map(ch => {
+               const chId = ch.id || ch.codeId;
+               const isActive = chId === (current.id || current.codeId);
+               return `
+                  <button class="problem-select-chip ${isActive ? 'active' : ''}" onclick="switchChallenge('${chId}')">
+                     [${chId}] ${ch.title}
+                  </button>
+               `;
+            }).join('');
+         }
+      }
+
+      function switchChallenge(targetId) {
+         activeChallenge = allChallenges.find(c => String(c.id) === String(targetId) || String(c.codeId) === String(targetId)) || allChallenges[0];
+         
+         renderProblemChips(allChallenges, activeChallenge);
+         renderChallengeDetails(activeChallenge);
+         
+         const langSelect = document.querySelector('#editor-lang');
+         const currentLang = langSelect ? langSelect.value : 'python';
+         const newCode = (activeChallenge.starterCode && activeChallenge.starterCode[currentLang]) || '';
+         
+         if (editor) {
+            editor.setValue(newCode);
+         }
+         renderSubmissionHistory();
+      }
+
       function renderChallengeDetails(ch) {
          if (!ch) return;
-         document.querySelector('#challenge-title').textContent = ch.title;
-         document.querySelector('#challenge-category').textContent = ch.category;
-         document.querySelector('#challenge-diff').textContent = ch.difficulty;
+         document.querySelector('#challenge-title').textContent = `${ch.id ? '[' + ch.id + '] ' : ''}${ch.title}`;
+         document.querySelector('#challenge-diff').textContent = ch.difficulty || 'Easy';
          document.querySelector('#challenge-desc').innerHTML = ch.description;
+         
+         document.querySelector('#challenge-input-format').textContent = ch.inputFormat || ch.input_format || 'Standard input format.';
+         document.querySelector('#challenge-output-format').textContent = ch.outputFormat || ch.output_format || 'Standard output format.';
+
+         const topicsContainer = document.querySelector('#challenge-topics-container');
+         const topics = Array.isArray(ch.topic) ? ch.topic : (ch.category ? [ch.category] : ['Algorithms']);
+         topicsContainer.innerHTML = topics.map(t => `<span class="badge badge-primary">${t}</span>`).join('');
 
          const constraintsList = document.querySelector('#challenge-constraints');
-         constraintsList.innerHTML = ch.constraints.map(c => `<li>${c}</li>`).join('');
+         const constraints = Array.isArray(ch.constraints) ? ch.constraints : [];
+         constraintsList.innerHTML = constraints.map(c => `<li>${c}</li>`).join('');
 
          const tcList = document.querySelector('#challenge-testcases');
-         tcList.innerHTML = ch.testCases.filter(t => !t.isHidden).map((t, idx) => `
-            <div style="background: var(--light-bg); padding: 1.2rem; border-radius: 0.8rem; font-size: 1.3rem;">
-               <strong style="display: block; margin-bottom: 0.4rem; color: var(--black);">Test Case ${idx + 1}</strong>
-               <p style="color: var(--light-color);">Input: <code>${t.input}</code></p>
-               <p style="color: var(--light-color);">Expected Output: <code>${t.expected}</code></p>
+         const sampleCases = Array.isArray(ch.sampleTestCases) ? ch.sampleTestCases : (Array.isArray(ch.sample_test_cases) ? ch.sample_test_cases : []);
+
+         tcList.innerHTML = sampleCases.map((t, idx) => `
+            <div style="background: var(--light-bg); padding: 1.2rem; border-radius: 0.8rem; font-size: 1.3rem; border: var(--border);">
+               <strong style="display: block; margin-bottom: 0.4rem; color: var(--black);">Sample Test Case ${idx + 1}</strong>
+               <p style="color: var(--light-color); margin-bottom: 0.4rem;">Input:<br><pre style="background: #0f172a; color: #38bdf8; padding: 0.6rem 1rem; border-radius: 0.6rem; font-family: monospace; margin-top: 0.2rem;"><code>${escapeHTML(t.input)}</code></pre></p>
+               <p style="color: var(--light-color);">Expected Output:<br><pre style="background: #0f172a; color: #4ade80; padding: 0.6rem 1rem; border-radius: 0.6rem; font-family: monospace; margin-top: 0.2rem;"><code>${escapeHTML(t.output || t.expected)}</code></pre></p>
             </div>
          `).join('');
       }
@@ -223,7 +326,7 @@
          require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' } });
          require(['vs/editor/editor.main'], function () {
             const defaultLang = 'python';
-            const starterCode = (ch.starterCode && ch.starterCode[defaultLang]) || 'def twoSum(nums, target):\n    return []';
+            const starterCode = (ch.starterCode && ch.starterCode[defaultLang]) || 'import sys\n\ndef solve():\n    pass\n\nif __name__ == "__main__":\n    solve()';
             const isDark = document.body.classList.contains('dark');
 
             editor = monaco.editor.create(document.getElementById('monaco-container'), {
@@ -239,9 +342,16 @@
             const langSelect = document.querySelector('#editor-lang');
             langSelect.addEventListener('change', (e) => {
                const lang = e.target.value;
-               const newCode = (ch.starterCode && ch.starterCode[lang]) || '';
+               const newCode = (activeChallenge.starterCode && activeChallenge.starterCode[lang]) || '';
                const model = editor.getModel();
-               monaco.editor.setModelLanguage(model, lang);
+               
+               let monacoLang = lang;
+               if (lang === 'cpp') monacoLang = 'cpp';
+               if (lang === 'python') monacoLang = 'python';
+               if (lang === 'javascript') monacoLang = 'javascript';
+               if (lang === 'java') monacoLang = 'java';
+
+               monaco.editor.setModelLanguage(model, monacoLang);
                editor.setValue(newCode);
             });
          });
@@ -262,24 +372,30 @@
             const code = editor.getValue();
             const lang = document.querySelector('#editor-lang').value;
             
-            outputConsole.textContent = 'Running test suites inside sandbox environment...';
+            outputConsole.textContent = 'Running test suites inside Online Judge execution environment...';
             resultsPanel.style.display = 'none';
 
-            const res = await CodeGraderService.runCode(activeChallenge.id, lang, code);
+            const res = await CodeGraderService.runCode(activeChallenge.id || activeChallenge.codeId, lang, code);
             if (res.success) {
-               outputConsole.innerHTML = res.logs.join('<br>') + `<br><span style="color: #4ade80;">[Sandbox Execution finished with Score: ${res.score}/100</span>`;
+               outputConsole.innerHTML = res.logs.join('<br>') + `<br><span style="color: #4ade80;">[Judge Engine] Execution finished with Score: ${res.score}/100</span>`;
                
                resultsPanel.style.display = 'block';
-               resultsList.innerHTML = res.testResults.map((tr, idx) => {
+               resultsList.innerHTML = (res.testResults || []).map((tr, idx) => {
                   const icon = tr.passed ? 'fa-check-circle' : 'fa-times-circle';
                   const color = tr.passed ? 'var(--green)' : 'var(--red)';
-                  const label = tr.isHidden ? `Test Case ${idx + 1} (Hidden)` : `Test Case ${idx + 1}`;
+                  const label = tr.isHidden ? `Test Case ${idx + 1} (Hidden)` : `Sample Test Case ${idx + 1}`;
 
                   return `
                      <div style="background: var(--light-bg); border-left: 3px solid ${color}; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; font-size: 1.3rem;">
                         <div>
                            <strong style="color: var(--black);">${label}</strong>
-                           ${!tr.isHidden ? `<p style="color: var(--light-color); font-size: 1.15rem; margin-top: 0.2rem;">Input: ${tr.input} | Expected: ${tr.expected} | Got: ${tr.output}</p>` : ''}
+                           ${!tr.isHidden ? `
+                              <p style="color: var(--light-color); font-size: 1.15rem; margin-top: 0.2rem;">
+                                 Input: <code>${escapeHTML(tr.input)}</code> | Expected: <code>${escapeHTML(tr.expected)}</code> | Got: <code>${escapeHTML(tr.output)}</code>
+                              </p>
+                           ` : `
+                              <p style="color: var(--light-color); font-size: 1.15rem; margin-top: 0.2rem;">Hidden Test Case Evaluation: ${tr.passed ? 'PASSED' : 'FAILED'}</p>
+                           `}
                         </div>
                         <i class="fas ${icon}" style="color: ${color}; font-size: 1.6rem;"></i>
                      </div>
@@ -301,7 +417,7 @@
                   code,
                   language: lang,
                   problemDescription: activeChallenge ? activeChallenge.description : '',
-                  testCases: activeChallenge ? activeChallenge.testCases : []
+                  testCases: activeChallenge ? (activeChallenge.sampleTestCases || activeChallenge.sample_test_cases) : []
                });
 
                const aiPanel = document.querySelector('#ai-eval-panel');
@@ -331,18 +447,20 @@
             const code = editor.getValue();
             const lang = document.querySelector('#editor-lang').value;
 
-            outputConsole.textContent = 'Submitting code and generating score logs...';
+            outputConsole.textContent = 'Submitting code to Online Judge and generating verdict...';
             resultsPanel.style.display = 'none';
 
-            const res = await CodeGraderService.submitCode(activeChallenge.id, lang, code);
+            const res = await CodeGraderService.submitCode(activeChallenge.id || activeChallenge.codeId, lang, code);
             if (res.success) {
-               outputConsole.innerHTML = `[Docker Sandbox] Submission accepted!<br><span style="color: #4ade80;">Status: ${res.submission.status} &bull; Score: ${res.submission.score}/100</span>`;
+               const status = res.submission.status || 'Accepted';
+               const isAccepted = status === 'Accepted' || res.submission.score === 100;
+               outputConsole.innerHTML = `[Code Arena Judge] Submission result recorded!<br><span style="color: ${isAccepted ? '#4ade80' : '#f87171'};">Verdict: ${status} &bull; Score: ${res.submission.score}/100</span>`;
                
                if (window.Toast) {
-                  if (res.submission.score === 100) {
-                     window.Toast.success(`Challenge solved! Score: 100/100`, 'Accepted');
+                  if (isAccepted) {
+                     window.Toast.success(`Verdict: Accepted! Score: 100/100`, 'Accepted');
                   } else {
-                     window.Toast.warning(`Solution failed some test cases. Score: ${res.submission.score}/100`, 'Incorrect');
+                     window.Toast.warning(`Verdict: Wrong Answer. Score: ${res.submission.score}/100`, 'Submission Failed');
                   }
                }
 
@@ -355,27 +473,37 @@
          const container = document.querySelector('#submission-history');
          if (!container || !activeChallenge) return;
 
-         const list = await CodeGraderService.getSubmissions(activeChallenge.id);
+         const list = await CodeGraderService.getSubmissions(activeChallenge.id || activeChallenge.codeId);
          if (!list || list.length === 0) {
             container.innerHTML = `<p style="font-size: 1.25rem; color: var(--light-color); text-align: center; padding: 1.5rem;">No submissions yet.</p>`;
             return;
          }
 
          container.innerHTML = list.map(s => {
-            const isAccepted = s.status === 'Accepted';
+            const isAccepted = s.status === 'Accepted' || s.score === 100;
             const color = isAccepted ? 'var(--green)' : 'var(--red)';
             const timeStr = new Date(s.createdAt || s.submittedAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             return `
-               <div style="background: var(--light-bg); border-radius: 0.8rem; padding: 1rem 1.2rem; display: flex; justify-content: space-between; align-items: center; font-size: 1.3rem;">
+               <div style="background: var(--light-bg); border-radius: 0.8rem; padding: 1rem 1.2rem; display: flex; justify-content: space-between; align-items: center; font-size: 1.3rem; border: var(--border);">
                   <div>
-                     <strong style="color: ${color};">${s.status}</strong>
-                     <span style="font-size: 1.15rem; color: var(--light-color); display: block;">Lang: ${s.language.toUpperCase()} &bull; Score: ${s.score}%</span>
+                     <strong style="color: ${color};">${s.status || (isAccepted ? 'Accepted' : 'Wrong Answer')}</strong>
+                     <span style="font-size: 1.15rem; color: var(--light-color); display: block;">Lang: ${(s.language || 'python').toUpperCase()} &bull; Score: ${s.score}%</span>
                   </div>
                   <span style="font-size: 1.15rem; color: var(--light-color);">${timeStr}</span>
                </div>
             `;
          }).join('');
+      }
+
+      function escapeHTML(str) {
+         if (!str) return '';
+         return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
       }
    </script>
 </body>
