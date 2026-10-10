@@ -1,147 +1,319 @@
 # ⚙️ RASH EduHub — Backend & Database Architecture Guide
 
-This document provides a comprehensive, step-by-step technical breakdown of the **RASH EduHub Backend & Database Architecture**, detailing the role of every Node.js module, Express middleware, API route handler, Supabase database client, SQL schema file, and Python AI microservice.
+This document provides a comprehensive, step-by-step technical breakdown of the **RASH EduHub Backend & Database Architecture**, detailing the role of every Node.js module, Express middleware, API route handler, Supabase database client, PostgreSQL schema table, and data mapper.
 
-Use this guide to understand **how the backend operates** and **what happens when you modify any specific backend or database file**.
+Use this guide to understand **how the backend operates**, **how database relationships function**, and **what happens when you modify any specific backend or database file**.
 
 ---
 
 ## 🏗️ 1. Overall Backend & Database Architecture
 
 RASH EduHub backend follows a high-performance **Node.js + Express + Supabase Cloud PostgreSQL** architecture:
-- **Express.js API Layer (`server/server.js`)**: Serves RESTful API endpoints under `/api/*`, applies security headers, rate limiting, body sanitization, and global error handling.
-- **Supabase Cloud Database Layer (`server/supabaseClient.js`)**: Operates on PostgreSQL using `@supabase/supabase-js`. Bypasses Row Level Security via `SUPABASE_SERVICE_ROLE_KEY` or `SUPABASE_ANON_KEY`.
-- **Database Data Mapper (`server/supabaseHelper.js`)**: Automatically transforms PostgreSQL `snake_case` column names (`tutor_name`, `enrolled_count`, `completed_lessons`) into `camelCase` & `_id`-compatible JavaScript objects expected by the frontend.
-- **Authentication & Authorization (`server/middleware/auth.js`)**: Verifies JWT tokens, verifies Google OAuth ID tokens, and enforces role-based access control (`student`, `teacher`, `admin`).
-- **Python AI Microservices Proxy (`server/routes/ai-proxy.js`)**: Forwards AI requests to Python microservices for adaptive learning, code AST analysis, camera engagement tracking, and career roadmap generation.
+
+- **Express.js API Layer (`server/server.js`)**:
+  - Serves RESTful API endpoints under `/api/*`.
+  - Provides friendly clean route redirects for frontend navigation (`/instructors/:id/courses`, `/courses/:id`, `/courses/:id/notes`).
+  - Applies security headers (CSP, nosniff, frame protection), rate limiting, body sanitization, CORS, and centralized error handling.
+- **Supabase Cloud Database Layer (`server/supabaseClient.js`)**:
+  - Direct connection to PostgreSQL hosted on Supabase Cloud using `@supabase/supabase-js`.
+  - Utilizes `SUPABASE_SERVICE_ROLE_KEY` on the backend to manage database records safely without exposing credentials to the client.
+- **Foreign Key Relational Architecture**:
+  - Relational hierarchy: **Teacher (`users`) $\xrightarrow{1:N}$ Published Courses (`courses`) $\xrightarrow{1:N}$ Lessons & Study Notes (`lessons`)**.
+  - Supabase PostgREST foreign-key joins (`.select('*, lessons(*)')`) return courses with embedded lesson syllabus and notes in a single query without N+1 performance penalties.
+- **Database Data Mapper (`server/supabaseHelper.js`)**:
+  - Automatically transforms PostgreSQL `snake_case` column names (`teacher_id`, `students_count`, `video_url`, `pdf_attachment`) into frontend-compatible JavaScript objects with normalized IDs (`id` and `_id`).
+- **Authentication & Authorization (`server/middleware/auth.js`)**:
+  - Issues and verifies standard JWT tokens (`Authorization: Bearer <token>`).
+  - Verifies Google OAuth 2.0 ID tokens.
+  - Enforces role-based access control (`student`, `teacher`, `admin`).
+- **Python AI Microservices Proxy (`server/routes/ai-proxy.js`)**:
+  - Forwards AI requests to Python microservices for adaptive learning, code AST evaluation, camera focus tracking, and career roadmap generation.
 
 ---
 
-## 🗺️ 2. File Impact & Dependency Map ("If I Change X, What Happens?")
+## 🗄️ 2. Supabase Cloud Database Schema & Relations
 
-### ⚙️ Server Core & Configuration Files
+### Entity Relationship Diagram (ERD)
 
-| File Path | Primary Role & Function | Dependent Components | What Happens If Modified? |
+```mermaid
+erDiagram
+    USERS ||--o{ COURSES : "creates (teacher_id)"
+    COURSES ||--|{ LESSONS : "contains (course_id)"
+    COURSES ||--o{ REVIEWS : "receives (course_id)"
+    USERS ||--o{ SUBMISSIONS : "submits (user_id)"
+    CODE_CHALLENGES ||--o{ SUBMISSIONS : "judged_by (challenge_id)"
+    USERS ||--o{ COMMENTS : "posts (user_id)"
+    USERS ||--o{ NOTIFICATIONS : "receives (user_id)"
+
+    USERS {
+        uuid id PK
+        text name
+        text email UK
+        text password
+        text role "student | teacher | admin"
+        text avatar
+        text title "e.g. Senior Full-Stack Architect"
+        text experience "e.g. 8+ Years"
+        text bio
+        numeric rating
+        int students_count
+        int courses_count
+        int xp
+        int coins
+        int streak
+        text[] enrolled_courses
+        text[] completed_lessons
+        text[] bookmarks
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    COURSES {
+        uuid id PK
+        text title
+        text category "Development | AI | Design | DSA"
+        text level "Beginner | Intermediate | Advanced | All Levels"
+        text difficulty
+        uuid teacher_id FK "References users.id"
+        text teacher_name
+        text teacher_avatar
+        text thumbnail
+        text price "Free or ₹..."
+        boolean is_free
+        numeric rating
+        int reviews_count
+        int students_count
+        int students_enrolled
+        text duration
+        int lessons_count
+        text description
+        text[] requirements
+        text[] what_you_will_learn
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    LESSONS {
+        uuid id PK
+        uuid course_id FK "References courses.id"
+        text title "e.g. 01. HTML5 Semantic Layouts"
+        text duration "e.g. 14:20"
+        text video_url "Direct MP4/WebM URL or storage link"
+        text notes "Rich HTML or Markdown Study Notes"
+        text pdf_attachment "Download link / path to PDF/material"
+        text description "Lesson overview"
+        int sort_order "Lesson order in syllabus (1, 2, 3...)"
+        timestamptz created_at
+    }
+```
+
+### Table Definitions in PostgreSQL
+
+| Table Name | Primary Key | Foreign Keys | Key Columns & Notes |
 | :--- | :--- | :--- | :--- |
-| [`server/server.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/server.js) | Main entry point for the Node.js Express server. Initializes CORS, Helmet headers, body parsers, rate limiters, static file servers, mounts API routes, health check `/api/health`, and starts server listener on port 5000. | All Express routes, frontend API calls | **Core Server Impact**: Changes global CORS policies, Express middleware, server port, upload static paths, route mounting, or `/api/health` status response. |
-| [`server/supabaseClient.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/supabaseClient.js) | Initializes the `@supabase/supabase-js` SDK client using `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_ANON_KEY` from `.env`. | `supabaseHelper.js`, middleware/auth.js, all route handlers | **Database Connection Impact**: Affects database connection settings, API keys used, or Supabase client options across the **entire** backend. |
-| [`server/supabaseHelper.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/supabaseHelper.js) | Centralized data transformation helper. Contains formatter functions (`formatUser`, `formatCourse`, `formatComment`, `formatNotification`, `formatCodeChallenge`, `formatSubmission`, `formatReview`, `formatActivityLog`) to map PostgreSQL DB columns into frontend JavaScript properties. | All route files (`auth.js`, `users.js`, `courses.js`, etc.) | **Data Formatting Impact**: Alters the structure of JSON responses returned to the frontend. Modify this when adding new columns to Supabase tables. |
-| [`server/schema.sql`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/schema.sql) | SQL script containing table definitions (`users`, `courses`, `comments`, `notifications`, `contact_messages`, `code_challenges`, `submissions`, `reviews`, `activity_logs`, `badges`) and privilege grant commands (`GRANT ALL TO service_role, anon`). | Supabase Cloud Database | **Database Schema Impact**: Defines table structure in Supabase when executed in SQL Editor. Modify when creating new database tables or columns. |
-| [`server/seed.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/seed.js) | Database seeding script (`node seed.js`) that populates initial teachers, students, courses, and coding challenges into Supabase. | Supabase Database | **Seed Data Impact**: Changes initial data populated when setting up a fresh database instance. |
-| [`server/selfCheck.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/selfCheck.js) | Automated 49-test system check verifying route exports, middleware, HTML templates, Supabase client initialization, and Python AI files. | Terminal self-check command (`node selfCheck.js`) | **Self-Check Impact**: Modifies automated verification test suite. |
-| [`server/.env`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/.env) | Environment variable file containing `PORT`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `GOOGLE_CLIENT_ID`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`. | Entire Backend Server | **Environment Security Impact**: Changes secret keys, port, Supabase credentials, or OAuth IDs. *(Git ignored for security)*. |
+| `users` | `id` (UUID) | None | Stores students, instructors, and admins. Contains profile data (`title`, `experience`, `bio`), role, credentials, and gamification metrics (`xp`, `coins`, `streak`). |
+| `courses` | `id` (UUID) | `teacher_id` $\rightarrow$ `users(id)` | Stores course title, category, description, pricing, level, ratings, student counts, and instructor metadata. |
+| `lessons` | `id` (UUID) | `course_id` $\rightarrow$ `courses(id)` | Stores individual lessons, video lecture URLs, sort order, and **full course study notes** (`notes`) with document attachments (`pdf_attachment`). |
+| `comments` | `id` (UUID) | `user_id`, `course_id` | Lecture video discussions, likes array (`liked_by`), and timestamps. |
+| `notifications`| `id` (UUID) | `user_id` $\rightarrow$ `users(id)` | System alerts, achievement badges, and assignment feedback. |
+| `code_challenges`| `id` (UUID) | None | DSA questions with sample and hidden test cases, starter code signatures, and difficulty. |
+| `submissions` | `id` (UUID) | `user_id`, `challenge_id` | User code submissions, verdicts (`Accepted`, `Wrong Answer`), and execution scores. |
+| `reviews` | `id` (UUID) | `course_id`, `user_id` | Course star ratings (1-5) and written student reviews. |
+| `activity_logs`| `id` (UUID) | `user_id` | Audit trails of user actions, login timestamps, and IP addresses. |
+| `contact_messages`| `id` (UUID) | None | Inquiries submitted via Contact Us form. |
 
 ---
 
-### 🛡️ Security & Middleware Modules (`server/middleware/`)
+## 📡 3. REST API Routes Reference
 
-| Middleware File Path | Role & Function | What Happens If Modified? |
+### 👨‍🏫 Instructors Routes (`server/routes/instructors.js`)
+
+Mounted at `/api/instructors`:
+
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/instructors` | Public | Returns active instructors with $\ge 1$ published course. Calculates real course count, total student enrollment, and average instructor rating from the database. |
+| `GET` | `/api/instructors/:id` | Public | Retrieves instructor profile details and full list of published courses. |
+| `GET` | `/api/instructors/:id/courses` | Public | Retrieves all published courses for a specific instructor with joined lessons. |
+
+### 📚 Course & Study Notes Routes (`server/routes/courses.js`)
+
+Mounted at `/api/courses`:
+
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/courses` | Public | Lists all published courses. Supports search query (`query`), category filtering (`category`), price filter (`Free`/`Paid`), teacher filter (`teacherId`), and sorting (`popular`, `rating`, `newest`). |
+| `GET` | `/api/courses/:id` | Public | Retrieves a single course by UUID with embedded `lessons(*)` joined via Supabase PostgREST. |
+| `GET` | `/api/courses/:id/notes` | Public | **Study Notes Endpoint**: Retrieves course notes and syllabus lessons ordered by `sort_order`. Returns note titles, duration, HTML/Markdown notes, and PDF download attachments. |
+| `GET` | `/api/courses/teacher/:teacherId` | Public | Lists published courses owned by a specific instructor UUID. |
+| `POST` | `/api/courses` | Teacher / Admin | Creates a new course and inserts initial lessons into the `lessons` table. Increments instructor's `courses_count` in `users`. |
+| `PUT` | `/api/courses/:id` | Teacher (Owner) / Admin | Updates course metadata and synchronizes updated lessons/notes in the `lessons` table. |
+| `DELETE` | `/api/courses/:id` | Teacher (Owner) / Admin | Deletes a course, cascades child lessons, and decrements teacher's `courses_count`. |
+| `POST` | `/api/courses/:id/enroll` | Student | Enrolls student into course and increments `students_count` in `courses`. |
+| `POST` | `/api/courses/lessons/:lessonId/complete` | Student | Toggles lesson completion state in student's `completed_lessons` array. |
+
+### 🔐 Authentication Routes (`server/routes/auth.js`)
+
+Mounted at `/api/auth`:
+
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/auth/google` | Public | Authenticates Google OAuth ID token, creates user if new, and returns JWT token. |
+| `POST` | `/api/auth/login` | Public | Email and password login for students and instructors. |
+| `POST` | `/api/auth/dev-login` | Public | Quick developer & testing authentication by role (`student`, `teacher`). |
+| `GET` | `/api/auth/me` | Authenticated | Retrieves current authenticated session user profile. |
+| `PUT` | `/api/auth/change-password`| Authenticated | Secure password update with current password validation. |
+| `DELETE` | `/api/auth/delete-account` | Authenticated | Self-deletion of user account. |
+
+### 🧭 Clean Frontend Navigation Redirects (`server/server.js`)
+
+Express routes configured to provide direct URL navigation and bookmarkable links:
+- `GET /instructors/:instructorId/courses` $\rightarrow$ Redirects to `/teacher_profile.html?teacherId=:instructorId`
+- `GET /courses/:courseId` $\rightarrow$ Redirects to `/playlist.html?courseId=:courseId`
+- `GET /courses/:courseId/notes` $\rightarrow$ Redirects to `/student/notes.html?courseId=:courseId`
+
+---
+
+## 🗺️ 4. File Impact & Dependency Map ("If I Change X, What Happens?")
+
+### ⚙️ Server Core & Configuration
+
+| File Path | Role & Function | What Happens If Modified? |
 | :--- | :--- | :--- |
-| [`server/middleware/auth.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/middleware/auth.js) | Implements `protect` (verifies Bearer JWT token & fetches user from Supabase) and `authorize(...roles)` (enforces student/teacher/admin role access). | **Authentication Impact**: Modifies how tokens are decoded, session user attached to `req.user`, or how role permissions are enforced across protected routes. |
-| [`server/middleware/errorHandler.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/middleware/errorHandler.js) | Global Express error handler that catches unhandled errors, formats JSON error responses, and returns HTTP status codes. | **Error Response Impact**: Changes error formatting, stack trace inclusion in development mode, or HTTP status codes returned during exceptions. |
-| [`server/middleware/rateLimiter.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/middleware/rateLimiter.js) | Rate limiters using `express-rate-limit` for global `/api` routes (100 reqs / 15 min) and `/api/auth` login routes (15 reqs / 15 min). | **Rate Limit Impact**: Changes request quotas, lockout durations, or rate-limit error messages. |
-| [`server/middleware/validator.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/middleware/validator.js) | Express-validator chains sanitizing request bodies, validating email formats, comment length, and password change payloads. | **Input Validation Impact**: Changes input validation rules, character limits, or field requirements for API requests. |
+| [`server/server.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/server.js) | Express entry point. Mounts all API routers, rate limiters, static file servers, health checks, and friendly URL redirects. | **Core Routing Impact**: Changes server port, global middleware, static paths, or route mounts across the entire system. |
+| [`server/supabaseClient.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/supabaseClient.js) | Initializes Supabase SDK client with `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`. | **Database Connection Impact**: Affects connection to Supabase PostgreSQL across all backend routes. |
+| [`server/supabaseHelper.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/supabaseHelper.js) | Data formatters (`formatUser`, `formatCourse`, `formatLesson`, `formatComment`). Maps Postgres columns to camelCase objects. | **Data Format Impact**: Changes JSON shapes returned to the frontend. Modify this whenever schema columns are added or changed. |
+| [`server/seed.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/seed.js) | Database population script. Seeds verified instructors, courses, lessons, and rich study notes into Supabase. | **Seed Data Impact**: Changes initial database state when running `node server/seed.js`. |
+| [`server/.env`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/.env) | Stores secrets (`PORT`, `JWT_SECRET`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_ID`). | **Security & Config Impact**: Changes connection strings, token secrets, or OAuth credentials. |
+
+### 🛡️ Middleware Modules (`server/middleware/`)
+
+| File Path | Role & Function | What Happens If Modified? |
+| :--- | :--- | :--- |
+| [`server/middleware/auth.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/middleware/auth.js) | `protect` (verifies Bearer JWT & attaches `req.user`), `authorize(...roles)` (enforces student/teacher permissions). | **Auth Security Impact**: Changes session verification, token validation, or access rules. |
+| [`server/middleware/errorHandler.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/middleware/errorHandler.js) | Central error catch block returning JSON `{ success: false, message }`. | **Error Formatting Impact**: Changes how backend crashes or validation errors are presented. |
+| [`server/middleware/rateLimiter.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/middleware/rateLimiter.js) | Rate limiting on `/api` (100 reqs/15m) and auth endpoints (15 reqs/15m). | **Throttling Impact**: Adjusts anti-abuse request limits. |
+| [`server/middleware/validator.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/middleware/validator.js) | Input sanitization against XSS and parameter pollution. | **Data Sanitization Impact**: Modifies input cleaning rules. |
 
 ---
 
-### 📡 API Route Handlers (`server/routes/`)
+## 💻 5. Frontend Service Layer Integration
 
-| Route File Path | Endpoints Handled | Supabase Tables Used | What Happens If Modified? |
-| :--- | :--- | :--- | :--- |
-| [`server/routes/auth.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/routes/auth.js) | `POST /google`<br>`GET /me`<br>`PUT /change-password`<br>`DELETE /delete-account` | `users` | **Auth Flow Impact**: Modifies Google OAuth verification, user creation on sign-in, JWT generation, password updates, or account deletion logic. |
-| [`server/routes/users.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/routes/users.js) | `GET /teachers`<br>`GET /teachers/:id/reviews`<br>`GET /student/stats`<br>`GET /teacher/stats`<br>`GET /:id`<br>`PUT /profile` | `users`, `courses`, `reviews` | **User Profile Impact**: Modifies public teacher listings, student/teacher analytics calculation formulas, user profile fetching, or profile updates. |
-| [`server/routes/courses.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/routes/courses.js) | `GET /`<br>`GET /teacher/:teacherId`<br>`GET /:id`<br>`POST /`<br>`PUT /:id`<br>`DELETE /:id`<br>`POST /:id/enroll`<br>`POST /lessons/:id/complete` | `courses`, `users` | **Course CRUD Impact**: Modifies course catalog search/filtering, course creation, updating playlists, course deletion, student enrollment, or lesson completion toggles. |
-| [`server/routes/comments.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/routes/comments.js) | `GET /:videoId`<br>`POST /`<br>`PUT /:id`<br>`DELETE /:id`<br>`POST /:id/like` | `comments` | **Comments Impact**: Modifies video comments loading, editing, deleting, or comment like/unlike logic. |
-| [`server/routes/notifications.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/routes/notifications.js) | `GET /`<br>`GET /unread-count`<br>`POST /`<br>`PUT /:id/read`<br>`PUT /read-all`<br>`DELETE /:id`<br>`DELETE /clear-all` | `notifications` | **Notifications Impact**: Modifies user notification fetching, unread count badge, marking read, or clearing notification feeds. |
-| [`server/routes/code.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/routes/code.js) | `GET /challenges`<br>`GET /challenges/:id`<br>`POST /run`<br>`POST /submit`<br>`GET /submissions` | `code_challenges`, `submissions` | **Code Practice Impact**: Modifies coding challenge fetching, sandbox code execution simulation, solution test case scoring, or submission recording. |
-| [`server/routes/gamification.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/routes/gamification.js) | `GET /stats`<br>`GET /leaderboard`<br>`POST /award-xp`<br>`GET /badges`<br>`GET /heatmap` | `users`, `badges`, `submissions` | **Gamification Impact**: Modifies XP/Coins scoring formulas, level boundaries, global leaderboard calculation, badge unlocking logic, or heatmap data generation. |
-| [`server/routes/admin.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/routes/admin.js) | `GET /stats`<br>`GET /users`<br>`PUT /users/:id/role`<br>`DELETE /users/:id`<br>`GET /courses`<br>`DELETE /courses/:id`<br>`GET /contacts`<br>`PUT /contacts/:id/status`<br>`GET /activity` | `users`, `courses`, `submissions`, `contact_messages`, `activity_logs`, `reviews` | **Admin Dashboard Impact**: Modifies platform metrics overview calculations, user role promotion/demotion, course moderation, contact message management, or audit logs. |
-| [`server/routes/reviews.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/routes/reviews.js) | `GET /:courseId`<br>`POST /`<br>`PUT /:id`<br>`DELETE /:id` | `reviews`, `courses` | **Reviews Impact**: Modifies course review fetching, submitting reviews, review editing/deletion, or automatic course rating recalculation. |
-| [`server/routes/bookmarks.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/routes/bookmarks.js) | `GET /`<br>`POST /:courseId`<br>`DELETE /:courseId` | `users`, `courses` | **Bookmarks Impact**: Modifies user saved course bookmarks retrieval or toggle add/remove logic. |
-| [`server/routes/progress.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/routes/progress.js) | `GET /overview`<br>`GET /course/:courseId`<br>`GET /weekly`<br>`GET /certificates` | `courses`, `users`, `submissions` | **Progress Analytics Impact**: Modifies student analytics calculations, course progress breakdown, weekly chart distribution, or auto-generated certificate criteria. |
-| [`server/routes/activityLog.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/routes/activityLog.js) | `GET /`<br>`GET /all`<br>`POST /` | `activity_logs` | **Activity Audit Impact**: Modifies system activity logging function `logActivity()` or user activity timeline retrieval. |
-| [`server/routes/upload.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/routes/upload.js) | `POST /` | Local disk (`server/uploads/`) | **Upload Handler Impact**: Modifies Multer file size limits, allowed MIME types (JPEG, PNG, WEBP), or image filename generation. |
-| [`server/routes/ai-proxy.js`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/server/routes/ai-proxy.js) | `/api/ai/*` | Python AI Services | **AI Proxy Impact**: Modifies Express forwarding calls to Python FastAPI microservices. |
+The frontend connects to the backend through modular services in `js/services/`:
 
----
-
-### 🤖 Python AI Microservices (`ai-services/`)
-
-| File / Folder Path | Microservice & Port | Primary Function | What Happens If Modified? |
-| :--- | :--- | :--- | :--- |
-| [`ai-services/adaptive-engine/app.py`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/ai-services/adaptive-engine/app.py) | **Adaptive Engine** (Port 8001) | Calculates performance scores, dynamically adjusts exercise difficulty, and generates custom study plans. | Modifies student skill scoring formulas or automated study plan generation. |
-| [`ai-services/code-evaluator/app.py`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/ai-services/code-evaluator/app.py) | **Code Evaluator** (Port 8003) | Parses Python/JS AST, estimates cyclomatic complexity, checks code style, and provides NLP improvement advice. | Modifies code complexity analysis or automated code quality suggestions. |
-| [`ai-services/engagement-tracker/tracker.py`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/ai-services/engagement-tracker/tracker.py) | **Engagement Tracker** (Desktop / OpenCV) | Webcam computer vision pipeline estimating eye gaze direction, head pose pitch/yaw, and student focus percentage score. | Modifies computer vision gaze detection threshold, head posture monitoring, or engagement score formulas. |
-| [`ai-services/recommendation-engine/app.py`](file:///c:/Users/rishi/OneDrive/Desktop/RASH%20EduHub%201/RASH%20EduHub%201/ai-services/recommendation-engine/app.py) | **Recommendation Engine** (Port 8004) | Cosine similarity ranker evaluating student skill gap matrices and generating personalized career roadmaps. | Modifies course recommendation ranking algorithms or career path mapping. |
-
----
-
-## 🗄️ 3. Supabase Cloud Database Table Specifications
-
-Below is the database table schema overview managed in Supabase:
-
-```sql
-users (id UUID, name TEXT, email TEXT, password TEXT, role TEXT, avatar TEXT, xp INT, coins INT, streak INT, enrolled_courses TEXT[], completed_lessons TEXT[], bookmarks TEXT[])
-courses (id UUID, title TEXT, description TEXT, tutor_id TEXT, tutor_name TEXT, category TEXT, thumb TEXT, playlists JSONB, enrolled_count INT, rating NUMERIC)
-comments (id UUID, course_id TEXT, user_id TEXT, user_name TEXT, text TEXT, video_id TEXT, likes INT, liked_by TEXT[])
-notifications (id UUID, user_id TEXT, type TEXT, title TEXT, message TEXT, read BOOLEAN, link TEXT)
-contact_messages (id UUID, name TEXT, email TEXT, number TEXT, msg TEXT, status TEXT)
-code_challenges (id UUID, title TEXT, description TEXT, difficulty TEXT, category TEXT, starter_code TEXT, test_cases JSONB, points INT)
-submissions (id UUID, user_id TEXT, challenge_id TEXT, code TEXT, status TEXT, passed_tests INT, total_tests INT)
-reviews (id UUID, course_id TEXT, user_id TEXT, user_name TEXT, rating NUMERIC, comment TEXT)
-activity_logs (id UUID, user_id TEXT, action TEXT, details JSONB, ip TEXT)
-badges (id UUID, user_id TEXT, badge_name TEXT, icon TEXT)
+```
+Frontend Pages (studentDashboard.js, playlistPage.js, notesPage.js)
+       │
+       ▼
+Service Layer (courseService.js, userService.js, authService.js)
+       │
+       ▼
+Central Fetch Helper (EduHubDB.api in db.js) [Injects JWT Bearer Token]
+       │
+       ▼
+Node.js / Express REST API (server/routes/*)
+       │
+       ▼
+Supabase Client (server/supabaseClient.js)
+       │
+       ▼
+Supabase Cloud PostgreSQL Database (users, courses, lessons)
 ```
 
-### Data Mapping Mechanism (`server/supabaseHelper.js`)
-When Supabase returns PostgreSQL rows:
-```javascript
-// Database Row in PostgreSQL:
-{ tutor_id: "123", tutor_name: "Harsh Singh", enrolled_count: 8450, playlists: [...] }
+### Key Service Methods
 
-// Formatted by formatCourse() for JavaScript Frontend:
-{ _id: "123", id: "123", teacherId: "123", teacherName: "Harsh Singh", studentsCount: 8450, playlist: [...] }
-```
+1. **`UserService` (`js/services/userService.js`)**:
+   - `UserService.getInstructors()` $\rightarrow$ calls `GET /api/instructors` (returns active teachers with published courses).
+   - `UserService.getInstructor(id)` $\rightarrow$ calls `GET /api/instructors/:id`.
+   - `UserService.getInstructorCourses(id)` $\rightarrow$ calls `GET /api/instructors/:id/courses`.
+   - `UserService.getStudentStats()` $\rightarrow$ calls `GET /api/users/student/stats`.
+   - `UserService.getTeacherStats()` $\rightarrow$ calls `GET /api/users/teacher/stats`.
+
+2. **`CourseService` (`js/services/courseService.js`)**:
+   - `CourseService.getAllCourses()` $\rightarrow$ calls `GET /api/courses`.
+   - `CourseService.getCourseById(courseId)` $\rightarrow$ calls `GET /api/courses/:id` (returns course with embedded lessons).
+   - `CourseService.getCourseNotes(courseId)` $\rightarrow$ calls `GET /api/courses/:id/notes` (returns lessons, rich notes, and attachments).
+   - `CourseService.searchCourses({ query, category, level, price, sortBy })` $\rightarrow$ calls `GET /api/courses?...`.
+   - `CourseService.createCourse(courseData)` $\rightarrow$ calls `POST /api/courses`.
+   - `CourseService.updateCourse(courseId, fields)` $\rightarrow$ calls `PUT /api/courses/:id`.
+   - `CourseService.enrollStudent(courseId)` $\rightarrow$ calls `POST /api/courses/:id/enroll`.
 
 ---
 
-## 💡 4. Practical Backend Editing Examples
+## 💡 6. Practical Backend Editing Scenarios
 
-### Scenario 1: Adding a new field (e.g. `githubProfile`) to User Account
-1. **Edit Supabase Table**: Run SQL in Supabase SQL Editor:
+### Scenario 1: Adding a New Field to Course Notes (e.g., `estimated_reading_minutes`)
+
+1. **Update Database Schema**:
+   Run SQL in the Supabase SQL Editor:
    ```sql
-   ALTER TABLE users ADD COLUMN github_profile TEXT DEFAULT '';
+   ALTER TABLE lessons ADD COLUMN estimated_reading_minutes INT DEFAULT 10;
    ```
-2. **Edit `server/supabaseHelper.js`**: Update `formatUser(u)` to include the new property:
+2. **Update Data Mapper (`server/supabaseHelper.js`)**:
+   In `formatLesson(l)`:
    ```javascript
-   githubProfile: u.github_profile || ''
+   estimatedReadingMinutes: l.estimated_reading_minutes || 10,
    ```
-3. **Edit `server/routes/users.js`**: Allow `githubProfile` in `PUT /api/users/profile` allowed fields array.
-
----
-
-### Scenario 2: Changing JWT Expiration Time
-1. **Edit `server/.env`**: Modify `JWT_EXPIRES_IN`:
-   ```env
-   JWT_EXPIRES_IN=30d
-   ```
-2. **Restart Server**: Re-run `npm start` in `server/`. All new tokens will remain valid for 30 days.
-
----
-
-### Scenario 3: Creating a New Express API Endpoint
-1. **Create/Open Route File** (e.g. `server/routes/courses.js`).
-2. **Add Express Handler**:
+3. **Expose in Course Notes Endpoint (`server/routes/courses.js`)**:
+   In `GET /api/courses/:id/notes`:
    ```javascript
-   router.get('/featured', async (req, res, next) => {
-      try {
-         const { data } = await supabase.from('courses').select('*').gt('rating', 4.5);
-         res.json({ success: true, courses: data.map(formatCourse) });
-      } catch (err) { next(err); }
-   });
+   readingMinutes: l.estimated_reading_minutes || 10,
    ```
-3. **Test with Self-Check**: Run `node server/selfCheck.js`.
+4. **Display in Frontend (`js/pages/notesPage.js`)**:
+   Read `note.readingMinutes` and render `<span class="badge"><i class="fas fa-clock"></i> ${note.readingMinutes} min read</span>`.
 
 ---
 
-*File generated for RASH EduHub backend documentation.*
+### Scenario 2: Adding a New Database Query with Foreign Key Embedding
+
+When querying parent-child entities in Supabase:
+```javascript
+// Example: Get course with its lessons and teacher profile in ONE query:
+const { data, error } = await supabase
+   .from('courses')
+   .select(`
+      id,
+      title,
+      category,
+      lessons (
+         id,
+         title,
+         duration,
+         notes,
+         pdf_attachment
+      )
+   `)
+   .eq('id', courseId)
+   .single();
+```
+
+---
+
+### Scenario 3: Running Database Seeds or Refreshing Data
+
+To populate or refresh instructors, courses, and structured lecture notes:
+```bash
+node server/seed.js
+```
+The script:
+1. Verifies instructor accounts in `users` (Harsh Singh, Adarsh Sir, SV Sir).
+2. Inserts production courses into `courses`.
+3. Inserts lecture lessons and study notes into `lessons`.
+4. Updates instructor `courses_count` in `users`.
+
+---
+
+### Scenario 4: Running Backend Locally
+
+To launch the Express backend on `http://localhost:5000`:
+```bash
+node server/server.js
+```
+Health check verification:
+```bash
+curl http://localhost:5000/api/health
+```
+
+---
+
+*Documentation maintained for RASH EduHub engineering and database architecture.*
