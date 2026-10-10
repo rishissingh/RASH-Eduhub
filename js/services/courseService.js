@@ -32,6 +32,19 @@ const CourseService = {
    },
 
    /**
+    * Get course notes and syllabus lessons from database
+    */
+   async getCourseNotes(courseId) {
+      try {
+         const data = await EduHubDB.api(`/courses/${courseId}/notes`);
+         return data.success ? data : { success: false, notes: [], course: null };
+      } catch (err) {
+         console.error(`Failed to get notes for course ${courseId}:`, err);
+         return { success: false, notes: [], course: null };
+      }
+   },
+
+   /**
     * Get courses owned by a specific teacher
     */
    async getTeacherCourses(teacherId) {

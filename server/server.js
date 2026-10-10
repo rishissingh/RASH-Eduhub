@@ -60,6 +60,7 @@ app.use(express.static(path.join(__dirname, '..'), {
 // --------------- API Routes ---------------
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/instructors', require('./routes/instructors'));
 app.use('/api/courses', require('./routes/courses'));
 app.use('/api/comments', require('./routes/comments'));
 app.use('/api/notifications', require('./routes/notifications'));
@@ -68,6 +69,17 @@ app.use('/api/upload', require('./routes/upload'));
 app.use('/api/code', require('./routes/code'));
 app.use('/api/gamification', require('./routes/gamification'));
 app.use('/api/ai', require('./routes/ai-proxy'));
+
+// Direct friendly route redirects for courses & instructors
+app.get('/instructors/:instructorId/courses', (req, res) => {
+   res.redirect(`/teacher_profile.html?teacherId=${encodeURIComponent(req.params.instructorId)}`);
+});
+app.get('/courses/:courseId/notes', (req, res) => {
+   res.redirect(`/student/notes.html?courseId=${encodeURIComponent(req.params.courseId)}`);
+});
+app.get('/courses/:courseId', (req, res) => {
+   res.redirect(`/playlist.html?courseId=${encodeURIComponent(req.params.courseId)}`);
+});
 
 // Advanced Platform Routes
 app.use('/api/admin', require('./routes/admin'));

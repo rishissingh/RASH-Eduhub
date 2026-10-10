@@ -62,6 +62,45 @@ const UserService = {
          console.error('Failed to get teacher stats:', err);
          return null;
       }
+   },
+
+   /**
+    * Get all active instructors with published courses from database
+    */
+   async getInstructors() {
+      try {
+         const data = await EduHubDB.api('/instructors');
+         return data.success ? (data.instructors || []) : [];
+      } catch (err) {
+         console.error('Failed to get instructors:', err);
+         return [];
+      }
+   },
+
+   /**
+    * Get instructor profile details by ID
+    */
+   async getInstructor(instructorId) {
+      try {
+         const data = await EduHubDB.api(`/instructors/${instructorId}`);
+         return data.success ? data.instructor : null;
+      } catch (err) {
+         console.error(`Failed to get instructor ${instructorId}:`, err);
+         return null;
+      }
+   },
+
+   /**
+    * Get published courses for an instructor
+    */
+   async getInstructorCourses(instructorId) {
+      try {
+         const data = await EduHubDB.api(`/instructors/${instructorId}/courses`);
+         return data.success ? data : { courses: [], instructor: null };
+      } catch (err) {
+         console.error(`Failed to get courses for instructor ${instructorId}:`, err);
+         return { courses: [], instructor: null };
+      }
    }
 };
 

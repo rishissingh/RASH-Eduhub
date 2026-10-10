@@ -76,6 +76,67 @@ async function verifyGoogleToken(idToken) {
    }
 }
 
+// POST /api/auth/login — Email and password login
+router.post('/login', authLimiter, async (req, res, next) => {
+   try {
+      const { email, password } = req.body;
+      if (!email || !password) {
+         return res.status(400).json({ success: false, message: 'Email and password are required.' });
+      }
+
+      const { data: userRaw } = await supabase
+         .from('users')
+         .select('*')
+         .eq('email', email.toLowerCase())
+         .maybeSingle();
+
+      if (!userRaw) {
+         return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+      }
+
+      let isMatch = false;
+      if (userRaw.password) {
+         if (userRaw.password.startsWith('$2a$') || userRaw.password.startsWith('$2b$')) {
+            isMatch = await bcrypt.compare(password, userRaw.password);
+         } else {
+            isMatch = (userRaw.password === password);
+         }
+      }
+
+      if (!isMatch) {
+         return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+      }
+
+      const user = formatUser(userRaw);
+      const token = generateToken(user.id);
+      res.json({ success: true, token, user: sanitizeUser(user) });
+   } catch (err) {
+      next(err);
+   }
+});
+
+// POST /api/auth/dev-login — Quick developer & test role login
+router.post('/dev-login', async (req, res, next) => {
+   try {
+      const { role = 'student', email } = req.body;
+      let query = supabase.from('users').select('*');
+      if (email) {
+         query = query.eq('email', email.toLowerCase());
+      } else {
+         query = query.eq('role', role);
+      }
+      const { data: userRaw } = await query.limit(1).maybeSingle();
+      if (!userRaw) {
+         return res.status(404).json({ success: false, message: 'User not found.' });
+      }
+      const user = formatUser(userRaw);
+      const token = generateToken(user.id);
+      res.json({ success: true, token, user: sanitizeUser(user) });
+   } catch (err) {
+      next(err);
+   }
+});
+
 // POST /api/auth/google — Authenticate with Google ID token
 router.post('/google', authLimiter, async (req, res, next) => {
    try {

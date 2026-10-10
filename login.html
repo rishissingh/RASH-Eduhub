@@ -38,6 +38,19 @@
          <div style="text-align: center; margin-top: 2.5rem; font-size: 1.5rem; color: var(--light-color);">
             New to RASH EduHub? <a href="register.html" style="color: var(--main-color); font-weight: 600;">Register Now</a>
          </div>
+
+         <!-- Fast Demo Role Login (Instant Testing) -->
+         <div style="margin-top: 2.5rem; padding-top: 2rem; border-top: var(--border); text-align: center;">
+            <span style="font-size: 1.3rem; color: var(--light-color); display: block; margin-bottom: 1.2rem;">Quick Workspace Access:</span>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+               <button type="button" onclick="quickDevLogin('student')" class="btn" style="width: auto; padding: 0.8rem 1.6rem; font-size: 1.3rem;">
+                  <i class="fas fa-user-graduate"></i> Student Workspace
+               </button>
+               <button type="button" onclick="quickDevLogin('teacher')" class="option-btn" style="width: auto; padding: 0.8rem 1.6rem; font-size: 1.3rem;">
+                  <i class="fas fa-chalkboard-user"></i> Instructor Studio
+               </button>
+            </div>
+         </div>
       </div>
    </section>
 
@@ -92,5 +105,26 @@
    <script src="js/components/navbar.js"></script>
    <script src="js/components/sidebar.js"></script>
    <script src="js/pages/authPage.js"></script>
+   <script>
+      async function quickDevLogin(role) {
+         try {
+            const res = await fetch('/api/auth/dev-login', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({ role })
+            });
+            const data = await res.json();
+            if (data.success && data.user) {
+               localStorage.setItem('eduhub_jwt_token', data.token);
+               localStorage.setItem('eduhub_current_user', JSON.stringify(data.user));
+               window.location.href = role === 'teacher' ? 'teacher/dashboard.html' : 'student/dashboard.html';
+            } else {
+               alert('Failed to login: ' + (data.message || 'Unknown error'));
+            }
+         } catch (e) {
+            alert('Login failed: ' + e.message);
+         }
+      }
+   </script>
 </body>
 </html>

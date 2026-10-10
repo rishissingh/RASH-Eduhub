@@ -384,20 +384,82 @@ async function seedSupabase() {
          ];
 
          for (const c of sampleCourses) {
+            const courseRecord = {
+               title: c.title,
+               description: c.description,
+               category: c.category,
+               level: 'All Levels',
+               difficulty: 'All Levels',
+               teacher_id: c.tutor_id,
+               teacher_name: c.tutor_name,
+               teacher_avatar: c.tutor_avatar,
+               thumbnail: c.thumb,
+               price: 'Free',
+               is_free: true,
+               rating: c.rating,
+               students_count: c.enrolled_count,
+               lessons_count: (c.playlists || []).length,
+               requirements: ['Basic computer skills', 'Dedication to learn'],
+               what_you_will_learn: ['Practical real-world skills', 'Complete conceptual mastery', 'Interview and project preparation']
+            };
+
             const { data: existingCourse } = await supabase
                .from('courses')
                .select('id')
                .eq('title', c.title)
                .maybeSingle();
 
+            let courseId = existingCourse?.id;
             if (!existingCourse) {
-               await supabase.from('courses').insert([c]);
-               console.log(` ✅ Created course: ${c.title}`);
+               const { data: newCourse, error: courseErr } = await supabase.from('courses').insert([courseRecord]).select('id').single();
+               if (courseErr) {
+                  console.error(`Failed to insert course ${c.title}:`, courseErr.message);
+                  continue;
+               }
+               courseId = newCourse.id;
+               console.log(` ✅ Created course: ${c.title} (${courseId})`);
             } else {
-               // Update existing course to ensure latest playlists & notes are populated
-               await supabase.from('courses').update({ playlists: c.playlists, videos: c.playlists, description: c.description }).eq('id', existingCourse.id);
-               console.log(` 🔄 Updated course notes & lessons: ${c.title}`);
+               await supabase.from('courses').update(courseRecord).eq('id', courseId);
+               console.log(` 🔄 Updated course: ${c.title} (${courseId})`);
             }
+
+            // Seed/Update Lessons for this course
+            for (const p of c.playlists) {
+               const lessonRecord = {
+                  course_id: courseId,
+                  title: p.title,
+                  duration: p.duration || '15:00',
+                  video_url: p.video || 'https://vjs.zencdn.net/v/oceans.mp4',
+                  notes: p.notes || '',
+                  pdf_attachment: `notes.html?courseId=${courseId}&lessonId=${p.id}`,
+                  description: p.description || '',
+                  sort_order: p.order || 1
+               };
+
+               const { data: existingLesson } = await supabase
+                  .from('lessons')
+                  .select('id')
+                  .eq('course_id', courseId)
+                  .eq('title', p.title)
+                  .maybeSingle();
+
+               if (!existingLesson) {
+                  await supabase.from('lessons').insert([lessonRecord]);
+               } else {
+                  await supabase.from('lessons').update(lessonRecord).eq('id', existingLesson.id);
+               }
+            }
+            console.log(`    ↳ Seeded ${c.playlists.length} lessons & study notes for: ${c.title}`);
+         }
+
+         // Update courses_count for each teacher
+         for (const teacher of [harshTeacher, adarshTeacher, svTeacher]) {
+            if (!teacher) continue;
+            const { count } = await supabase
+               .from('courses')
+               .select('*', { count: 'exact', head: true })
+               .eq('teacher_id', teacher.id);
+            await supabase.from('users').update({ courses_count: count || 0 }).eq('id', teacher.id);
          }
       }
 

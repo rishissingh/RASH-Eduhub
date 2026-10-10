@@ -4,24 +4,139 @@
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Instructor Profile - RASH EduHub</title>
+   <title>Instructor Courses - RASH EduHub</title>
 
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
    <link rel="stylesheet" href="css/style.css">
+   <style>
+      .profile-header-card {
+         background: var(--glass-bg);
+         backdrop-filter: blur(14px);
+         border: var(--border);
+         border-radius: 2.4rem;
+         padding: 3.5rem;
+         margin-bottom: 3.5rem;
+         box-shadow: var(--glass-shadow);
+      }
+      .filter-bar {
+         display: flex;
+         gap: 1.5rem;
+         align-items: center;
+         flex-wrap: wrap;
+         margin-bottom: 2.5rem;
+         background: var(--glass-bg);
+         border: var(--border);
+         padding: 1.5rem 2rem;
+         border-radius: 1.6rem;
+      }
+      .filter-input {
+         flex: 1;
+         min-width: 22rem;
+         padding: 1.2rem 1.6rem;
+         background: var(--light-bg);
+         border: var(--border);
+         border-radius: 1rem;
+         font-size: 1.45rem;
+         color: var(--black);
+         outline: none;
+      }
+      .filter-input:focus {
+         border-color: var(--main-color);
+      }
+      .course-card-meta {
+         display: flex;
+         gap: 0.8rem;
+         align-items: center;
+         flex-wrap: wrap;
+         margin: 1.2rem 0;
+         font-size: 1.25rem;
+         color: var(--light-color);
+      }
+      .meta-item {
+         display: inline-flex;
+         align-items: center;
+         gap: 0.5rem;
+         background: var(--light-bg);
+         padding: 0.4rem 1rem;
+         border-radius: 0.8rem;
+         font-weight: 500;
+      }
+   </style>
 </head>
 <body>
 
    <header class="header"></header>
    <div class="side-bar"></div>
 
-   <section class="teacher-profile">
-      <!-- Dynamic instructor profile -->
-      <div id="teacher-profile-container"></div>
+   <!-- Navigation Breadcrumb -->
+   <section style="padding-top: 2rem; padding-bottom: 0.5rem;">
+      <div style="display: flex; align-items: center; gap: 1rem; font-size: 1.4rem; color: var(--light-color); flex-wrap: wrap;">
+         <a href="index.html" style="color: var(--light-color);"><i class="fas fa-home"></i> Home</a>
+         <span>/</span>
+         <a href="teachers.html" style="color: var(--light-color);">Instructors</a>
+         <span>/</span>
+         <span style="color: var(--main-color); font-weight: 600;" id="breadcrumb-teacher-name">Instructor Courses</span>
+      </div>
    </section>
 
-   <section class="courses">
-      <h1 class="heading">Published Courses</h1>
-      <div class="box-container" id="teacher-courses-container"></div>
+   <!-- Instructor Profile Section -->
+   <section class="teacher-profile" style="padding-top: 1rem;">
+      <div id="teacher-profile-container">
+         <!-- Skeleton Loading State -->
+         <div class="profile-header-card skeleton-card">
+            <div style="display: flex; gap: 3rem; align-items: center; flex-wrap: wrap;">
+               <div class="skeleton" style="width: 13rem; height: 13rem; border-radius: 50%;"></div>
+               <div style="flex: 1; min-width: 25rem;">
+                  <div class="skeleton" style="height: 3rem; width: 45%; margin-bottom: 1rem; border-radius: 0.6rem;"></div>
+                  <div class="skeleton" style="height: 1.8rem; width: 30%; margin-bottom: 1.5rem; border-radius: 0.6rem;"></div>
+                  <div class="skeleton" style="height: 4rem; width: 80%; border-radius: 0.6rem;"></div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </section>
+
+   <!-- Courses Published by Instructor -->
+   <section class="courses" style="padding-top: 0;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1.5rem;">
+         <div>
+            <h1 class="heading" style="margin-bottom: 0.4rem; border-bottom: none; padding-bottom: 0;">Published Courses</h1>
+            <p style="font-size: 1.45rem; color: var(--light-color);" id="courses-count-subtitle">Loading verified courses...</p>
+         </div>
+      </div>
+
+      <!-- Search & Category Filters -->
+      <div class="filter-bar no-print">
+         <div style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 24rem;">
+            <i class="fas fa-search" style="font-size: 1.6rem; color: var(--light-color);"></i>
+            <input type="text" id="course-search-input" class="filter-input" placeholder="Search instructor's courses by title or topic...">
+         </div>
+         <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <select id="course-category-filter" class="filter-input" style="min-width: 16rem; cursor: pointer;">
+               <option value="All">All Categories</option>
+            </select>
+            <select id="course-sort-filter" class="filter-input" style="min-width: 15rem; cursor: pointer;">
+               <option value="newest">Newest First</option>
+               <option value="popular">Most Popular</option>
+               <option value="rating">Highest Rated</option>
+            </select>
+         </div>
+      </div>
+
+      <!-- Courses Grid -->
+      <div class="box-container" id="teacher-courses-container" style="grid-template-columns: repeat(auto-fit, minmax(32rem, 1fr)); gap: 2.5rem;">
+         <!-- Skeleton Loading State -->
+         <div class="box glass-card skeleton-card" style="padding: 2.5rem;">
+            <div class="skeleton" style="height: 18rem; border-radius: 1.2rem; margin-bottom: 1.5rem;"></div>
+            <div class="skeleton" style="height: 2.2rem; width: 75%; margin-bottom: 1rem; border-radius: 0.6rem;"></div>
+            <div class="skeleton" style="height: 1.5rem; width: 50%; border-radius: 0.6rem;"></div>
+         </div>
+         <div class="box glass-card skeleton-card" style="padding: 2.5rem;">
+            <div class="skeleton" style="height: 18rem; border-radius: 1.2rem; margin-bottom: 1.5rem;"></div>
+            <div class="skeleton" style="height: 2.2rem; width: 75%; margin-bottom: 1rem; border-radius: 0.6rem;"></div>
+            <div class="skeleton" style="height: 1.5rem; width: 50%; border-radius: 0.6rem;"></div>
+         </div>
+      </div>
    </section>
 
    <footer class="footer" style="text-align: center; padding: 3rem; background: var(--glass-bg); border-top: var(--border); margin-top: 5rem;">
@@ -40,62 +155,241 @@
    <script src="js/components/sidebar.js"></script>
 
    <script>
+      let currentInstructor = null;
+      let allInstructorCourses = [];
+
       document.addEventListener('DOMContentLoaded', async () => {
          const urlParams = new URLSearchParams(window.location.search);
-         const teacherId = urlParams.get('teacherId') || 'teacher-1';
+         let teacherId = urlParams.get('teacherId');
 
-         const teachers = await UserService.getUsersByRole('teacher');
-         const teacher = teachers.find(t => t.id === teacherId || t._id === teacherId) || teachers[0] || {
-            name: 'Harsh Singh',
-            role: 'teacher',
-            avatar: 'images/pic-1.jpg',
-            bio: 'Senior Full-Stack Architect & AI Educator'
-         };
-
-         const profileContainer = document.querySelector('#teacher-profile-container');
-         if (profileContainer) {
-            profileContainer.innerHTML = `
-               <h1 class="heading">Instructor Profile</h1>
-               <div class="glass-card" style="padding: 3.5rem; border-radius: 2.4rem; margin-bottom: 3.5rem;">
-                  <div style="display: flex; align-items: center; gap: 2.5rem; flex-wrap: wrap;">
-                     <img src="${teacher.avatar || 'images/pic-1.jpg'}" alt="${teacher.name}" style="height: 12rem; width: 12rem; border-radius: 50%; object-fit: cover; border: 4px solid var(--main-color);">
-                     <div style="flex: 1;">
-                        <h2 style="font-size: 2.8rem; color: var(--black); margin-bottom: 0.5rem;">${teacher.name}</h2>
-                        <span class="badge badge-teacher" style="margin-bottom: 1rem;">Senior Instructor</span>
-                        <p style="font-size: 1.5rem; color: var(--light-color); margin-top: 1rem;">${teacher.bio || 'Experienced software mentor dedicated to practical tech education.'}</p>
-                     </div>
-                  </div>
-               </div>
-            `;
+         // If not supplied, get first eligible instructor
+         if (!teacherId) {
+            const instructors = await UserService.getInstructors();
+            if (instructors.length > 0) {
+               teacherId = instructors[0].id;
+            }
          }
 
-         const allCourses = await CourseService.getAllCourses();
-         const teacherCourses = allCourses.filter(c => c.teacherName === teacher.name || c.teacherId === teacher.id || c.teacherId === teacher._id);
-         const coursesContainer = document.querySelector('#teacher-courses-container');
+         if (!teacherId) {
+            renderError('Instructor not specified or not found.');
+            return;
+         }
 
-         if (coursesContainer) {
-            if (teacherCourses.length === 0) {
-               coursesContainer.innerHTML = `
-                  <div class="glass-card text-center" style="padding: 4rem; grid-column: 1 / -1;">
-                     <p style="font-size: 1.6rem; color: var(--light-color);">No courses published by this instructor yet.</p>
-                  </div>
-               `;
+         await loadInstructorData(teacherId);
+         setupEventListeners();
+      });
+
+      async function loadInstructorData(teacherId) {
+         try {
+            const data = await UserService.getInstructorCourses(teacherId);
+            
+            if (!data || !data.success) {
+               renderError('Unable to load instructor details from the database.');
                return;
             }
 
-            coursesContainer.innerHTML = teacherCourses.map(c => `
-               <div class="box glass-card hover-lift">
-                  <div class="thumb img-zoom" style="height: 18rem; overflow: hidden; border-radius: 1rem; margin-bottom: 1.5rem;">
-                     <img src="${c.thumbnail}" alt="${c.title}">
-                  </div>
-                  <h3 class="title" style="font-size: 1.8rem; color: var(--black);">${c.title}</h3>
-                  <a href="playlist.html?courseId=${c.id || c._id}" class="inline-btn" style="width: 100%; text-align: center; margin-top: 1rem;">
-                     View Playlist
-                  </a>
-               </div>
-            `).join('');
+            currentInstructor = data.instructor;
+            allInstructorCourses = data.courses || [];
+
+            renderInstructorProfile(currentInstructor, allInstructorCourses.length);
+            populateCategoryFilter(allInstructorCourses);
+            renderCoursesGrid(allInstructorCourses);
+         } catch (err) {
+            console.error('Failed to load instructor courses:', err);
+            renderError('A network or database connection error occurred.');
          }
-      });
+      }
+
+      function renderInstructorProfile(instructor, courseCount) {
+         if (!instructor) return;
+
+         const breadcrumb = document.querySelector('#breadcrumb-teacher-name');
+         if (breadcrumb) breadcrumb.textContent = instructor.name;
+
+         const profileContainer = document.querySelector('#teacher-profile-container');
+         if (!profileContainer) return;
+
+         const avatar = instructor.avatar || 'images/pic-1.jpg';
+         const specialization = instructor.specialization || instructor.title || 'Course Instructor';
+         const expBadge = instructor.experience 
+            ? `<span class="badge badge-teacher" style="font-size: 1.3rem; padding: 0.5rem 1.2rem;"><i class="fas fa-briefcase"></i> ${escapeHTML(instructor.experience)}</span>`
+            : '';
+
+         profileContainer.innerHTML = `
+            <div class="profile-header-card">
+               <div style="display: flex; gap: 3.5rem; align-items: center; flex-wrap: wrap;">
+                  <div style="position: relative; width: 14rem; height: 14rem;">
+                     <img src="${avatar}" 
+                          alt="${escapeHTML(instructor.name)}" 
+                          onerror="this.onerror=null; this.src='images/pic-1.jpg';" 
+                          style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid var(--main-color); box-shadow: 0 8px 25px rgba(37, 99, 235, 0.25);">
+                     <span style="position: absolute; bottom: 0.5rem; right: 0.8rem; background: var(--green); width: 2.2rem; height: 2.2rem; border-radius: 50%; border: 3.5px solid var(--white);" title="Active Instructor"></span>
+                  </div>
+
+                  <div style="flex: 1; min-width: 28rem;">
+                     <div style="display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; margin-bottom: 0.6rem;">
+                        <h1 style="font-size: 3.2rem; color: var(--black); margin: 0; font-weight: 800;">${escapeHTML(instructor.name)}</h1>
+                        <span class="badge badge-success" style="font-size: 1.25rem;"><i class="fas fa-check-circle"></i> Verified Educator</span>
+                     </div>
+
+                     <p style="font-size: 1.6rem; color: var(--main-color); font-weight: 600; margin-bottom: 1.4rem;">
+                        ${escapeHTML(specialization)}
+                     </p>
+
+                     <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.8rem;">
+                        <span class="badge badge-accent" style="font-size: 1.3rem; padding: 0.5rem 1.2rem;">
+                           <i class="fas fa-book-open"></i> ${courseCount} Published ${courseCount === 1 ? 'Course' : 'Courses'}
+                        </span>
+                        ${expBadge}
+                     </div>
+
+                     <p style="font-size: 1.5rem; color: var(--light-color); line-height: 1.7; margin: 0; max-width: 80rem;">
+                        ${escapeHTML(instructor.bio || 'Verified course instructor providing structured lectures and study notes on RASH EduHub.')}
+                     </p>
+                  </div>
+               </div>
+            </div>
+         `;
+      }
+
+      function populateCategoryFilter(courses) {
+         const select = document.querySelector('#course-category-filter');
+         if (!select) return;
+
+         const categories = [...new Set(courses.map(c => c.category).filter(Boolean))];
+         select.innerHTML = '<option value="All">All Categories</option>' + 
+            categories.map(cat => `<option value="${escapeHTML(cat)}">${escapeHTML(cat)}</option>`).join('');
+      }
+
+      function renderCoursesGrid(courses) {
+         const container = document.querySelector('#teacher-courses-container');
+         const subtitle = document.querySelector('#courses-count-subtitle');
+         if (!container) return;
+
+         if (subtitle) {
+            subtitle.textContent = `Displaying ${courses.length} verified ${courses.length === 1 ? 'course' : 'courses'} by this instructor`;
+         }
+
+         if (courses.length === 0) {
+            container.innerHTML = `
+               <div class="glass-card text-center" style="padding: 5rem 2rem; grid-column: 1 / -1;">
+                  <i class="fas fa-search" style="font-size: 4rem; color: var(--light-color); margin-bottom: 1.5rem;"></i>
+                  <h3 style="font-size: 2.2rem; color: var(--black); margin-bottom: 0.8rem;">No Courses Found</h3>
+                  <p style="font-size: 1.45rem; color: var(--light-color);">No published courses match the selected search or filter criteria.</p>
+               </div>
+            `;
+            return;
+         }
+
+         container.innerHTML = courses.map(course => {
+            const thumb = course.thumbnail || course.thumb || 'images/thumb-1.png';
+            const lessonsCount = course.lessonsCount || (course.playlist ? course.playlist.length : 0);
+            const notesBadge = `<span class="meta-item"><i class="fas fa-file-lines" style="color: var(--accent-color);"></i> Notes Included</span>`;
+            const lessonsBadge = `<span class="meta-item"><i class="fas fa-video" style="color: var(--main-color);"></i> ${lessonsCount} Lessons</span>`;
+            const levelBadge = `<span class="meta-item"><i class="fas fa-layer-group"></i> ${escapeHTML(course.level || 'All Levels')}</span>`;
+
+            return `
+               <div class="box glass-card hover-lift" style="display: flex; flex-direction: column; justify-content: space-between; padding: 2.2rem; border-radius: 2rem;">
+                  <div>
+                     <div class="thumb img-zoom" style="position: relative; overflow: hidden; border-radius: 1.4rem; height: 18rem; margin-bottom: 1.6rem;">
+                        <img src="${thumb}" alt="${escapeHTML(course.title)}" style="width: 100%; height: 100%; object-fit: cover;">
+                        <span style="position: absolute; top: 1.2rem; right: 1.2rem; background: rgba(16, 185, 129, 0.9); color: #fff; padding: 0.4rem 1rem; border-radius: 0.8rem; font-size: 1.2rem; font-weight: 700;">
+                           <i class="fas fa-circle-check"></i> Published
+                        </span>
+                        <span style="position: absolute; bottom: 1.2rem; left: 1.2rem; background: rgba(0, 0, 0, 0.75); color: #fff; padding: 0.4rem 1rem; border-radius: 0.8rem; font-size: 1.2rem; font-weight: 600;">
+                           ${escapeHTML(course.category || 'Development')}
+                        </span>
+                     </div>
+
+                     <h3 class="title" style="font-size: 1.9rem; color: var(--black); margin-bottom: 0.8rem; line-height: 1.4; font-weight: 700;">
+                        ${escapeHTML(course.title)}
+                     </h3>
+
+                     <p style="font-size: 1.35rem; color: var(--light-color); line-height: 1.6; margin-bottom: 1.4rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        ${escapeHTML(course.description || 'Comprehensive curriculum with video lessons and interactive study notes.')}
+                     </p>
+
+                     <div class="course-card-meta">
+                        ${lessonsBadge}
+                        ${notesBadge}
+                        ${levelBadge}
+                     </div>
+                  </div>
+
+                  <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                     <a href="playlist.html?courseId=${course.id}" class="btn" style="flex: 1; text-align: center; font-size: 1.4rem; font-weight: 600;">
+                        <i class="fas fa-eye"></i> View Course
+                     </a>
+                     <a href="notes.html?courseId=${course.id}" class="option-btn" style="width: auto; padding: 0.8rem 1.6rem; font-size: 1.4rem;" title="View Study Notes">
+                        <i class="fas fa-book-open"></i> Notes
+                     </a>
+                  </div>
+               </div>
+            `;
+         }).join('');
+      }
+
+      function setupEventListeners() {
+         const searchInput = document.querySelector('#course-search-input');
+         const categoryFilter = document.querySelector('#course-category-filter');
+         const sortFilter = document.querySelector('#course-sort-filter');
+
+         const applyFilters = () => {
+            const query = (searchInput?.value || '').toLowerCase().trim();
+            const category = categoryFilter?.value || 'All';
+            const sortBy = sortFilter?.value || 'newest';
+
+            let filtered = allInstructorCourses.filter(c => {
+               const matchesQuery = !query || 
+                  (c.title && c.title.toLowerCase().includes(query)) ||
+                  (c.description && c.description.toLowerCase().includes(query)) ||
+                  (c.category && c.category.toLowerCase().includes(query));
+               
+               const matchesCategory = category === 'All' || c.category === category;
+               return matchesQuery && matchesCategory;
+            });
+
+            if (sortBy === 'rating') {
+               filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+            } else if (sortBy === 'popular') {
+               filtered.sort((a, b) => (b.studentsCount || 0) - (a.studentsCount || 0));
+            } else {
+               filtered.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            }
+
+            renderCoursesGrid(filtered);
+         };
+
+         if (searchInput) searchInput.addEventListener('input', applyFilters);
+         if (categoryFilter) categoryFilter.addEventListener('change', applyFilters);
+         if (sortFilter) sortFilter.addEventListener('change', applyFilters);
+      }
+
+      function renderError(message) {
+         const profileContainer = document.querySelector('#teacher-profile-container');
+         if (profileContainer) {
+            profileContainer.innerHTML = `
+               <div class="glass-card text-center" style="padding: 4rem 2rem; border-left: 5px solid var(--red);">
+                  <i class="fas fa-circle-exclamation" style="font-size: 4rem; color: var(--red); margin-bottom: 1.5rem;"></i>
+                  <h2 style="font-size: 2.4rem; color: var(--black); margin-bottom: 0.8rem;">Instructor Not Found</h2>
+                  <p style="font-size: 1.5rem; color: var(--light-color); margin-bottom: 2rem;">${escapeHTML(message)}</p>
+                  <a href="teachers.html" class="inline-btn"><i class="fas fa-arrow-left"></i> Back to Instructors</a>
+               </div>
+            `;
+         }
+         const coursesContainer = document.querySelector('#teacher-courses-container');
+         if (coursesContainer) coursesContainer.innerHTML = '';
+      }
+
+      function escapeHTML(str) {
+         if (!str) return '';
+         return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+      }
    </script>
 </body>
 </html>

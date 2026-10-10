@@ -35,34 +35,88 @@ function formatUser(u) {
    };
 }
 
+function formatLesson(l) {
+   if (!l) return null;
+   return {
+      _id: l.id,
+      id: l.id,
+      courseId: l.course_id,
+      title: l.title,
+      duration: l.duration || '15:00',
+      video: l.video_url || 'https://vjs.zencdn.net/v/oceans.mp4',
+      videoUrl: l.video_url || 'https://vjs.zencdn.net/v/oceans.mp4',
+      notes: l.notes || '',
+      pdfAttachment: l.pdf_attachment || '',
+      description: l.description || '',
+      order: l.sort_order || 1,
+      sortOrder: l.sort_order || 1,
+      createdAt: l.created_at
+   };
+}
+
 function formatCourse(c) {
    if (!c) return null;
-   const lessonsList = Array.isArray(c.playlists) && c.playlists.length > 0 ? c.playlists : (Array.isArray(c.videos) ? c.videos : []);
+   let rawLessons = Array.isArray(c.lessons) && c.lessons.length > 0 
+      ? c.lessons 
+      : (Array.isArray(c.playlists) && c.playlists.length > 0 
+         ? c.playlists 
+         : (Array.isArray(c.videos) ? c.videos : []));
+
+   const lessonsList = rawLessons.map(l => {
+      // If it's already formatted or a lessons row
+      return {
+         _id: l.id || l._id,
+         id: l.id || l._id,
+         title: l.title,
+         duration: l.duration || '15:00',
+         video: l.video_url || l.video || 'https://vjs.zencdn.net/v/oceans.mp4',
+         videoUrl: l.video_url || l.video || 'https://vjs.zencdn.net/v/oceans.mp4',
+         notes: l.notes || '',
+         pdfAttachment: l.pdf_attachment || l.pdfAttachment || '',
+         description: l.description || '',
+         order: l.sort_order || l.order || 1,
+         sortOrder: l.sort_order || l.order || 1
+      };
+   });
+
+   const thumb = c.thumbnail || c.thumb || 'images/thumb-1.png';
+   const teacherName = c.teacher_name || c.tutor_name || 'Instructor';
+   const teacherAvatar = c.teacher_avatar || c.tutor_avatar || 'images/pic-1.jpg';
+   const teacherId = c.teacher_id || c.tutor_id || '';
+   const studentsCount = Number(c.students_count || c.students_enrolled || c.enrolled_count || 0);
+
    return {
       _id: c.id,
       id: c.id,
       title: c.title,
       description: c.description || '',
-      teacherId: c.tutor_id,
-      tutorId: c.tutor_id,
-      teacherName: c.tutor_name,
-      tutorName: c.tutor_name,
-      teacherAvatar: c.tutor_avatar || 'images/pic-1.jpg',
-      tutorAvatar: c.tutor_avatar || 'images/pic-1.jpg',
-      teacherTitle: c.tutor_title || '',
-      tutorTitle: c.tutor_title || '',
+      teacherId,
+      tutorId: teacherId,
+      teacherName,
+      tutorName: teacherName,
+      teacherAvatar,
+      tutorAvatar: teacherAvatar,
+      teacherTitle: c.teacher_title || c.tutor_title || '',
+      tutorTitle: c.teacher_title || c.tutor_title || '',
       category: c.category || 'General',
-      thumbnail: c.thumb || 'images/thumb-1.png',
-      thumb: c.thumb || 'images/thumb-1.png',
-      date: c.date,
+      thumbnail: thumb,
+      thumb: thumb,
+      date: c.date || (c.created_at ? new Date(c.created_at).toISOString().split('T')[0] : '2026-01-15'),
       status: c.status || 'active',
-      studentsCount: c.enrolled_count || 0,
-      enrolledCount: c.enrolled_count || 0,
-      lessonsCount: c.lessons_count || (lessonsList ? lessonsList.length : 0),
+      price: c.price || 'Free',
+      isFree: c.is_free !== undefined ? c.is_free : (c.price === 'Free' || !c.price),
+      level: c.level || c.difficulty || 'All Levels',
+      difficulty: c.difficulty || c.level || 'All Levels',
+      studentsCount,
+      enrolledCount: studentsCount,
+      lessonsCount: c.lessons_count || lessonsList.length,
       rating: Number(c.rating) || 5.0,
       playlist: lessonsList,
-      videos: c.videos || [],
-      playlists: c.playlists || [],
+      playlists: lessonsList,
+      lessons: lessonsList,
+      videos: lessonsList,
+      requirements: c.requirements || [],
+      whatYouWillLearn: c.what_you_will_learn || [],
       quizzes: c.quizzes || [],
       assignments: c.assignments || [],
       createdAt: c.created_at,
@@ -225,6 +279,7 @@ module.exports = {
    supabase,
    formatUser,
    formatCourse,
+   formatLesson,
    formatComment,
    formatNotification,
    formatContactMessage,

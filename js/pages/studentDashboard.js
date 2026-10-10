@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
    await renderStudentOverview(user, stats);
    renderContinueLearning(stats.enrolledCourses);
    renderMyCourses(stats.enrolledCourses);
+   await renderInstructorsSection();
    await renderProgressAndCertificates(stats);
    renderStudentProfile(user, stats);
    initWeeklyActivityChart();
@@ -460,6 +461,134 @@ function renderMyCourses(enrolledCourses) {
          </div>
       </div>
    `).join('');
+}
+
+/**
+ * Render "Learn from Our Instructors" Section
+ * Dynamic database-driven cards for active instructors with >= 1 published course
+ */
+async function renderInstructorsSection() {
+   const container = document.querySelector('#instructors-discovery-grid');
+   if (!container) return;
+
+   // 1. Loading Skeleton State
+   container.innerHTML = `
+      <div class="box glass-card skeleton-card" style="padding: 3rem 2rem; text-align: center;">
+         <div class="skeleton" style="height: 11rem; width: 11rem; border-radius: 50%; margin: 0 auto 1.5rem auto;"></div>
+         <div class="skeleton" style="height: 2.2rem; width: 60%; margin: 0 auto 0.8rem auto; border-radius: 0.5rem;"></div>
+         <div class="skeleton" style="height: 1.5rem; width: 40%; margin: 0 auto 1.5rem auto; border-radius: 0.5rem;"></div>
+         <div class="skeleton" style="height: 4rem; width: 80%; margin: 0 auto; border-radius: 0.8rem;"></div>
+      </div>
+      <div class="box glass-card skeleton-card" style="padding: 3rem 2rem; text-align: center;">
+         <div class="skeleton" style="height: 11rem; width: 11rem; border-radius: 50%; margin: 0 auto 1.5rem auto;"></div>
+         <div class="skeleton" style="height: 2.2rem; width: 60%; margin: 0 auto 0.8rem auto; border-radius: 0.5rem;"></div>
+         <div class="skeleton" style="height: 1.5rem; width: 40%; margin: 0 auto 1.5rem auto; border-radius: 0.5rem;"></div>
+         <div class="skeleton" style="height: 4rem; width: 80%; margin: 0 auto; border-radius: 0.8rem;"></div>
+      </div>
+      <div class="box glass-card skeleton-card" style="padding: 3rem 2rem; text-align: center;">
+         <div class="skeleton" style="height: 11rem; width: 11rem; border-radius: 50%; margin: 0 auto 1.5rem auto;"></div>
+         <div class="skeleton" style="height: 2.2rem; width: 60%; margin: 0 auto 0.8rem auto; border-radius: 0.5rem;"></div>
+         <div class="skeleton" style="height: 1.5rem; width: 40%; margin: 0 auto 1.5rem auto; border-radius: 0.5rem;"></div>
+         <div class="skeleton" style="height: 4rem; width: 80%; margin: 0 auto; border-radius: 0.8rem;"></div>
+      </div>
+   `;
+
+   try {
+      const instructors = await UserService.getInstructors();
+
+      if (!instructors || instructors.length === 0) {
+         container.innerHTML = `
+            <div class="glass-card text-center" style="padding: 4rem 2rem; grid-column: 1 / -1;">
+               <i class="fas fa-chalkboard-user" style="font-size: 4rem; color: var(--light-color); margin-bottom: 1.5rem;"></i>
+               <h3 style="font-size: 2.2rem; color: var(--black); margin-bottom: 0.8rem;">No Active Instructors Available</h3>
+               <p style="font-size: 1.45rem; color: var(--light-color); max-width: 50rem; margin: 0 auto;">
+                  Our expert educators are currently developing new curriculums. Check back shortly to explore published courses.
+               </p>
+            </div>
+         `;
+         return;
+      }
+
+      container.innerHTML = instructors.map(instructor => {
+         // Consistent fallback avatar
+         let avatarUrl = instructor.avatar || 'images/pic-1.jpg';
+         if (!avatarUrl.startsWith('http') && !avatarUrl.startsWith('/')) {
+            avatarUrl = `../${avatarUrl}`;
+         }
+
+         const experienceBadge = instructor.experience 
+            ? `<span class="badge badge-teacher" style="font-size: 1.2rem; padding: 0.4rem 1rem;"><i class="fas fa-briefcase"></i> ${escapeHTML(instructor.experience)}</span>`
+            : '';
+
+         const coursesBadge = `
+            <span class="badge badge-accent" style="font-size: 1.2rem; padding: 0.4rem 1rem;">
+               <i class="fas fa-book-open"></i> ${instructor.coursesCount} Published ${instructor.coursesCount === 1 ? 'Course' : 'Courses'}
+            </span>
+         `;
+
+         const specialization = instructor.specialization || instructor.title || 'Course Instructor';
+         const bio = instructor.bio 
+            ? `<p style="font-size: 1.35rem; color: var(--light-color); line-height: 1.6; margin-bottom: 2rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">${escapeHTML(instructor.bio)}</p>` 
+            : '';
+
+         return `
+            <div class="box glass-card hover-lift" style="display: flex; flex-direction: column; justify-content: space-between; text-align: center; padding: 3rem 2.2rem; border-radius: 2rem; position: relative;">
+               <div>
+                  <div style="position: relative; width: 11rem; height: 11rem; margin: 0 auto 1.6rem auto;">
+                     <img src="${avatarUrl}" 
+                          alt="${escapeHTML(instructor.name)}" 
+                          onerror="this.onerror=null; this.src='../images/pic-1.jpg';"
+                          style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3.5px solid var(--main-color); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
+                     <span style="position: absolute; bottom: 0.2rem; right: 0.4rem; background: var(--green); width: 1.8rem; height: 1.8rem; border-radius: 50%; border: 3px solid var(--white);" title="Active Instructor"></span>
+                  </div>
+
+                  <h3 style="font-size: 2.2rem; color: var(--black); margin-bottom: 0.4rem; font-weight: 700;">
+                     ${escapeHTML(instructor.name)}
+                  </h3>
+
+                  <p style="font-size: 1.4rem; color: var(--main-color); font-weight: 600; margin-bottom: 1.2rem;">
+                     ${escapeHTML(specialization)}
+                  </p>
+
+                  <div style="display: flex; gap: 0.8rem; justify-content: center; align-items: center; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                     ${coursesBadge}
+                     ${experienceBadge}
+                  </div>
+
+                  ${bio}
+               </div>
+
+               <div style="margin-top: auto; padding-top: 1rem;">
+                  <a href="../teacher_profile.html?teacherId=${encodeURIComponent(instructor.id)}" class="btn" style="width: 100%; text-align: center; font-weight: 600;">
+                     <i class="fas fa-graduation-cap"></i> View Instructor Courses
+                  </a>
+               </div>
+            </div>
+         `;
+      }).join('');
+   } catch (err) {
+      console.error('Error rendering instructors section:', err);
+      container.innerHTML = `
+         <div class="glass-card text-center" style="padding: 3rem 2rem; grid-column: 1 / -1; border-left: 4px solid var(--red);">
+            <i class="fas fa-triangle-exclamation" style="font-size: 3rem; color: var(--red); margin-bottom: 1rem;"></i>
+            <h3 style="font-size: 1.8rem; color: var(--black); margin-bottom: 0.5rem;">Unable to Load Instructors</h3>
+            <p style="font-size: 1.4rem; color: var(--light-color); margin-bottom: 1.5rem;">A network error occurred while retrieving active instructor profiles.</p>
+            <button onclick="renderInstructorsSection()" class="option-btn" style="width: auto; padding: 0.8rem 1.6rem; font-size: 1.3rem;">
+               <i class="fas fa-rotate"></i> Retry
+            </button>
+         </div>
+      `;
+   }
+}
+
+function escapeHTML(str) {
+   if (!str) return '';
+   return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
 }
 
 async function renderProgressAndCertificates(stats) {
