@@ -140,10 +140,9 @@ function formatCodeChallenge(ch) {
       outputFormat: ch.output_format || ch.outputFormat || '',
       constraints: Array.isArray(ch.constraints) ? ch.constraints : [],
       sampleTestCases: sampleCases,
-      // IMPORTANT: hidden_test_cases are intentionally omitted from public API formatting
-      starterCode: ch.starter_code || {},
+      // IMPORTANT: hidden_test_cases and reference solutions are omitted from public API responses
+      starterCode: {},
       supportedLanguages: ch.supported_languages || ["python", "java", "cpp", "javascript"],
-      solution: ch.solution || '',
       points: ch.points || 100,
       createdAt: ch.created_at
    };

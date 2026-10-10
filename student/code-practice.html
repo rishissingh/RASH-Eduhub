@@ -150,6 +150,7 @@
                </div>
 
                <div class="flex-btn" style="width: auto; gap: 0.8rem;">
+                  <button id="btn-reset" class="ghost-btn" style="padding: 0.8rem 1.4rem; font-size: 1.3rem;" title="Reset code to starter template"><i class="fas fa-undo"></i> Reset</button>
                   <button id="btn-run" class="ghost-btn" style="padding: 0.8rem 1.4rem; font-size: 1.3rem;"><i class="fas fa-play"></i> Run Code</button>
                   <button id="btn-ai-eval" class="option-btn" style="padding: 0.8rem 1.4rem; font-size: 1.3rem; background: var(--main-gradient); color: #fff; border: none;"><i class="fas fa-brain"></i> AI Analysis</button>
                   <button id="btn-submit" class="btn" style="width: auto; padding: 0.8rem 1.8rem; font-size: 1.3rem;"><i class="fas fa-paper-plane"></i> Submit Solution</button>
@@ -235,6 +236,61 @@
       let editor = null;
       let allChallenges = [];
       let activeChallenge = null;
+      let currentLang = 'python';
+      const userCodeStore = {};
+
+      const STARTER_TEMPLATES = {
+         java: `import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // Write your solution here
+
+        sc.close();
+    }
+}`,
+         python: `def main():
+    # Write your solution here
+    pass
+
+if __name__ == "__main__":
+    main()`,
+         cpp: `#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    // Write your solution here
+
+    return 0;
+}`,
+         javascript: `const fs = require('fs');
+
+const input = fs.readFileSync(0, 'utf8').trim();
+
+// Write your solution here`
+      };
+
+      function getStorageKey(problemId, lang) {
+         return `${problemId || 'CA001'}_${(lang || 'python').toLowerCase()}`;
+      }
+
+      function getStarterTemplate(lang) {
+         const normalized = (lang || 'python').toLowerCase();
+         if (normalized === 'java') return STARTER_TEMPLATES.java;
+         if (normalized === 'cpp' || normalized === 'c++') return STARTER_TEMPLATES.cpp;
+         if (normalized === 'javascript' || normalized === 'js') return STARTER_TEMPLATES.javascript;
+         return STARTER_TEMPLATES.python;
+      }
+
+      function getCodeForEditor(problemId, lang) {
+         const key = getStorageKey(problemId, lang);
+         if (userCodeStore[key] !== undefined && userCodeStore[key] !== null) {
+            return userCodeStore[key];
+         }
+         return getStarterTemplate(lang);
+      }
 
       document.addEventListener('DOMContentLoaded', async () => {
          allChallenges = await CodeGraderService.getChallenges();
@@ -277,16 +333,30 @@
       }
 
       function switchChallenge(targetId) {
+         const oldPId = activeChallenge ? (activeChallenge.id || activeChallenge.codeId) : null;
+         if (editor && oldPId && currentLang) {
+            userCodeStore[getStorageKey(oldPId, currentLang)] = editor.getValue();
+         }
+
          activeChallenge = allChallenges.find(c => String(c.id) === String(targetId) || String(c.codeId) === String(targetId)) || allChallenges[0];
          
          renderProblemChips(allChallenges, activeChallenge);
          renderChallengeDetails(activeChallenge);
          
          const langSelect = document.querySelector('#editor-lang');
-         const currentLang = langSelect ? langSelect.value : 'python';
-         const newCode = (activeChallenge.starterCode && activeChallenge.starterCode[currentLang]) || '';
+         currentLang = langSelect ? langSelect.value : 'python';
+         const newPId = activeChallenge.id || activeChallenge.codeId || 'CA001';
+         const newCode = getCodeForEditor(newPId, currentLang);
          
          if (editor) {
+            const model = editor.getModel();
+            let monacoLang = currentLang;
+            if (currentLang === 'cpp') monacoLang = 'cpp';
+            if (currentLang === 'python') monacoLang = 'python';
+            if (currentLang === 'javascript') monacoLang = 'javascript';
+            if (currentLang === 'java') monacoLang = 'java';
+
+            monaco.editor.setModelLanguage(model, monacoLang);
             editor.setValue(newCode);
          }
          renderSubmissionHistory();
@@ -325,13 +395,21 @@
          if (!ch) return;
          require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' } });
          require(['vs/editor/editor.main'], function () {
-            const defaultLang = 'python';
-            const starterCode = (ch.starterCode && ch.starterCode[defaultLang]) || 'import sys\n\ndef solve():\n    pass\n\nif __name__ == "__main__":\n    solve()';
+            const langSelect = document.querySelector('#editor-lang');
+            currentLang = langSelect ? langSelect.value : 'python';
+            const pId = ch.id || ch.codeId || 'CA001';
+            const initialCode = getCodeForEditor(pId, currentLang);
             const isDark = document.body.classList.contains('dark');
 
+            let monacoLang = currentLang;
+            if (currentLang === 'cpp') monacoLang = 'cpp';
+            if (currentLang === 'python') monacoLang = 'python';
+            if (currentLang === 'javascript') monacoLang = 'javascript';
+            if (currentLang === 'java') monacoLang = 'java';
+
             editor = monaco.editor.create(document.getElementById('monaco-container'), {
-               value: starterCode,
-               language: defaultLang,
+               value: initialCode,
+               language: monacoLang,
                theme: isDark ? 'vs-dark' : 'vs',
                automaticLayout: true,
                fontSize: 14,
@@ -339,31 +417,59 @@
                minimap: { enabled: false }
             });
 
-            const langSelect = document.querySelector('#editor-lang');
+            editor.onDidChangeModelContent(() => {
+               if (activeChallenge && currentLang) {
+                  const curPId = activeChallenge.id || activeChallenge.codeId || 'CA001';
+                  userCodeStore[getStorageKey(curPId, currentLang)] = editor.getValue();
+               }
+            });
+
             langSelect.addEventListener('change', (e) => {
-               const lang = e.target.value;
-               const newCode = (activeChallenge.starterCode && activeChallenge.starterCode[lang]) || '';
+               const newLang = e.target.value;
+               const curPId = activeChallenge ? (activeChallenge.id || activeChallenge.codeId || 'CA001') : 'CA001';
+
+               if (editor && currentLang) {
+                  userCodeStore[getStorageKey(curPId, currentLang)] = editor.getValue();
+               }
+
+               currentLang = newLang;
+               const codeToLoad = getCodeForEditor(curPId, currentLang);
                const model = editor.getModel();
                
-               let monacoLang = lang;
-               if (lang === 'cpp') monacoLang = 'cpp';
-               if (lang === 'python') monacoLang = 'python';
-               if (lang === 'javascript') monacoLang = 'javascript';
-               if (lang === 'java') monacoLang = 'java';
+               let targetMonacoLang = currentLang;
+               if (currentLang === 'cpp') targetMonacoLang = 'cpp';
+               if (currentLang === 'python') targetMonacoLang = 'python';
+               if (currentLang === 'javascript') targetMonacoLang = 'javascript';
+               if (currentLang === 'java') targetMonacoLang = 'java';
 
-               monaco.editor.setModelLanguage(model, monacoLang);
-               editor.setValue(newCode);
+               monaco.editor.setModelLanguage(model, targetMonacoLang);
+               editor.setValue(codeToLoad);
             });
          });
       }
 
       function bindCodeActionEvents() {
+         const resetBtn = document.querySelector('#btn-reset');
          const runBtn = document.querySelector('#btn-run');
          const aiBtn = document.querySelector('#btn-ai-eval');
          const submitBtn = document.querySelector('#btn-submit');
          const outputConsole = document.querySelector('#console-output');
          const resultsPanel = document.querySelector('#test-results-panel');
          const resultsList = document.querySelector('#test-results-list');
+
+         if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+               if (!editor || !activeChallenge) return;
+               const curPId = activeChallenge.id || activeChallenge.codeId || 'CA001';
+               const key = getStorageKey(curPId, currentLang);
+               const defaultTemplate = getStarterTemplate(currentLang);
+               userCodeStore[key] = defaultTemplate;
+               editor.setValue(defaultTemplate);
+               if (window.Toast) {
+                  window.Toast.info(`Reset to clean ${currentLang.toUpperCase()} starter template.`, 'Editor Reset');
+               }
+            });
+         }
 
          if (!runBtn || !submitBtn) return;
 

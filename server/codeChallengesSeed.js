@@ -30,71 +30,7 @@ const CODE_CHALLENGES_SEED = [
       { input: "6\n-5 -2 7 11 4 8\n3", output: "0 5" },
       { input: "5\n1000000000 -1000000000 4 6 8\n0", output: "0 1" }
     ],
-    starter_code: {
-      python: `import sys
-
-def solve():
-    input_data = sys.stdin.read().split()
-    if not input_data:
-        return
-    n = int(input_data[0])
-    arr = [int(x) for x in input_data[1:n+1]]
-    target = int(input_data[n+1])
-    
-    # TODO: Write your solution here
-    # Print the two zero-based indices in increasing order
-
-if __name__ == '__main__':
-    solve()`,
-      javascript: `const fs = require('fs');
-
-function solve() {
-    const input = fs.readFileSync(0, 'utf-8').trim().split(/\\s+/);
-    if (!input || input.length < 3) return;
-    const n = parseInt(input[0], 10);
-    const arr = input.slice(1, n + 1).map(Number);
-    const target = parseInt(input[n + 1], 10);
-
-    // TODO: Write your solution here
-    // Print the two zero-based indices in increasing order
-}
-
-solve();`,
-      java: `import java.util.*;
-
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        if (!sc.hasNextInt()) return;
-        int n = sc.nextInt();
-        int[] arr = new int[n];
-        for (int i = 0; i < n; i++) arr[i] = sc.nextInt();
-        int target = sc.nextInt();
-
-        // TODO: Write your solution here
-        // Print the two zero-based indices in increasing order
-    }
-}`,
-      cpp: `#include <iostream>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    int n;
-    if (!(cin >> n)) return 0;
-    vector<int> arr(n);
-    for (int i = 0; i < n; i++) cin >> arr[i];
-    int target;
-    cin >> target;
-
-    // TODO: Write your solution here
-    // Print the two zero-based indices in increasing order
-
-    return 0;
-}`
-    },
+    starter_code: {},
     supported_languages: ["python", "java", "cpp", "javascript"],
     points: 100
   },
@@ -125,71 +61,7 @@ int main() {
       { input: "6\n-20 -10 0 10 20 30\n30", output: "5" },
       { input: "8\n2 4 6 8 10 12 14 16\n12", output: "5" }
     ],
-    starter_code: {
-      python: `import sys
-
-def solve():
-    input_data = sys.stdin.read().split()
-    if not input_data:
-        return
-    n = int(input_data[0])
-    arr = [int(x) for x in input_data[1:n+1]]
-    target = int(input_data[n+1])
-    
-    # TODO: Write your solution here
-    # Print the zero-based index or -1
-
-if __name__ == '__main__':
-    solve()`,
-      javascript: `const fs = require('fs');
-
-function solve() {
-    const input = fs.readFileSync(0, 'utf-8').trim().split(/\\s+/);
-    if (!input || input.length < 3) return;
-    const n = parseInt(input[0], 10);
-    const arr = input.slice(1, n + 1).map(Number);
-    const target = parseInt(input[n + 1], 10);
-
-    // TODO: Write your solution here
-    // Print the zero-based index or -1
-}
-
-solve();`,
-      java: `import java.util.*;
-
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        if (!sc.hasNextInt()) return;
-        int n = sc.nextInt();
-        int[] arr = new int[n];
-        for (int i = 0; i < n; i++) arr[i] = sc.nextInt();
-        int target = sc.nextInt();
-
-        // TODO: Write your solution here
-        // Print the zero-based index or -1
-    }
-}`,
-      cpp: `#include <iostream>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    int n;
-    if (!(cin >> n)) return 0;
-    vector<int> arr(n);
-    for (int i = 0; i < n; i++) cin >> arr[i];
-    int target;
-    cin >> target;
-
-    // TODO: Write your solution here
-    // Print the zero-based index or -1
-
-    return 0;
-}`
-    },
+    starter_code: {},
     supported_languages: ["python", "java", "cpp", "javascript"],
     points: 100
   },
@@ -219,66 +91,7 @@ int main() {
       { input: "6\n-2 -3 4 -1 -2 5", output: "6" },
       { input: "3\n1000000000 1000000000 1000000000", output: "3000000000" }
     ],
-    starter_code: {
-      python: `import sys
-
-def solve():
-    input_data = sys.stdin.read().split()
-    if not input_data:
-        return
-    n = int(input_data[0])
-    arr = [int(x) for x in input_data[1:n+1]]
-    
-    # TODO: Write your solution here
-    # Print the maximum sum of a non-empty contiguous subarray
-
-if __name__ == '__main__':
-    solve()`,
-      javascript: `const fs = require('fs');
-
-function solve() {
-    const input = fs.readFileSync(0, 'utf-8').trim().split(/\\s+/);
-    if (!input || input.length < 2) return;
-    const n = parseInt(input[0], 10);
-    const arr = input.slice(1, n + 1).map(Number);
-
-    // TODO: Write your solution here
-    // Print the maximum sum of a non-empty contiguous subarray
-}
-
-solve();`,
-      java: `import java.util.*;
-
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        if (!sc.hasNextInt()) return;
-        int n = sc.nextInt();
-        long[] arr = new long[n];
-        for (int i = 0; i < n; i++) arr[i] = sc.nextLong();
-
-        // TODO: Write your solution here
-        // Print the maximum sum of a non-empty contiguous subarray
-    }
-}`,
-      cpp: `#include <iostream>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    int n;
-    if (!(cin >> n)) return 0;
-    vector<long long> arr(n);
-    for (int i = 0; i < n; i++) cin >> arr[i];
-
-    // TODO: Write your solution here
-    // Print the maximum sum of a non-empty contiguous subarray
-
-    return 0;
-}`
-    },
+    starter_code: {},
     supported_languages: ["python", "java", "cpp", "javascript"],
     points: 200
   },
@@ -309,58 +122,7 @@ int main() {
       { input: "]", output: "NO" },
       { input: "(){[()]}[]", output: "YES" }
     ],
-    starter_code: {
-      python: `import sys
-
-def solve():
-    s = sys.stdin.read().strip()
-    if not s:
-        return
-    
-    # TODO: Write your solution here
-    # Print YES if valid, otherwise NO
-
-if __name__ == '__main__':
-    solve()`,
-      javascript: `const fs = require('fs');
-
-function solve() {
-    const s = fs.readFileSync(0, 'utf-8').trim();
-    if (!s) return;
-
-    // TODO: Write your solution here
-    // Print YES if valid, otherwise NO
-}
-
-solve();`,
-      java: `import java.util.*;
-
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        if (!sc.hasNext()) return;
-        String s = sc.next().trim();
-
-        // TODO: Write your solution here
-        // Print YES if valid, otherwise NO
-    }
-}`,
-      cpp: `#include <iostream>
-#include <string>
-using namespace std;
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    string s;
-    if (!(cin >> s)) return 0;
-
-    // TODO: Write your solution here
-    // Print YES if valid, otherwise NO
-
-    return 0;
-}`
-    },
+    starter_code: {},
     supported_languages: ["python", "java", "cpp", "javascript"],
     points: 100
   },
@@ -392,71 +154,7 @@ int main() {
       { input: "4\n-1 -2 -3 -4\n3", output: "-2 -3 -4 -1" },
       { input: "5\n1 2 3 4 5\n1000000000", output: "1 2 3 4 5" }
     ],
-    starter_code: {
-      python: `import sys
-
-def solve():
-    input_data = sys.stdin.read().split()
-    if not input_data:
-        return
-    n = int(input_data[0])
-    arr = [int(x) for x in input_data[1:n+1]]
-    k = int(input_data[n+1])
-    
-    # TODO: Write your solution here
-    # Print the rotated array as space-separated integers
-
-if __name__ == '__main__':
-    solve()`,
-      javascript: `const fs = require('fs');
-
-function solve() {
-    const input = fs.readFileSync(0, 'utf-8').trim().split(/\\s+/);
-    if (!input || input.length < 3) return;
-    const n = parseInt(input[0], 10);
-    const arr = input.slice(1, n + 1).map(Number);
-    const k = parseInt(input[n + 1], 10);
-
-    // TODO: Write your solution here
-    // Print the rotated array as space-separated integers
-}
-
-solve();`,
-      java: `import java.util.*;
-
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        if (!sc.hasNextInt()) return;
-        int n = sc.nextInt();
-        long[] arr = new long[n];
-        for (int i = 0; i < n; i++) arr[i] = sc.nextLong();
-        long k = sc.nextLong();
-
-        // TODO: Write your solution here
-        // Print the rotated array as space-separated integers
-    }
-}`,
-      cpp: `#include <iostream>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    int n;
-    if (!(cin >> n)) return 0;
-    vector<long long> arr(n);
-    for (int i = 0; i < n; i++) cin >> arr[i];
-    long long k;
-    cin >> k;
-
-    // TODO: Write your solution here
-    // Print the rotated array as space-separated integers
-
-    return 0;
-}`
-    },
+    starter_code: {},
     supported_languages: ["python", "java", "cpp", "javascript"],
     points: 200
   }

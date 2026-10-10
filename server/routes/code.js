@@ -10,6 +10,10 @@ const { protect } = require('../middleware/auth');
 const vm = require('vm');
 const { execSync } = require('child_process');
 
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+
 /**
  * Output Normalizer (Ignores trailing/leading whitespace and collapses spaces)
  */
@@ -23,8 +27,138 @@ function normalizeOutput(str) {
       .join('\n');
 }
 
+function runJsUserCode(code, inputStr) {
+   let logs = [];
+   const customConsole = {
+      log: (...args) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')),
+      error: (...args) => logs.push(args.join(' ')),
+      warn: (...args) => logs.push(args.join(' '))
+   };
+
+   const mockFs = {
+      readFileSync: (fd, encoding) => inputStr
+   };
+
+   const sandbox = {
+      console: customConsole,
+      require: (moduleName) => {
+         if (moduleName === 'fs') return mockFs;
+         return require(moduleName);
+      },
+      Buffer,
+      process: {
+         stdin: { read: () => inputStr },
+         stdout: { write: (data) => logs.push(data) }
+      },
+      Map, Set, BigInt, Array, Object, Math, parseInt, parseFloat, String, Number, Boolean, ArrayBuffer
+   };
+
+   const context = vm.createContext(sandbox);
+   const script = new vm.Script(code, { timeout: 3000 });
+   script.runInContext(context);
+
+   return logs.join('\n');
+}
+
+function runPythonUserCode(code, inputStr) {
+   const tmpDir = os.tmpdir();
+   const fileId = `py_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+   const scriptPath = path.join(tmpDir, `${fileId}.py`);
+
+   fs.writeFileSync(scriptPath, code, 'utf8');
+   try {
+      const output = execSync(`python "${scriptPath}"`, {
+         input: inputStr,
+         timeout: 4000,
+         encoding: 'utf-8',
+         stdio: ['pipe', 'pipe', 'pipe']
+      });
+      return output;
+   } catch (err) {
+      const stderr = err.stderr ? err.stderr.toString() : err.message;
+      throw new Error(stderr || 'Python execution error');
+   } finally {
+      try {
+         if (fs.existsSync(scriptPath)) fs.unlinkSync(scriptPath);
+      } catch (_) {}
+   }
+}
+
+function runJavaUserCode(code, inputStr) {
+   const tmpDir = os.tmpdir();
+   const dirName = `java_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+   const workDir = path.join(tmpDir, dirName);
+
+   fs.mkdirSync(workDir, { recursive: true });
+
+   let className = 'Main';
+   const match = code.match(/public\s+class\s+([A-Za-z0-9_]+)/);
+   if (match && match[1]) {
+      className = match[1];
+   }
+
+   const javaPath = path.join(workDir, `${className}.java`);
+   fs.writeFileSync(javaPath, code, 'utf8');
+
+   try {
+      execSync(`javac "${javaPath}"`, {
+         cwd: workDir,
+         timeout: 6000,
+         encoding: 'utf-8',
+         stdio: ['pipe', 'pipe', 'pipe']
+      });
+
+      const output = execSync(`java -cp . ${className}`, {
+         cwd: workDir,
+         input: inputStr,
+         timeout: 4000,
+         encoding: 'utf-8',
+         stdio: ['pipe', 'pipe', 'pipe']
+      });
+
+      return output;
+   } catch (err) {
+      const stderr = err.stderr ? err.stderr.toString() : err.message;
+      throw new Error(stderr || 'Java compilation or execution error');
+   } finally {
+      try {
+         fs.rmSync(workDir, { recursive: true, force: true });
+      } catch (_) {}
+   }
+}
+
+function runCppOrFallbackSolver(problemId, language, code, inputStr) {
+   const cleanCode = (code || '').trim();
+   if (!cleanCode || cleanCode.includes('Write your solution here') || cleanCode.includes('TODO') || cleanCode.length < 40) {
+      return '';
+   }
+
+   // Attempt execution with g++ if available
+   try {
+      const tmpDir = os.tmpdir();
+      const binId = `cpp_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      const srcPath = path.join(tmpDir, `${binId}.cpp`);
+      const exePath = path.join(tmpDir, `${binId}.exe`);
+      fs.writeFileSync(srcPath, code, 'utf8');
+
+      try {
+         execSync(`g++ -O2 "${srcPath}" -o "${exePath}"`, { timeout: 5000, stdio: ['pipe', 'pipe', 'pipe'] });
+         const output = execSync(`"${exePath}"`, { input: inputStr, timeout: 3000, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
+         return output;
+      } finally {
+         try { if (fs.existsSync(srcPath)) fs.unlinkSync(srcPath); } catch (_) {}
+         try { if (fs.existsSync(exePath)) fs.unlinkSync(exePath); } catch (_) {}
+      }
+   } catch (gppErr) {
+      if (gppErr.message.includes('not recognized') || gppErr.message.includes('cannot find')) {
+         return 'C++ execution requires g++ compiler on host system. Please test using Python, Java, or JavaScript.';
+      }
+      throw gppErr;
+   }
+}
+
 /**
- * Execute JS/Python Solution against Stdin and Return Stdout
+ * Execute User Solution against Stdin and Return Stdout
  */
 function evaluateSubmission(language, code, inputStr, expectedOutput, problemId) {
    const normalizedExpected = normalizeOutput(expectedOutput);
@@ -36,40 +170,13 @@ function evaluateSubmission(language, code, inputStr, expectedOutput, problemId)
       const lang = (language || 'javascript').toLowerCase();
 
       if (lang === 'javascript' || lang === 'js') {
-         // JavaScript Node.js Execution via Sandbox VM
-         let logs = [];
-         const customConsole = {
-            log: (...args) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')),
-            error: (...args) => logs.push(args.join(' ')),
-            warn: (...args) => logs.push(args.join(' '))
-         };
-
-         const mockFs = {
-            readFileSync: (fd, encoding) => inputStr
-         };
-
-         const sandbox = {
-            console: customConsole,
-            require: (moduleName) => {
-               if (moduleName === 'fs') return mockFs;
-               return require(moduleName);
-            },
-            Buffer,
-            process: {
-               stdin: { read: () => inputStr },
-               stdout: { write: (data) => logs.push(data) }
-            },
-            Map, Set, BigInt, Array, Object, Math, parseInt, parseFloat, String, Number, Boolean, ArrayBuffer
-         };
-
-         const context = vm.createContext(sandbox);
-         const script = new vm.Script(code, { timeout: 3000 });
-         script.runInContext(context);
-
-         actualOutput = logs.join('\n');
+         actualOutput = runJsUserCode(code, inputStr);
+      } else if (lang === 'python' || lang === 'py') {
+         actualOutput = runPythonUserCode(code, inputStr);
+      } else if (lang === 'java') {
+         actualOutput = runJavaUserCode(code, inputStr);
       } else {
-         // Python / Fallback Evaluation Solver Engine
-         actualOutput = runPythonOrFallbackSolver(problemId, language, code, inputStr);
+         actualOutput = runCppOrFallbackSolver(problemId, language, code, inputStr);
       }
 
       const normalizedActual = normalizeOutput(actualOutput);
@@ -77,7 +184,7 @@ function evaluateSubmission(language, code, inputStr, expectedOutput, problemId)
    } catch (err) {
       error = err.message;
       passed = false;
-      actualOutput = `Runtime Error: ${err.message}`;
+      actualOutput = err.message;
    }
 
    return {
@@ -85,99 +192,6 @@ function evaluateSubmission(language, code, inputStr, expectedOutput, problemId)
       passed,
       error
    };
-}
-
-/**
- * Reference Solvers for Python / Java / C++ fallback evaluation
- */
-function runPythonOrFallbackSolver(problemId, language, code, inputStr) {
-   const tokens = inputStr.trim().split(/\s+/);
-   if (!tokens || tokens.length === 0) return '';
-
-   // Check if code contains minimal logic or unhandled TODO placeholder
-   const cleanCode = (code || '').trim();
-   if (!cleanCode || cleanCode.includes('TODO') || cleanCode.length < 50) {
-      return 'Solution output empty (Solution incomplete)';
-   }
-
-   // Problem Specific Standard Reference Solvers
-   if (problemId === 'CA001' || problemId === 'two-sum') {
-      const n = parseInt(tokens[0], 10);
-      const arr = tokens.slice(1, n + 1).map(Number);
-      const target = parseInt(tokens[n + 1], 10);
-
-      const map = new Map();
-      for (let i = 0; i < n; i++) {
-         const diff = target - arr[i];
-         if (map.has(diff)) {
-            return `${map.get(diff)} ${i}`;
-         }
-         map.set(arr[i], i);
-      }
-      return '';
-   }
-
-   if (problemId === 'CA002' || problemId === 'binary-search') {
-      const n = parseInt(tokens[0], 10);
-      const arr = tokens.slice(1, n + 1).map(Number);
-      const target = parseInt(tokens[n + 1], 10);
-
-      let left = 0, right = n - 1;
-      let ans = -1;
-      while (left <= right) {
-         const mid = Math.floor((left + right) / 2);
-         if (arr[mid] === target) {
-            ans = mid;
-            break;
-         } else if (arr[mid] < target) {
-            left = mid + 1;
-         } else {
-            right = mid - 1;
-         }
-      }
-      return String(ans);
-   }
-
-   if (problemId === 'CA003' || problemId === 'maximum-subarray-sum') {
-      const n = parseInt(tokens[0], 10);
-      const arr = tokens.slice(1, n + 1).map(Number);
-
-      let maxSoFar = BigInt(arr[0]);
-      let currMax = BigInt(arr[0]);
-
-      for (let i = 1; i < n; i++) {
-         const val = BigInt(arr[i]);
-         currMax = val > (currMax + val) ? val : (currMax + val);
-         if (currMax > maxSoFar) maxSoFar = currMax;
-      }
-      return maxSoFar.toString();
-   }
-
-   if (problemId === 'CA004' || problemId === 'valid-parentheses') {
-      const s = tokens[0] || '';
-      const stack = [];
-      const map = { ')': '(', ']': '[', '}': '{' };
-      for (let char of s) {
-         if (map[char]) {
-            const top = stack.length ? stack.pop() : '#';
-            if (map[char] !== top) return 'NO';
-         } else {
-            stack.push(char);
-         }
-      }
-      return stack.length === 0 ? 'YES' : 'NO';
-   }
-
-   if (problemId === 'CA005' || problemId === 'rotate-array-right-by-k') {
-      const n = parseInt(tokens[0], 10);
-      const arr = tokens.slice(1, n + 1).map(Number);
-      const k = parseInt(tokens[n + 1], 10) % n;
-
-      const rotated = [...arr.slice(n - k), ...arr.slice(0, n - k)];
-      return rotated.join(' ');
-   }
-
-   return '';
 }
 
 // GET /api/code/challenges — List all challenges (SECURITY: Excludes hidden_test_cases)
