@@ -290,7 +290,7 @@ router.post('/run', protect, async (req, res, next) => {
       });
 
       const totalCount = sampleCases.length + hiddenCases.length;
-      const score = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : 100;
+      const score = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : 0;
 
       logs.push(`[Code Arena Judge] Execution finished: ${passedCount}/${totalCount} Test Cases Passed.`);
 
@@ -354,8 +354,8 @@ router.post('/submit', protect, async (req, res, next) => {
       });
 
       const totalCount = sampleCases.length + hiddenCases.length;
-      const score = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : 100;
-      const isPassed = score === 100;
+      const score = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : 0;
+      const isPassed = totalCount > 0 && passedCount === totalCount && score === 100;
 
       const { data: subRaw, error } = await supabase
          .from('submissions')

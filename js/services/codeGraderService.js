@@ -172,16 +172,31 @@ const CodeGraderService = {
                method: 'POST',
                body: { challengeId, language: lang, code }
             });
-            if (data.success && data.submission && data.submission.score === 100) {
-               if (window.Toast) {
-                  window.Toast.success('Challenge solved! Unlocked 200 XP & 20 Coins.', 'Accepted');
-               }
+            if (data && data.success && data.submission) {
+               return data;
             }
-            return data;
          }
-         return { success: true, submission: { score: 100, status: 'Accepted' }, runResult: this._simulateLocalExecution(challengeId, lang, code) };
+         const runRes = this._simulateLocalExecution(challengeId, lang, code);
+         const isPassed = runRes.score === 100;
+         return {
+            success: true,
+            submission: {
+               score: runRes.score,
+               status: isPassed ? 'Accepted' : 'Wrong Answer'
+            },
+            runResult: runRes
+         };
       } catch (err) {
-         return { success: true, submission: { score: 100, status: 'Accepted' }, runResult: this._simulateLocalExecution(challengeId, lang, code) };
+         const runRes = this._simulateLocalExecution(challengeId, lang, code);
+         const isPassed = runRes.score === 100;
+         return {
+            success: true,
+            submission: {
+               score: runRes.score,
+               status: isPassed ? 'Accepted' : 'Wrong Answer'
+            },
+            runResult: runRes
+         };
       }
    },
 
