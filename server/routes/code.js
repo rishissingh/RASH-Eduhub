@@ -94,10 +94,10 @@ function runPythonOrFallbackSolver(problemId, language, code, inputStr) {
    const tokens = inputStr.trim().split(/\s+/);
    if (!tokens || tokens.length === 0) return '';
 
-   // Check if code contains minimal logic
+   // Check if code contains minimal logic or unhandled TODO placeholder
    const cleanCode = (code || '').trim();
-   if (cleanCode.length < 15 || cleanCode.includes('return []') && !cleanCode.includes('seen')) {
-      return 'Solution output empty';
+   if (!cleanCode || cleanCode.includes('TODO') || cleanCode.length < 50) {
+      return 'Solution output empty (Solution incomplete)';
    }
 
    // Problem Specific Standard Reference Solvers

@@ -41,13 +41,8 @@ def solve():
     arr = [int(x) for x in input_data[1:n+1]]
     target = int(input_data[n+1])
     
-    seen = {}
-    for i, val in enumerate(arr):
-        diff = target - val
-        if diff in seen:
-            print(f"{seen[diff]} {i}")
-            return
-        seen[val] = i
+    # TODO: Write your solution here
+    # Print the two zero-based indices in increasing order
 
 if __name__ == '__main__':
     solve()`,
@@ -60,15 +55,8 @@ function solve() {
     const arr = input.slice(1, n + 1).map(Number);
     const target = parseInt(input[n + 1], 10);
 
-    const map = new Map();
-    for (let i = 0; i < n; i++) {
-        const diff = target - arr[i];
-        if (map.has(diff)) {
-            console.log(\`\${map.get(diff)} \${i}\`);
-            return;
-        }
-        map.set(arr[i], i);
-    }
+    // TODO: Write your solution here
+    // Print the two zero-based indices in increasing order
 }
 
 solve();`,
@@ -83,20 +71,12 @@ public class Main {
         for (int i = 0; i < n; i++) arr[i] = sc.nextInt();
         int target = sc.nextInt();
 
-        Map<Integer, Integer> map = new HashMap<>();
-        for (int i = 0; i < n; i++) {
-            int diff = target - arr[i];
-            if (map.containsKey(diff)) {
-                System.out.println(map.get(diff) + " " + i);
-                return;
-            }
-            map.put(arr[i], i);
-        }
+        // TODO: Write your solution here
+        // Print the two zero-based indices in increasing order
     }
 }`,
       cpp: `#include <iostream>
 #include <vector>
-#include <unordered_map>
 using namespace std;
 
 int main() {
@@ -109,15 +89,9 @@ int main() {
     int target;
     cin >> target;
 
-    unordered_map<int, int> mp;
-    for (int i = 0; i < n; i++) {
-        int diff = target - arr[i];
-        if (mp.count(diff)) {
-            cout << mp[diff] << " " << i << "\\n";
-            return 0;
-        }
-        mp[arr[i]] = i;
-    }
+    // TODO: Write your solution here
+    // Print the two zero-based indices in increasing order
+
     return 0;
 }`
     },
@@ -162,18 +136,8 @@ def solve():
     arr = [int(x) for x in input_data[1:n+1]]
     target = int(input_data[n+1])
     
-    left, right = 0, n - 1
-    ans = -1
-    while left <= right:
-        mid = (left + right) // 2
-        if arr[mid] == target:
-            ans = mid
-            break
-        elif arr[mid] < target:
-            left = mid + 1
-        else:
-            right = mid - 1
-    print(ans)
+    # TODO: Write your solution here
+    # Print the zero-based index or -1
 
 if __name__ == '__main__':
     solve()`,
@@ -186,20 +150,8 @@ function solve() {
     const arr = input.slice(1, n + 1).map(Number);
     const target = parseInt(input[n + 1], 10);
 
-    let left = 0, right = n - 1;
-    let ans = -1;
-    while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-        if (arr[mid] === target) {
-            ans = mid;
-            break;
-        } else if (arr[mid] < target) {
-            left = mid + 1;
-        } else {
-            right = mid - 1;
-        }
-    }
-    console.log(ans);
+    // TODO: Write your solution here
+    // Print the zero-based index or -1
 }
 
 solve();`,
@@ -214,20 +166,8 @@ public class Main {
         for (int i = 0; i < n; i++) arr[i] = sc.nextInt();
         int target = sc.nextInt();
 
-        int left = 0, right = n - 1;
-        int ans = -1;
-        while (left <= right) {
-            int mid = left + (right - left) / 2;
-            if (arr[mid] == target) {
-                ans = mid;
-                break;
-            } else if (arr[mid] < target) {
-                left = mid + 1;
-            } else {
-                right = mid - 1;
-            }
-        }
-        System.out.println(ans);
+        // TODO: Write your solution here
+        // Print the zero-based index or -1
     }
 }`,
       cpp: `#include <iostream>
@@ -244,20 +184,9 @@ int main() {
     int target;
     cin >> target;
 
-    int left = 0, right = n - 1;
-    int ans = -1;
-    while (left <= right) {
-        int mid = left + (right - left) / 2;
-        if (arr[mid] == target) {
-            ans = mid;
-            break;
-        } else if (arr[mid] < target) {
-            left = mid + 1;
-        } else {
-            right = mid - 1;
-        }
-    }
-    cout << ans << "\\n";
+    // TODO: Write your solution here
+    // Print the zero-based index or -1
+
     return 0;
 }`
     },
@@ -300,12 +229,8 @@ def solve():
     n = int(input_data[0])
     arr = [int(x) for x in input_data[1:n+1]]
     
-    max_so_far = arr[0]
-    curr_max = arr[0]
-    for i in range(1, n):
-        curr_max = max(arr[i], curr_max + arr[i])
-        max_so_far = max(max_so_far, curr_max)
-    print(max_so_far)
+    # TODO: Write your solution here
+    # Print the maximum sum of a non-empty contiguous subarray
 
 if __name__ == '__main__':
     solve()`,
@@ -317,15 +242,8 @@ function solve() {
     const n = parseInt(input[0], 10);
     const arr = input.slice(1, n + 1).map(Number);
 
-    let maxSoFar = BigInt(arr[0]);
-    let currMax = BigInt(arr[0]);
-
-    for (let i = 1; i < n; i++) {
-        const val = BigInt(arr[i]);
-        currMax = val > (currMax + val) ? val : (currMax + val);
-        if (currMax > maxSoFar) maxSoFar = currMax;
-    }
-    console.log(maxSoFar.toString());
+    // TODO: Write your solution here
+    // Print the maximum sum of a non-empty contiguous subarray
 }
 
 solve();`,
@@ -339,18 +257,12 @@ public class Main {
         long[] arr = new long[n];
         for (int i = 0; i < n; i++) arr[i] = sc.nextLong();
 
-        long maxSoFar = arr[0];
-        long currMax = arr[0];
-        for (int i = 1; i < n; i++) {
-            currMax = Math.max(arr[i], currMax + arr[i]);
-            maxSoFar = Math.max(maxSoFar, currMax);
-        }
-        System.out.println(maxSoFar);
+        // TODO: Write your solution here
+        // Print the maximum sum of a non-empty contiguous subarray
     }
 }`,
       cpp: `#include <iostream>
 #include <vector>
-#include <algorithm>
 using namespace std;
 
 int main() {
@@ -361,13 +273,9 @@ int main() {
     vector<long long> arr(n);
     for (int i = 0; i < n; i++) cin >> arr[i];
 
-    long long max_so_far = arr[0];
-    long long curr_max = arr[0];
-    for (int i = 1; i < n; i++) {
-        curr_max = max(arr[i], curr_max + arr[i]);
-        max_so_far = max(max_so_far, curr_max);
-    }
-    cout << max_so_far << "\\n";
+    // TODO: Write your solution here
+    // Print the maximum sum of a non-empty contiguous subarray
+
     return 0;
 }`
     },
@@ -408,17 +316,9 @@ def solve():
     s = sys.stdin.read().strip()
     if not s:
         return
-    stack = []
-    mapping = {')': '(', ']': '[', '}': '{'}
-    for char in s:
-        if char in mapping:
-            top_element = stack.pop() if stack else '#'
-            if mapping[char] != top_element:
-                print("NO")
-                return
-        else:
-            stack.append(char)
-    print("YES" if not stack else "NO")
+    
+    # TODO: Write your solution here
+    # Print YES if valid, otherwise NO
 
 if __name__ == '__main__':
     solve()`,
@@ -427,20 +327,9 @@ if __name__ == '__main__':
 function solve() {
     const s = fs.readFileSync(0, 'utf-8').trim();
     if (!s) return;
-    const stack = [];
-    const map = { ')': '(', ']': '[', '}': '{' };
-    for (let char of s) {
-        if (map[char]) {
-            const top = stack.length ? stack.pop() : '#';
-            if (map[char] !== top) {
-                console.log('NO');
-                return;
-            }
-        } else {
-            stack.push(char);
-        }
-    }
-    console.log(stack.length === 0 ? 'YES' : 'NO');
+
+    // TODO: Write your solution here
+    // Print YES if valid, otherwise NO
 }
 
 solve();`,
@@ -452,30 +341,12 @@ public class Main {
         if (!sc.hasNext()) return;
         String s = sc.next().trim();
 
-        Stack<Character> stack = new Stack<>();
-        for (char c : s.toCharArray()) {
-            if (c == '(' || c == '[' || c == '{') {
-                stack.push(c);
-            } else {
-                if (stack.isEmpty()) {
-                    System.out.println("NO");
-                    return;
-                }
-                char top = stack.pop();
-                if ((c == ')' && top != '(') ||
-                    (c == ']' && top != '[') ||
-                    (c == '}' && top != '{')) {
-                    System.out.println("NO");
-                    return;
-                }
-            }
-        }
-        System.out.println(stack.isEmpty() ? "YES" : "NO");
+        // TODO: Write your solution here
+        // Print YES if valid, otherwise NO
     }
 }`,
       cpp: `#include <iostream>
 #include <string>
-#include <stack>
 using namespace std;
 
 int main() {
@@ -483,26 +354,10 @@ int main() {
     cin.tie(NULL);
     string s;
     if (!(cin >> s)) return 0;
-    stack<char> st;
-    for (char c : s) {
-        if (c == '(' || c == '[' || c == '{') {
-            st.push(c);
-        } else {
-            if (st.empty()) {
-                cout << "NO\\n";
-                return 0;
-            }
-            char top = st.top();
-            st.pop();
-            if ((c == ')' && top != '(') ||
-                (c == ']' && top != '[') ||
-                (c == '}' && top != '{')) {
-                cout << "NO\\n";
-                return 0;
-            }
-        }
-    }
-    cout << (st.empty() ? "YES" : "NO") << "\\n";
+
+    // TODO: Write your solution here
+    // Print YES if valid, otherwise NO
+
     return 0;
 }`
     },
@@ -546,10 +401,10 @@ def solve():
         return
     n = int(input_data[0])
     arr = [int(x) for x in input_data[1:n+1]]
-    k = int(input_data[n+1]) % n
+    k = int(input_data[n+1])
     
-    rotated = arr[n-k:] + arr[:n-k]
-    print(*(rotated))
+    # TODO: Write your solution here
+    # Print the rotated array as space-separated integers
 
 if __name__ == '__main__':
     solve()`,
@@ -560,10 +415,10 @@ function solve() {
     if (!input || input.length < 3) return;
     const n = parseInt(input[0], 10);
     const arr = input.slice(1, n + 1).map(Number);
-    const k = parseInt(input[n + 1], 10) % n;
+    const k = parseInt(input[n + 1], 10);
 
-    const rotated = [...arr.slice(n - k), ...arr.slice(0, n - k)];
-    console.log(rotated.join(' '));
+    // TODO: Write your solution here
+    // Print the rotated array as space-separated integers
 }
 
 solve();`,
@@ -576,18 +431,10 @@ public class Main {
         int n = sc.nextInt();
         long[] arr = new long[n];
         for (int i = 0; i < n; i++) arr[i] = sc.nextLong();
-        long kVal = sc.nextLong();
-        int k = (int)(kVal % n);
+        long k = sc.nextLong();
 
-        long[] res = new long[n];
-        for (int i = 0; i < n; i++) {
-            res[(i + k) % n] = arr[i];
-        }
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < n; i++) {
-            sb.append(res[i]).append(i == n - 1 ? "" : " ");
-        }
-        System.out.println(sb.toString());
+        // TODO: Write your solution here
+        // Print the rotated array as space-separated integers
     }
 }`,
       cpp: `#include <iostream>
@@ -601,18 +448,12 @@ int main() {
     if (!(cin >> n)) return 0;
     vector<long long> arr(n);
     for (int i = 0; i < n; i++) cin >> arr[i];
-    long long kVal;
-    cin >> kVal;
-    int k = kVal % n;
+    long long k;
+    cin >> k;
 
-    vector<long long> res(n);
-    for (int i = 0; i < n; i++) {
-        res[(i + k) % n] = arr[i];
-    }
-    for (int i = 0; i < n; i++) {
-        cout << res[i] << (i == n - 1 ? "" : " ");
-    }
-    cout << "\\n";
+    // TODO: Write your solution here
+    // Print the rotated array as space-separated integers
+
     return 0;
 }`
     },
