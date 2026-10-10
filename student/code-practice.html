@@ -340,6 +340,20 @@ const input = fs.readFileSync(0, 'utf8').trim();
 
          activeChallenge = allChallenges.find(c => String(c.id) === String(targetId) || String(c.codeId) === String(targetId)) || allChallenges[0];
          
+         // Clear execution console and hide test assertion results on switching challenge
+         const outputConsole = document.querySelector('#console-output');
+         const resultsPanel = document.querySelector('#test-results-panel');
+         const resultsList = document.querySelector('#test-results-list');
+         if (outputConsole) {
+            outputConsole.textContent = 'Waiting for code submission...';
+         }
+         if (resultsPanel) {
+            resultsPanel.style.display = 'none';
+         }
+         if (resultsList) {
+            resultsList.innerHTML = '';
+         }
+
          renderProblemChips(allChallenges, activeChallenge);
          renderChallengeDetails(activeChallenge);
          
@@ -465,6 +479,12 @@ const input = fs.readFileSync(0, 'utf8').trim();
                const defaultTemplate = getStarterTemplate(currentLang);
                userCodeStore[key] = defaultTemplate;
                editor.setValue(defaultTemplate);
+               if (outputConsole) {
+                  outputConsole.textContent = 'Waiting for code submission...';
+               }
+               if (resultsPanel) {
+                  resultsPanel.style.display = 'none';
+               }
                if (window.Toast) {
                   window.Toast.info(`Reset to clean ${currentLang.toUpperCase()} starter template.`, 'Editor Reset');
                }
@@ -482,11 +502,22 @@ const input = fs.readFileSync(0, 'utf8').trim();
             resultsPanel.style.display = 'none';
 
             const res = await CodeGraderService.runCode(activeChallenge.id || activeChallenge.codeId, lang, code);
-            if (res.success) {
-               outputConsole.innerHTML = res.logs.join('<br>') + `<br><span style="color: #4ade80;">[Judge Engine] Execution finished with Score: ${res.score}/100</span>`;
-               
+            const maxScore = activeChallenge ? (activeChallenge.points || 100) : 100;
+            const status = res.status || (res.score === maxScore ? 'Accepted' : 'Wrong Answer');
+            const score = res.score !== undefined ? res.score : 0;
+            const isAccepted = status === 'Accepted' && score === maxScore;
+
+            const logText = (res.logs && res.logs.length > 0) ? res.logs.join('<br>') : `[Code Arena Judge] Execution finished.`;
+            const statusColor = isAccepted ? '#4ade80' : '#f87171';
+            outputConsole.innerHTML = `${logText}<br><span style="color: ${statusColor}; font-weight: 600;">[Judge Engine] Verdict: ${status} | Score: ${score}/${maxScore}</span>`;
+
+            if (res.compilationError) {
+               outputConsole.innerHTML += `<br><pre style="color: #f87171; background: #1e1e2e; padding: 0.8rem; border-radius: 0.6rem; margin-top: 0.6rem; overflow-x: auto;"><code>${escapeHTML(res.compilationError)}</code></pre>`;
+            }
+            
+            if (res.testResults && res.testResults.length > 0) {
                resultsPanel.style.display = 'block';
-               resultsList.innerHTML = (res.testResults || []).map((tr, idx) => {
+               resultsList.innerHTML = res.testResults.map((tr, idx) => {
                   const icon = tr.passed ? 'fa-check-circle' : 'fa-times-circle';
                   const color = tr.passed ? 'var(--green)' : 'var(--red)';
                   const label = tr.isHidden ? `Test Case ${idx + 1} (Hidden)` : `Sample Test Case ${idx + 1}`;
@@ -500,7 +531,7 @@ const input = fs.readFileSync(0, 'utf8').trim();
                                  Input: <code>${escapeHTML(tr.input)}</code> | Expected: <code>${escapeHTML(tr.expected)}</code> | Got: <code>${escapeHTML(tr.output)}</code>
                               </p>
                            ` : `
-                              <p style="color: var(--light-color); font-size: 1.15rem; margin-top: 0.2rem;">Hidden Test Case Evaluation: ${tr.passed ? 'PASSED' : 'FAILED'}</p>
+                              <p style="color: var(--light-color); font-size: 1.15rem; margin-top: 0.2rem;">Hidden Test Case Evaluation: ${tr.passed ? 'PASSED' : (tr.verdict || 'FAILED')}</p>
                            `}
                         </div>
                         <i class="fas ${icon}" style="color: ${color}; font-size: 1.6rem;"></i>
@@ -557,48 +588,54 @@ const input = fs.readFileSync(0, 'utf8').trim();
             resultsPanel.style.display = 'none';
 
             const res = await CodeGraderService.submitCode(activeChallenge.id || activeChallenge.codeId, lang, code);
-            if (res && res.success && res.submission) {
-               const score = res.submission.score !== undefined ? res.submission.score : (res.runResult ? res.runResult.score : 0);
-               const status = res.submission.status || (score === 100 ? 'Accepted' : 'Wrong Answer');
-               const isAccepted = status === 'Accepted' && score === 100;
+            const sub = (res && res.submission) ? res.submission : (res && res.runResult ? res.runResult : {});
+            const status = sub.status || (res && res.status ? res.status : 'Judge Error');
+            const score = sub.score !== undefined ? sub.score : 0;
+            const maxScore = (sub.maxScore !== undefined) ? sub.maxScore : (activeChallenge ? (activeChallenge.points || 100) : 100);
+            const isAccepted = status === 'Accepted' && score === maxScore;
 
-               outputConsole.innerHTML = `[Code Arena Judge] Submission result recorded!<br><span style="color: ${isAccepted ? '#4ade80' : '#f87171'};">Verdict: ${status} &bull; Score: ${score}/100</span>`;
-               
-               if (window.Toast) {
-                  if (isAccepted) {
-                     window.Toast.success(`Verdict: Accepted! Score: 100/100`, 'Accepted');
-                  } else {
-                     window.Toast.error(`Verdict: ${status}. Score: ${score}/100`, 'Submission Failed');
-                  }
-               }
-
-               if (res.runResult && Array.isArray(res.runResult.testResults)) {
-                  resultsPanel.style.display = 'block';
-                  resultsList.innerHTML = res.runResult.testResults.map((tr, idx) => {
-                     const icon = tr.passed ? 'fa-check-circle' : 'fa-times-circle';
-                     const color = tr.passed ? 'var(--green)' : 'var(--red)';
-                     const label = tr.isHidden ? `Test Case ${idx + 1} (Hidden)` : `Sample Test Case ${idx + 1}`;
-
-                     return `
-                        <div style="background: var(--light-bg); border-left: 3px solid ${color}; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; font-size: 1.3rem;">
-                           <div>
-                              <strong style="color: var(--black);">${label}</strong>
-                              ${!tr.isHidden ? `
-                                 <p style="color: var(--light-color); font-size: 1.15rem; margin-top: 0.2rem;">
-                                    Input: <code>${escapeHTML(tr.input)}</code> | Expected: <code>${escapeHTML(tr.expected)}</code> | Got: <code>${escapeHTML(tr.output)}</code>
-                                 </p>
-                              ` : `
-                                 <p style="color: var(--light-color); font-size: 1.15rem; margin-top: 0.2rem;">Hidden Test Case Evaluation: ${tr.passed ? 'PASSED' : 'FAILED'}</p>
-                              `}
-                           </div>
-                           <i class="fas ${icon}" style="color: ${color}; font-size: 1.6rem;"></i>
-                        </div>
-                     `;
-                  }).join('');
-               }
-
-               renderSubmissionHistory();
+            outputConsole.innerHTML = `[Code Arena Judge] Submission result recorded!<br><span style="color: ${isAccepted ? '#4ade80' : '#f87171'}; font-weight: 600;">Verdict: ${status} | Score: ${score}/${maxScore}</span>`;
+            
+            if (res && res.runResult && res.runResult.compilationError) {
+               outputConsole.innerHTML += `<br><pre style="color: #f87171; background: #1e1e2e; padding: 0.8rem; border-radius: 0.6rem; margin-top: 0.6rem; overflow-x: auto;"><code>${escapeHTML(res.runResult.compilationError)}</code></pre>`;
             }
+
+            if (window.Toast) {
+               if (isAccepted) {
+                  window.Toast.success(`Verdict: Accepted | Score: ${score}/${maxScore}`, 'Accepted');
+               } else if (status === 'Empty Submission' || status === 'Invalid Submission') {
+                  window.Toast.warning(`Verdict: ${status} | Score: ${score}/${maxScore}`, 'Invalid Code');
+               } else {
+                  window.Toast.error(`Verdict: ${status} | Score: ${score}/${maxScore}`, 'Submission Failed');
+               }
+            }
+
+            if (res && res.runResult && Array.isArray(res.runResult.testResults) && res.runResult.testResults.length > 0) {
+               resultsPanel.style.display = 'block';
+               resultsList.innerHTML = res.runResult.testResults.map((tr, idx) => {
+                  const icon = tr.passed ? 'fa-check-circle' : 'fa-times-circle';
+                  const color = tr.passed ? 'var(--green)' : 'var(--red)';
+                  const label = tr.isHidden ? `Test Case ${idx + 1} (Hidden)` : `Sample Test Case ${idx + 1}`;
+
+                  return `
+                     <div style="background: var(--light-bg); border-left: 3px solid ${color}; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; font-size: 1.3rem;">
+                        <div>
+                           <strong style="color: var(--black);">${label}</strong>
+                           ${!tr.isHidden ? `
+                              <p style="color: var(--light-color); font-size: 1.15rem; margin-top: 0.2rem;">
+                                 Input: <code>${escapeHTML(tr.input)}</code> | Expected: <code>${escapeHTML(tr.expected)}</code> | Got: <code>${escapeHTML(tr.output)}</code>
+                              </p>
+                           ` : `
+                              <p style="color: var(--light-color); font-size: 1.15rem; margin-top: 0.2rem;">Hidden Test Case Evaluation: ${tr.passed ? 'PASSED' : (tr.verdict || 'FAILED')}</p>
+                           `}
+                        </div>
+                        <i class="fas ${icon}" style="color: ${color}; font-size: 1.6rem;"></i>
+                     </div>
+                  `;
+               }).join('');
+            }
+
+            renderSubmissionHistory();
          });
       }
 
@@ -613,15 +650,15 @@ const input = fs.readFileSync(0, 'utf8').trim();
          }
 
          container.innerHTML = list.map(s => {
-            const isAccepted = s.status === 'Accepted' || s.score === 100;
+            const isAccepted = s.status === 'Accepted';
             const color = isAccepted ? 'var(--green)' : 'var(--red)';
             const timeStr = new Date(s.createdAt || s.submittedAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             return `
                <div style="background: var(--light-bg); border-radius: 0.8rem; padding: 1rem 1.2rem; display: flex; justify-content: space-between; align-items: center; font-size: 1.3rem; border: var(--border);">
                   <div>
-                     <strong style="color: ${color};">${s.status || (isAccepted ? 'Accepted' : 'Wrong Answer')}</strong>
-                     <span style="font-size: 1.15rem; color: var(--light-color); display: block;">Lang: ${(s.language || 'python').toUpperCase()} &bull; Score: ${s.score}%</span>
+                     <strong style="color: ${color};">${s.status || 'Wrong Answer'}</strong>
+                     <span style="font-size: 1.15rem; color: var(--light-color); display: block;">Lang: ${(s.language || 'python').toUpperCase()} &bull; Score: ${s.score || 0}%</span>
                   </div>
                   <span style="font-size: 1.15rem; color: var(--light-color);">${timeStr}</span>
                </div>

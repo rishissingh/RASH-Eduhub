@@ -15,7 +15,7 @@ const path = require('path');
 const os = require('os');
 
 /**
- * Output Normalizer (Ignores trailing/leading whitespace and collapses spaces)
+ * Output Normalizer (Ignores trailing/leading whitespace and collapses internal spaces)
  */
 function normalizeOutput(str) {
    if (str === null || str === undefined) return '';
@@ -25,6 +25,102 @@ function normalizeOutput(str) {
       .map(line => line.trim().replace(/\s+/g, ' '))
       .filter(line => line.length > 0)
       .join('\n');
+}
+
+/**
+ * Validates submitted source code before execution.
+ * Rejects empty, whitespace-only, comment-only, and boilerplate/starter template code.
+ */
+function validateSourceCode(language, code) {
+   if (!code || typeof code !== 'string') {
+      return { valid: false, status: 'Empty Submission', message: 'No source code provided.' };
+   }
+
+   const raw = code.trim();
+   if (raw.length === 0) {
+      return { valid: false, status: 'Empty Submission', message: 'Source code cannot be empty.' };
+   }
+
+   const lang = (language || 'python').toLowerCase();
+
+   // Strip comments and check if code remains
+   let stripped = raw;
+   if (lang === 'python' || lang === 'py') {
+      // Remove multi-line docstrings: '''...''' or """..."""
+      stripped = stripped.replace(/'''[\s\S]*?'''/g, '').replace(/"""[\s\S]*?"""/g, '');
+      // Remove single-line comments: #...
+      stripped = stripped.replace(/#.*$/gm, '');
+   } else {
+      // Remove multi-line comments: /* ... */
+      stripped = stripped.replace(/\/\*[\s\S]*?\*\//g, '');
+      // Remove single-line comments: // ...
+      stripped = stripped.replace(/\/\/.*$/gm, '');
+   }
+
+   const noWhitespace = stripped.replace(/\s+/g, '');
+   if (noWhitespace.length === 0) {
+      return { valid: false, status: 'Empty Submission', message: 'Submitted code contains only comments or whitespace.' };
+   }
+
+   // Language-specific boilerplate & placeholder detection
+   if (lang === 'python' || lang === 'py') {
+      const pyClean = stripped
+         .replace(/\bdef\s+[a-zA-Z0-9_]+\s*\([^)]*\)\s*:/g, '')
+         .replace(/\bif\s+__name__\s*==\s*["']__main__["']\s*:\s*[a-zA-Z0-9_]+\(\)/g, '')
+         .replace(/\bpass\b/g, '')
+         .replace(/\breturn\b/g, '')
+         .replace(/\.{3}/g, '')
+         .trim();
+
+      if (!pyClean || pyClean.length === 0) {
+         return { valid: false, status: 'Invalid Submission', message: 'Default starter template submitted without implementation.' };
+      }
+   } else if (lang === 'java') {
+      const javaClean = stripped
+         .replace(/import\s+[a-zA-Z0-9_.*]+;/g, '')
+         .replace(/public\s+class\s+[A-Za-z0-9_]+\s*\{/g, '')
+         .replace(/public\s+static\s+void\s+main\s*\(\s*String\s*\[\s*\]\s*[a-zA-Z0-9_]+\s*\)\s*\{/g, '')
+         .replace(/Scanner\s+[a-zA-Z0-9_]+\s*=\s*new\s+Scanner\s*\(\s*System\.in\s*\)\s*;/g, '')
+         .replace(/[a-zA-Z0-9_]+\.close\s*\(\s*\)\s*;/g, '')
+         .replace(/return\s*;/g, '')
+         .replace(/[\{\}\s]/g, '')
+         .trim();
+
+      if (!javaClean || javaClean.length === 0) {
+         return { valid: false, status: 'Invalid Submission', message: 'Default starter template submitted without implementation.' };
+      }
+   } else if (lang === 'cpp' || lang === 'c++') {
+      const cppClean = stripped
+         .replace(/#include\s*[<"][^>"]+[>"]/g, '')
+         .replace(/using\s+namespace\s+std\s*;/g, '')
+         .replace(/int\s+main\s*\(\s*\)\s*\{/g, '')
+         .replace(/return\s+0\s*;/g, '')
+         .replace(/return\s*;/g, '')
+         .replace(/[\{\}\s]/g, '')
+         .trim();
+
+      if (!cppClean || cppClean.length === 0) {
+         return { valid: false, status: 'Invalid Submission', message: 'Default starter template submitted without implementation.' };
+      }
+   } else if (lang === 'javascript' || lang === 'js') {
+      const jsClean = stripped
+         .replace(/(const|let|var)\s+fs\s*=\s*require\s*\(\s*['"]fs['"]\s*\)\s*;/g, '')
+         .replace(/(const|let|var)\s+input\s*=\s*fs\.readFileSync\s*\(\s*0\s*,\s*['"]utf8['"]\s*\)\.trim\(\)\s*;/g, '')
+         .replace(/process\.exit\s*\(\s*0\s*\)\s*;/g, '')
+         .replace(/[\{\}\s]/g, '')
+         .trim();
+
+      if (!jsClean || jsClean.length === 0) {
+         return { valid: false, status: 'Invalid Submission', message: 'Default starter template submitted without implementation.' };
+      }
+   }
+
+   // Catch unedited placeholder markers
+   if ((raw.includes('Write your solution here') || raw.includes('TODO')) && raw.length < 120) {
+      return { valid: false, status: 'Invalid Submission', message: 'Starter placeholder not replaced with solution logic.' };
+   }
+
+   return { valid: true };
 }
 
 function runJsUserCode(code, inputStr) {
@@ -43,21 +139,40 @@ function runJsUserCode(code, inputStr) {
       console: customConsole,
       require: (moduleName) => {
          if (moduleName === 'fs') return mockFs;
-         return require(moduleName);
+         throw new Error(`Module '${moduleName}' is not allowed in online judge sandbox.`);
       },
       Buffer,
       process: {
          stdin: { read: () => inputStr },
-         stdout: { write: (data) => logs.push(data) }
+         stdout: { write: (data) => logs.push(data) },
+         exit: () => {}
       },
       Map, Set, BigInt, Array, Object, Math, parseInt, parseFloat, String, Number, Boolean, ArrayBuffer
    };
 
-   const context = vm.createContext(sandbox);
-   const script = new vm.Script(code, { timeout: 3000 });
-   script.runInContext(context);
-
-   return logs.join('\n');
+   try {
+      const context = vm.createContext(sandbox);
+      let script;
+      try {
+         script = new vm.Script(code, { timeout: 3000 });
+      } catch (compileErr) {
+         const err = new Error(compileErr.message);
+         err.verdict = 'Compilation Error';
+         throw err;
+      }
+      script.runInContext(context, { timeout: 3000 });
+      return logs.join('\n');
+   } catch (err) {
+      if (err.verdict) throw err;
+      if (err.message && (err.message.includes('timed out') || err.message.includes('ETIMEDOUT'))) {
+         const timeoutErr = new Error('Execution timed out (3000ms)');
+         timeoutErr.verdict = 'Time Limit Exceeded';
+         throw timeoutErr;
+      }
+      const rtErr = new Error(err.message || 'JavaScript runtime error');
+      rtErr.verdict = 'Runtime Error';
+      throw rtErr;
+   }
 }
 
 function runPythonUserCode(code, inputStr) {
@@ -75,8 +190,29 @@ function runPythonUserCode(code, inputStr) {
       });
       return output;
    } catch (err) {
-      const stderr = err.stderr ? err.stderr.toString() : err.message;
-      throw new Error(stderr || 'Python execution error');
+      const stderr = (err.stderr ? err.stderr.toString() : err.message) || '';
+
+      if (err.code === 'ETIMEDOUT' || err.message.includes('ETIMEDOUT') || (err.status === null && err.signal === 'SIGTERM')) {
+         const e = new Error('Execution timed out (4000ms)');
+         e.verdict = 'Time Limit Exceeded';
+         throw e;
+      }
+
+      if (err.message.includes('is not recognized') || err.message.includes('cannot find') || err.message.includes('not found')) {
+         const e = new Error('Python runtime unavailable on judge host.');
+         e.verdict = 'Judge Error';
+         throw e;
+      }
+
+      if (stderr.includes('SyntaxError') || stderr.includes('IndentationError') || stderr.includes('TabError')) {
+         const e = new Error(stderr.trim());
+         e.verdict = 'Compilation Error';
+         throw e;
+      }
+
+      const e = new Error(stderr.trim() || 'Python runtime error');
+      e.verdict = 'Runtime Error';
+      throw e;
    } finally {
       try {
          if (fs.existsSync(scriptPath)) fs.unlinkSync(scriptPath);
@@ -101,25 +237,57 @@ function runJavaUserCode(code, inputStr) {
    fs.writeFileSync(javaPath, code, 'utf8');
 
    try {
-      execSync(`javac "${javaPath}"`, {
-         cwd: workDir,
-         timeout: 6000,
-         encoding: 'utf-8',
-         stdio: ['pipe', 'pipe', 'pipe']
-      });
+      // 1. Compile with javac
+      try {
+         execSync(`javac "${javaPath}"`, {
+            cwd: workDir,
+            timeout: 6000,
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'pipe']
+         });
+      } catch (compileErr) {
+         const stderr = (compileErr.stderr ? compileErr.stderr.toString() : compileErr.message) || '';
+         if (compileErr.code === 'ETIMEDOUT' || compileErr.message.includes('ETIMEDOUT')) {
+            const e = new Error('Compilation timed out');
+            e.verdict = 'Time Limit Exceeded';
+            throw e;
+         }
+         if (compileErr.message.includes('is not recognized') || compileErr.message.includes('cannot find')) {
+            const e = new Error('Java compiler (javac) unavailable on judge host.');
+            e.verdict = 'Judge Error';
+            throw e;
+         }
+         const e = new Error(stderr.trim() || 'Java compilation error');
+         e.verdict = 'Compilation Error';
+         throw e;
+      }
 
-      const output = execSync(`java -cp . ${className}`, {
-         cwd: workDir,
-         input: inputStr,
-         timeout: 4000,
-         encoding: 'utf-8',
-         stdio: ['pipe', 'pipe', 'pipe']
-      });
-
-      return output;
-   } catch (err) {
-      const stderr = err.stderr ? err.stderr.toString() : err.message;
-      throw new Error(stderr || 'Java compilation or execution error');
+      // 2. Run with java
+      try {
+         const output = execSync(`java -cp . ${className}`, {
+            cwd: workDir,
+            input: inputStr,
+            timeout: 4000,
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'pipe']
+         });
+         return output;
+      } catch (runErr) {
+         const stderr = (runErr.stderr ? runErr.stderr.toString() : runErr.message) || '';
+         if (runErr.code === 'ETIMEDOUT' || runErr.message.includes('ETIMEDOUT')) {
+            const e = new Error('Execution timed out (4000ms)');
+            e.verdict = 'Time Limit Exceeded';
+            throw e;
+         }
+         if (runErr.message.includes('is not recognized') || runErr.message.includes('cannot find')) {
+            const e = new Error('Java runtime (java) unavailable on judge host.');
+            e.verdict = 'Judge Error';
+            throw e;
+         }
+         const e = new Error(stderr.trim() || 'Java runtime error');
+         e.verdict = 'Runtime Error';
+         throw e;
+      }
    } finally {
       try {
          fs.rmSync(workDir, { recursive: true, force: true });
@@ -127,69 +295,108 @@ function runJavaUserCode(code, inputStr) {
    }
 }
 
-function runCppOrFallbackSolver(problemId, language, code, inputStr) {
-   const cleanCode = (code || '').trim();
-   if (!cleanCode || cleanCode.includes('Write your solution here') || cleanCode.includes('TODO') || cleanCode.length < 40) {
-      return '';
-   }
+function runCppUserCode(code, inputStr) {
+   const tmpDir = os.tmpdir();
+   const binId = `cpp_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+   const srcPath = path.join(tmpDir, `${binId}.cpp`);
+   const exePath = path.join(tmpDir, `${binId}.exe`);
 
-   // Attempt execution with g++ if available
+   fs.writeFileSync(srcPath, code, 'utf8');
+
    try {
-      const tmpDir = os.tmpdir();
-      const binId = `cpp_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-      const srcPath = path.join(tmpDir, `${binId}.cpp`);
-      const exePath = path.join(tmpDir, `${binId}.exe`);
-      fs.writeFileSync(srcPath, code, 'utf8');
-
+      // 1. Compile with g++
       try {
-         execSync(`g++ -O2 "${srcPath}" -o "${exePath}"`, { timeout: 5000, stdio: ['pipe', 'pipe', 'pipe'] });
-         const output = execSync(`"${exePath}"`, { input: inputStr, timeout: 3000, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
+         execSync(`g++ -O2 "${srcPath}" -o "${exePath}"`, {
+            timeout: 6000,
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'pipe']
+         });
+      } catch (compileErr) {
+         const stderr = (compileErr.stderr ? compileErr.stderr.toString() : compileErr.message) || '';
+         if (compileErr.code === 'ETIMEDOUT' || compileErr.message.includes('ETIMEDOUT')) {
+            const e = new Error('Compilation timed out');
+            e.verdict = 'Time Limit Exceeded';
+            throw e;
+         }
+         if (compileErr.message.includes('is not recognized') || compileErr.message.includes('cannot find') || compileErr.message.includes('not found')) {
+            const e = new Error('C++ compiler (g++) is not available on judge host.');
+            e.verdict = 'Judge Error';
+            throw e;
+         }
+         const e = new Error(stderr.trim() || 'C++ compilation error');
+         e.verdict = 'Compilation Error';
+         throw e;
+      }
+
+      // 2. Execute compiled binary
+      try {
+         const output = execSync(`"${exePath}"`, {
+            input: inputStr,
+            timeout: 3000,
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'pipe']
+         });
          return output;
-      } finally {
-         try { if (fs.existsSync(srcPath)) fs.unlinkSync(srcPath); } catch (_) {}
-         try { if (fs.existsSync(exePath)) fs.unlinkSync(exePath); } catch (_) {}
+      } catch (runErr) {
+         const stderr = (runErr.stderr ? runErr.stderr.toString() : runErr.message) || '';
+         if (runErr.code === 'ETIMEDOUT' || runErr.message.includes('ETIMEDOUT')) {
+            const e = new Error('Execution timed out (3000ms)');
+            e.verdict = 'Time Limit Exceeded';
+            throw e;
+         }
+         const e = new Error(stderr.trim() || 'C++ runtime error');
+         e.verdict = 'Runtime Error';
+         throw e;
       }
-   } catch (gppErr) {
-      if (gppErr.message.includes('not recognized') || gppErr.message.includes('cannot find')) {
-         return 'C++ execution requires g++ compiler on host system. Please test using Python, Java, or JavaScript.';
-      }
-      throw gppErr;
+   } finally {
+      try { if (fs.existsSync(srcPath)) fs.unlinkSync(srcPath); } catch (_) {}
+      try { if (fs.existsSync(exePath)) fs.unlinkSync(exePath); } catch (_) {}
    }
 }
 
 /**
- * Execute User Solution against Stdin and Return Stdout
+ * Execute User Solution against Stdin and Return Stdout with Error Categorization
  */
-function evaluateSubmission(language, code, inputStr, expectedOutput, problemId) {
+function executeTestCase(language, code, inputStr, expectedOutput) {
    const normalizedExpected = normalizeOutput(expectedOutput);
+   const lang = (language || 'python').toLowerCase();
+
    let actualOutput = '';
    let passed = false;
+   let verdict = null;
    let error = null;
 
    try {
-      const lang = (language || 'javascript').toLowerCase();
-
       if (lang === 'javascript' || lang === 'js') {
          actualOutput = runJsUserCode(code, inputStr);
       } else if (lang === 'python' || lang === 'py') {
          actualOutput = runPythonUserCode(code, inputStr);
       } else if (lang === 'java') {
          actualOutput = runJavaUserCode(code, inputStr);
+      } else if (lang === 'cpp' || lang === 'c++') {
+         actualOutput = runCppUserCode(code, inputStr);
       } else {
-         actualOutput = runCppOrFallbackSolver(problemId, language, code, inputStr);
+         const e = new Error(`Unsupported language '${language}'`);
+         e.verdict = 'Judge Error';
+         throw e;
       }
 
       const normalizedActual = normalizeOutput(actualOutput);
       passed = (normalizedActual === normalizedExpected);
+      if (!passed) {
+         verdict = 'Wrong Answer';
+      }
    } catch (err) {
       error = err.message;
-      passed = false;
       actualOutput = err.message;
+      passed = false;
+      verdict = err.verdict || 'Runtime Error';
    }
 
    return {
       output: actualOutput,
       passed,
+      verdict,
       error
    };
 }
@@ -204,7 +411,6 @@ router.get('/challenges', async (req, res, next) => {
 
       if (error) throw error;
 
-      // formatCodeChallenge intentionally strips hidden_test_cases
       const challenges = (data || []).map(formatCodeChallenge);
       res.json({ success: true, count: challenges.length, challenges });
    } catch (err) {
@@ -212,22 +418,52 @@ router.get('/challenges', async (req, res, next) => {
    }
 });
 
+// Helper: Resolve challenge record by UUID or by title tag (e.g. CA001)
+async function getChallengeRecord(identifier) {
+   if (!identifier) return null;
+   const idStr = String(identifier).trim();
+   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idStr);
+
+   if (isUuid) {
+      const { data } = await supabase.from('code_challenges').select('*').eq('id', idStr);
+      if (data && data.length > 0) return data[0];
+   }
+
+   const { data: titleMatch } = await supabase.from('code_challenges').select('*').ilike('title', `%${idStr}%`);
+   if (titleMatch && titleMatch.length > 0) return titleMatch[0];
+
+   return null;
+}
+
+// Helper: Extract sample and hidden test cases regardless of schema format
+function getChallengeTestCases(raw) {
+   let sampleCases = [];
+   let hiddenCases = [];
+
+   if (Array.isArray(raw.sample_test_cases) && raw.sample_test_cases.length > 0) {
+      sampleCases = raw.sample_test_cases;
+   }
+   if (Array.isArray(raw.hidden_test_cases) && raw.hidden_test_cases.length > 0) {
+      hiddenCases = raw.hidden_test_cases;
+   }
+
+   if (sampleCases.length === 0 && hiddenCases.length === 0 && Array.isArray(raw.test_cases)) {
+      sampleCases = raw.test_cases.filter(t => !t.isHidden);
+      hiddenCases = raw.test_cases.filter(t => t.isHidden);
+   }
+
+   return { sampleCases, hiddenCases };
+}
+
 // GET /api/code/challenges/:id — Get single challenge (SECURITY: Excludes hidden_test_cases)
 router.get('/challenges/:id', async (req, res, next) => {
    try {
-      const idParam = req.params.id;
-      let reqQuery = supabase
-         .from('code_challenges')
-         .select('*')
-         .or(`id.eq.${idParam},code_id.eq.${idParam}`);
-
-      const { data, error } = await reqQuery;
-
-      if (error || !data || data.length === 0) {
+      const raw = await getChallengeRecord(req.params.id);
+      if (!raw) {
          return res.status(404).json({ success: false, message: 'Challenge not found.' });
       }
 
-      const challenge = formatCodeChallenge(data[0]);
+      const challenge = formatCodeChallenge(raw);
       res.json({ success: true, challenge });
    } catch (err) {
       next(err);
@@ -239,67 +475,116 @@ router.post('/run', protect, async (req, res, next) => {
    try {
       const { challengeId, language, code } = req.body;
 
-      // Fetch raw record from DB including hidden_test_cases (kept on server)
-      const { data: rawList } = await supabase
-         .from('code_challenges')
-         .select('*')
-         .or(`id.eq.${challengeId},code_id.eq.${challengeId}`);
+      // 1. Validate source code
+      const validation = validateSourceCode(language, code);
+      if (!validation.valid) {
+         return res.json({
+            success: true,
+            status: validation.status,
+            score: 0,
+            maxScore: 100,
+            logs: [
+               `[Code Arena Judge] Validation: ${validation.message}`,
+               `[Code Arena Judge] Verdict: ${validation.status} | Score: 0/100`
+            ],
+            testResults: [],
+            compilationError: null
+         });
+      }
 
-      if (!rawList || rawList.length === 0) {
+      // 2. Fetch challenge
+      const raw = await getChallengeRecord(challengeId);
+      if (!raw) {
          return res.status(404).json({ success: false, message: 'Challenge not found.' });
       }
 
-      const raw = rawList[0];
-      const pId = raw.code_id || raw.id;
-
-      const sampleCases = Array.isArray(raw.sample_test_cases) ? raw.sample_test_cases : [];
-      const hiddenCases = Array.isArray(raw.hidden_test_cases) ? raw.hidden_test_cases : [];
+      const maxPoints = raw.points || 100;
+      const { sampleCases, hiddenCases } = getChallengeTestCases(raw);
+      const totalCount = sampleCases.length + hiddenCases.length;
 
       const logs = [
-         `[Code Arena Judge] Initializing ${language || 'Python'} execution sandbox...`,
-         `[Code Arena Judge] Input stdin loaded. Running test cases...`,
+         `[Code Arena Judge] Initializing ${(language || 'Python').toUpperCase()} execution environment...`,
+         `[Code Arena Judge] Running ${totalCount} test cases...`
       ];
 
       const testResults = [];
       let passedCount = 0;
+      let fatalVerdict = null;
+      let compilationDetails = null;
 
-      // 1. Evaluate Sample Test Cases (Returned with input & expected output)
-      sampleCases.forEach((tc, idx) => {
-         const evalRes = evaluateSubmission(language, code, tc.input, tc.output, pId);
-         if (evalRes.passed) passedCount++;
+      // Evaluate Sample Cases
+      for (const tc of sampleCases) {
+         const evalRes = executeTestCase(language, code, tc.input, tc.output);
+         if (evalRes.passed) {
+            passedCount++;
+         } else if (evalRes.verdict && !fatalVerdict) {
+            if (evalRes.verdict === 'Judge Error' || evalRes.verdict === 'Compilation Error' || evalRes.verdict === 'Time Limit Exceeded' || evalRes.verdict === 'Runtime Error') {
+               fatalVerdict = evalRes.verdict;
+               if (evalRes.verdict === 'Compilation Error') compilationDetails = evalRes.error;
+            }
+         }
 
          testResults.push({
             input: tc.input,
             expected: tc.output,
             output: evalRes.output,
             passed: evalRes.passed,
+            verdict: evalRes.verdict,
             error: evalRes.error,
             isHidden: false
          });
-      });
 
-      // 2. Evaluate Hidden Test Cases (SECURITY: Input and Expected output strictly OMITTED)
-      hiddenCases.forEach((tc, idx) => {
-         const evalRes = evaluateSubmission(language, code, tc.input, tc.output, pId);
-         if (evalRes.passed) passedCount++;
+         if (fatalVerdict === 'Compilation Error' || fatalVerdict === 'Judge Error' || fatalVerdict === 'Time Limit Exceeded') break;
+      }
 
-         testResults.push({
-            passed: evalRes.passed,
-            isHidden: true
-         });
-      });
+      // Evaluate Hidden Cases (SECURITY: Input/output strictly omitted)
+      if (fatalVerdict !== 'Compilation Error' && fatalVerdict !== 'Judge Error' && fatalVerdict !== 'Time Limit Exceeded') {
+         for (const tc of hiddenCases) {
+            const evalRes = executeTestCase(language, code, tc.input, tc.output);
+            if (evalRes.passed) {
+               passedCount++;
+            } else if (evalRes.verdict && !fatalVerdict) {
+               if (evalRes.verdict === 'Judge Error' || evalRes.verdict === 'Compilation Error' || evalRes.verdict === 'Time Limit Exceeded' || evalRes.verdict === 'Runtime Error') {
+                  fatalVerdict = evalRes.verdict;
+               }
+            }
 
-      const totalCount = sampleCases.length + hiddenCases.length;
-      const score = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : 0;
+            testResults.push({
+               passed: evalRes.passed,
+               verdict: evalRes.verdict,
+               isHidden: true
+            });
+
+            if (fatalVerdict === 'Compilation Error' || fatalVerdict === 'Judge Error' || fatalVerdict === 'Time Limit Exceeded') break;
+         }
+      }
+
+      // Overall status and score
+      let overallStatus;
+      let score;
+
+      if (fatalVerdict) {
+         overallStatus = fatalVerdict;
+         score = 0;
+      } else if (totalCount > 0 && passedCount === totalCount) {
+         overallStatus = 'Accepted';
+         score = maxPoints;
+      } else {
+         overallStatus = 'Wrong Answer';
+         score = totalCount > 0 ? Math.round((passedCount / totalCount) * maxPoints) : 0;
+      }
 
       logs.push(`[Code Arena Judge] Execution finished: ${passedCount}/${totalCount} Test Cases Passed.`);
+      logs.push(`[Code Arena Judge] Verdict: ${overallStatus} | Score: ${score}/${maxPoints}`);
 
       res.json({
          success: true,
+         status: overallStatus,
+         score,
+         maxScore: maxPoints,
          logs,
          testResults,
-         score,
-         compilationError: null
+         compilationError: compilationDetails
       });
    } catch (err) {
       next(err);
@@ -312,78 +597,205 @@ router.post('/submit', protect, async (req, res, next) => {
       const { challengeId, language, code } = req.body;
       const user = req.user;
 
-      const { data: rawList } = await supabase
-         .from('code_challenges')
-         .select('*')
-         .or(`id.eq.${challengeId},code_id.eq.${challengeId}`);
-
-      if (!rawList || rawList.length === 0) {
+      // 1. Fetch challenge
+      const raw = await getChallengeRecord(challengeId);
+      if (!raw) {
          return res.status(404).json({ success: false, message: 'Challenge not found.' });
       }
 
-      const raw = rawList[0];
-      const pId = raw.code_id || raw.id;
+      const match = (raw.title || '').match(/\[(CA\d+)\]/i);
+      const pId = match ? match[1] : (raw.code_id || raw.id);
+      const maxPoints = raw.points || 100;
+      const { sampleCases, hiddenCases } = getChallengeTestCases(raw);
+      const totalCount = sampleCases.length + hiddenCases.length;
+      const isUserUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(user && user.id);
 
-      const sampleCases = Array.isArray(raw.sample_test_cases) ? raw.sample_test_cases : [];
-      const hiddenCases = Array.isArray(raw.hidden_test_cases) ? raw.hidden_test_cases : [];
+      // 2. Validate source code before execution
+      const validation = validateSourceCode(language, code);
+      if (!validation.valid) {
+         // Persist failed submission with 0 points
+         const { data: subRaw } = await supabase
+            .from('submissions')
+            .insert([{
+               challenge_id: raw.id,
+               user_id: isUserUuid ? user.id : null,
+               language: language || 'python',
+               code: code || '',
+               status: validation.status,
+               result: {
+                  passed: 0,
+                  total: totalCount,
+                  score: 0,
+                  maxScore: maxPoints,
+                  output: validation.message
+               }
+            }])
+            .select()
+            .single();
+
+         const submission = subRaw ? formatSubmission(subRaw) : {
+            id: 'sub_invalid',
+            userId: user.id,
+            challengeId: pId,
+            language: language || 'python',
+            code: code || '',
+            status: validation.status,
+            score: 0,
+            maxScore: maxPoints,
+            passedTests: 0,
+            totalTests: totalCount,
+            output: validation.message
+         };
+         submission.challengeId = pId;
+
+         return res.json({
+            success: true,
+            submission,
+            runResult: {
+               status: validation.status,
+               testResults: [],
+               score: 0,
+               maxScore: maxPoints,
+               logs: [`[Code Arena Judge] Verdict: ${validation.status} | Score: 0/100`],
+               compilationError: null
+            }
+         });
+      }
 
       const testResults = [];
       let passedCount = 0;
+      let fatalVerdict = null;
+      let compilationDetails = null;
 
-      // Evaluate Sample Cases
-      sampleCases.forEach((tc) => {
-         const evalRes = evaluateSubmission(language, code, tc.input, tc.output, pId);
-         if (evalRes.passed) passedCount++;
+      // 3. Evaluate Sample Cases
+      for (const tc of sampleCases) {
+         const evalRes = executeTestCase(language, code, tc.input, tc.output);
+         if (evalRes.passed) {
+            passedCount++;
+         } else if (evalRes.verdict && !fatalVerdict) {
+            if (evalRes.verdict === 'Judge Error' || evalRes.verdict === 'Compilation Error' || evalRes.verdict === 'Time Limit Exceeded' || evalRes.verdict === 'Runtime Error') {
+               fatalVerdict = evalRes.verdict;
+               if (evalRes.verdict === 'Compilation Error') compilationDetails = evalRes.error;
+            }
+         }
+
          testResults.push({
             input: tc.input,
             expected: tc.output,
             output: evalRes.output,
             passed: evalRes.passed,
+            verdict: evalRes.verdict,
+            error: evalRes.error,
             isHidden: false
          });
-      });
 
-      // Evaluate Hidden Cases (Inputs/outputs omitted for security)
-      hiddenCases.forEach((tc) => {
-         const evalRes = evaluateSubmission(language, code, tc.input, tc.output, pId);
-         if (evalRes.passed) passedCount++;
-         testResults.push({
-            passed: evalRes.passed,
-            isHidden: true
-         });
-      });
+         if (fatalVerdict === 'Compilation Error' || fatalVerdict === 'Judge Error' || fatalVerdict === 'Time Limit Exceeded') break;
+      }
 
-      const totalCount = sampleCases.length + hiddenCases.length;
-      const score = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : 0;
-      const isPassed = totalCount > 0 && passedCount === totalCount && score === 100;
+      // 4. Evaluate Hidden Cases (SECURITY: Input/output strictly omitted)
+      if (fatalVerdict !== 'Compilation Error' && fatalVerdict !== 'Judge Error' && fatalVerdict !== 'Time Limit Exceeded') {
+         for (const tc of hiddenCases) {
+            const evalRes = executeTestCase(language, code, tc.input, tc.output);
+            if (evalRes.passed) {
+               passedCount++;
+            } else if (evalRes.verdict && !fatalVerdict) {
+               if (evalRes.verdict === 'Judge Error' || evalRes.verdict === 'Compilation Error' || evalRes.verdict === 'Time Limit Exceeded' || evalRes.verdict === 'Runtime Error') {
+                  fatalVerdict = evalRes.verdict;
+               }
+            }
 
-      const { data: subRaw, error } = await supabase
+            testResults.push({
+               passed: evalRes.passed,
+               verdict: evalRes.verdict,
+               isHidden: true
+            });
+
+            if (fatalVerdict === 'Compilation Error' || fatalVerdict === 'Judge Error' || fatalVerdict === 'Time Limit Exceeded') break;
+         }
+      }
+
+      // 5. Calculate Final Verdict & Score
+      let overallStatus;
+      let score;
+
+      if (fatalVerdict) {
+         overallStatus = fatalVerdict;
+         score = 0;
+      } else if (totalCount > 0 && passedCount === totalCount) {
+         overallStatus = 'Accepted';
+         score = maxPoints;
+      } else {
+         overallStatus = 'Wrong Answer';
+         score = totalCount > 0 ? Math.round((passedCount / totalCount) * maxPoints) : 0;
+      }
+
+      const isPassed = overallStatus === 'Accepted' && passedCount === totalCount && totalCount > 0;
+
+      // 6. Persist Submission Record in Supabase
+      const { data: subRaw, error: subError } = await supabase
          .from('submissions')
          .insert([{
-            challenge_id: String(pId),
-            user_id: String(user.id),
+            challenge_id: raw.id,
+            user_id: isUserUuid ? user.id : null,
+            language: language || 'python',
             code: code || '',
-            status: isPassed ? 'Accepted' : 'Wrong Answer',
-            passed_tests: passedCount,
-            total_tests: totalCount,
-            output: isPassed ? 'All test cases passed successfully!' : `${passedCount}/${totalCount} test cases passed.`
+            status: overallStatus,
+            result: {
+               passed: passedCount,
+               total: totalCount,
+               score: score,
+               maxScore: maxPoints,
+               output: isPassed 
+                  ? 'All test cases passed successfully!' 
+                  : `${passedCount}/${totalCount} test cases passed. Verdict: ${overallStatus}`
+            }
          }])
          .select()
          .single();
 
-      if (error || !subRaw) throw error || new Error('Failed to record submission');
+      if (subError || !subRaw) throw subError || new Error('Failed to record submission');
+
+      // 7. Gamification Award (XP / Coins) — Deduplicated: awarded only once per problem
+      if (isPassed && isUserUuid) {
+         const { data: priorAccepted } = await supabase
+            .from('submissions')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('challenge_id', raw.id)
+            .eq('status', 'Accepted')
+            .neq('id', subRaw.id);
+
+         if (!priorAccepted || priorAccepted.length === 0) {
+            const currentXp = user.xp || 250;
+            const currentCoins = user.coins || 50;
+            await supabase
+               .from('users')
+               .update({
+                  xp: currentXp + 200,
+                  coins: currentCoins + 20
+               })
+               .eq('id', user.id);
+         }
+      }
 
       const submission = formatSubmission(subRaw);
-      submission.language = language || 'python';
+      submission.challengeId = pId;
       submission.score = score;
+      submission.maxScore = maxPoints;
 
       res.json({
          success: true,
          submission,
          runResult: {
+            status: overallStatus,
             testResults,
             score,
-            compilationError: null
+            maxScore: maxPoints,
+            logs: [
+               `[Code Arena Judge] Execution finished: ${passedCount}/${totalCount} test cases passed.`,
+               `[Code Arena Judge] Verdict: ${overallStatus} | Score: ${score}/${maxPoints}`
+            ],
+            compilationError: compilationDetails
          }
       });
    } catch (err) {
@@ -395,13 +807,21 @@ router.post('/submit', protect, async (req, res, next) => {
 router.get('/submissions', protect, async (req, res, next) => {
    try {
       const { challengeId } = req.query;
+      const isUserUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(req.user && req.user.id);
+      
       let reqQuery = supabase
          .from('submissions')
-         .select('*')
-         .eq('user_id', String(req.user.id));
+         .select('*');
+
+      if (isUserUuid) {
+         reqQuery = reqQuery.eq('user_id', req.user.id);
+      }
 
       if (challengeId) {
-         reqQuery = reqQuery.eq('challenge_id', String(challengeId));
+         const raw = await getChallengeRecord(challengeId);
+         if (raw) {
+            reqQuery = reqQuery.eq('challenge_id', raw.id);
+         }
       }
 
       const { data, error } = await reqQuery.order('created_at', { ascending: false });

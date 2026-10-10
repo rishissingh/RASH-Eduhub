@@ -126,23 +126,27 @@ function formatCodeChallenge(ch) {
       ? ch.sample_test_cases 
       : (Array.isArray(ch.test_cases) ? ch.test_cases.filter(t => !t.isHidden) : []);
 
+   const match = (ch.title || '').match(/\[(CA\d+)\]/i);
+   const codeId = match ? match[1] : (ch.code_id || ch.id);
+   const cleanTitle = (ch.title || '').replace(/^\[CA\d+\]\s*/i, '');
+
    return {
-      _id: ch.code_id || ch.id,
-      id: ch.code_id || ch.id,
+      _id: codeId,
+      id: codeId,
       dbId: ch.id,
-      codeId: ch.code_id || ch.id,
-      title: ch.title,
+      codeId: codeId,
+      title: cleanTitle || ch.title,
       description: ch.description,
       difficulty: ch.difficulty || 'Easy',
       topic: topics,
       category: topics.join(' · '),
-      inputFormat: ch.input_format || ch.inputFormat || '',
-      outputFormat: ch.output_format || ch.outputFormat || '',
+      inputFormat: ch.input_format || ch.inputFormat || 'Standard input format (stdin).',
+      outputFormat: ch.output_format || ch.outputFormat || 'Standard output format (stdout).',
       constraints: Array.isArray(ch.constraints) ? ch.constraints : [],
       sampleTestCases: sampleCases,
       // IMPORTANT: hidden_test_cases and reference solutions are omitted from public API responses
       starterCode: {},
-      supportedLanguages: ch.supported_languages || ["python", "java", "cpp", "javascript"],
+      supportedLanguages: ch.languages || ch.supported_languages || ["python", "java", "cpp", "javascript"],
       points: ch.points || 100,
       createdAt: ch.created_at
    };
@@ -150,17 +154,27 @@ function formatCodeChallenge(ch) {
 
 function formatSubmission(s) {
    if (!s) return null;
+   const resObj = (typeof s.result === 'object' && s.result !== null) ? s.result : {};
+   const total = resObj.total !== undefined ? resObj.total : (s.total_tests || 0);
+   const passed = resObj.passed !== undefined ? resObj.passed : (s.passed_tests || 0);
+   const isAccepted = s.status === 'Accepted' && total > 0 && passed === total;
+   const score = resObj.score !== undefined ? resObj.score : (isAccepted ? 100 : (total > 0 ? Math.round((passed / total) * 100) : 0));
+   const maxScore = resObj.maxScore !== undefined ? resObj.maxScore : 100;
+   const output = resObj.output || s.output || '';
+
    return {
       _id: s.id,
       id: s.id,
       userId: s.user_id,
       challengeId: s.challenge_id,
+      language: s.language || 'python',
       code: s.code,
       status: s.status,
-      output: s.output || '',
-      passedTests: s.passed_tests || 0,
-      totalTests: s.total_tests || 0,
-      score: (s.status === 'Accepted' || s.status === 'Passed') ? 100 : 0,
+      output: output,
+      passedTests: passed,
+      totalTests: total,
+      score: score,
+      maxScore: maxScore,
       createdAt: s.created_at
    };
 }

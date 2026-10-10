@@ -156,9 +156,30 @@ const CodeGraderService = {
             });
             if (res && res.success) return res;
          }
-         return this._simulateLocalExecution(challengeId, lang, code);
+         return {
+            success: false,
+            status: 'Judge Error',
+            score: 0,
+            maxScore: 100,
+            logs: [
+               '[Code Arena Judge] Failed to reach Online Judge server.',
+               '[Code Arena Judge] Verdict: Judge Error | Score: 0/100'
+            ],
+            testResults: []
+         };
       } catch (err) {
-         return this._simulateLocalExecution(challengeId, lang, code);
+         return {
+            success: false,
+            status: 'Judge Error',
+            score: 0,
+            maxScore: 100,
+            logs: [
+               '[Code Arena Judge] Execution service error.',
+               `[Code Arena Judge] ${err.message || 'Server connection failed.'}`,
+               '[Code Arena Judge] Verdict: Judge Error | Score: 0/100'
+            ],
+            testResults: []
+         };
       }
    },
 
@@ -176,26 +197,44 @@ const CodeGraderService = {
                return data;
             }
          }
-         const runRes = this._simulateLocalExecution(challengeId, lang, code);
-         const isPassed = runRes.score === 100;
          return {
-            success: true,
+            success: false,
+            status: 'Judge Error',
             submission: {
-               score: runRes.score,
-               status: isPassed ? 'Accepted' : 'Wrong Answer'
+               score: 0,
+               maxScore: 100,
+               status: 'Judge Error',
+               output: 'Execution service unavailable.'
             },
-            runResult: runRes
+            runResult: {
+               status: 'Judge Error',
+               score: 0,
+               maxScore: 100,
+               logs: ['[Code Arena Judge] Verdict: Judge Error | Score: 0/100'],
+               testResults: []
+            }
          };
       } catch (err) {
-         const runRes = this._simulateLocalExecution(challengeId, lang, code);
-         const isPassed = runRes.score === 100;
          return {
-            success: true,
+            success: false,
+            status: 'Judge Error',
             submission: {
-               score: runRes.score,
-               status: isPassed ? 'Accepted' : 'Wrong Answer'
+               score: 0,
+               maxScore: 100,
+               status: 'Judge Error',
+               output: err.message || 'Unable to connect to Online Judge backend.'
             },
-            runResult: runRes
+            runResult: {
+               status: 'Judge Error',
+               score: 0,
+               maxScore: 100,
+               logs: [
+                  '[Code Arena Judge] Execution service connection failed.',
+                  `[Code Arena Judge] ${err.message || 'Connection refused.'}`,
+                  '[Code Arena Judge] Verdict: Judge Error | Score: 0/100'
+               ],
+               testResults: []
+            }
          };
       }
    },
@@ -211,36 +250,6 @@ const CodeGraderService = {
          console.warn('Failed to load submission history:', err);
          return [];
       }
-   },
-
-   _simulateLocalExecution(challengeId, lang, code) {
-      const ch = this.DEFAULT_CHALLENGES.find(c => c.id === challengeId) || this.DEFAULT_CHALLENGES[0];
-      const cleanCode = (code || '').trim();
-      const hasLogic = Boolean(cleanCode && !cleanCode.includes('Write your solution here') && !cleanCode.includes('TODO') && cleanCode.length > 80);
-      
-      const testResults = (ch.sampleTestCases || []).map(tc => ({
-         input: tc.input,
-         expected: tc.output || tc.expected,
-         output: hasLogic ? (tc.output || tc.expected) : 'No output (Write your solution to pass test cases)',
-         passed: hasLogic,
-         isHidden: false
-      }));
-
-      // Add simulated hidden test case results without exposing inputs/expected
-      testResults.push({ passed: hasLogic, isHidden: true });
-      testResults.push({ passed: hasLogic, isHidden: true });
-
-      return {
-         success: true,
-         logs: [
-            `[Code Arena Judge] Execution Sandbox initialized (${(lang || 'CODE').toUpperCase()})...`,
-            '[Code Arena Judge] Standard Input stdin loaded...',
-            hasLogic ? '[Code Arena Judge] All Test Cases PASSED' : '[Code Arena Judge] Execution incomplete — Write your solution to pass test cases.'
-         ],
-         testResults,
-         score: hasLogic ? 100 : 0,
-         compilationError: null
-      };
    }
 };
 

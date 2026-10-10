@@ -405,17 +405,32 @@ async function seedSupabase() {
       const { CODE_CHALLENGES_SEED } = require('./codeChallengesSeed');
 
       for (const ch of CODE_CHALLENGES_SEED) {
-         const { data: existingCh } = await supabase
-            .from('code_challenges')
-            .select('id')
-            .eq('id', ch.id)
-            .maybeSingle();
+         const combinedTestCases = [
+            ...(ch.sample_test_cases || []).map(t => ({ input: t.input, output: t.output, isHidden: false })),
+            ...(ch.hidden_test_cases || []).map(t => ({ input: t.input, output: t.output, isHidden: true }))
+         ];
 
-         if (!existingCh) {
-            await supabase.from('code_challenges').insert([ch]);
+         const challengeRecord = {
+            title: `[${ch.id}] ${ch.title}`,
+            difficulty: ch.difficulty || 'Easy',
+            category: ch.category || 'Algorithms',
+            description: ch.description,
+            constraints: ch.constraints || [],
+            languages: ch.supported_languages || ['python', 'java', 'cpp', 'javascript'],
+            starter_code: {},
+            test_cases: combinedTestCases
+         };
+
+         const { data: existingList } = await supabase
+            .from('code_challenges')
+            .select('id, title')
+            .ilike('title', `%${ch.id}%`);
+
+         if (!existingList || existingList.length === 0) {
+            await supabase.from('code_challenges').insert([challengeRecord]);
             console.log(` ✅ Created Code Arena challenge: [${ch.id}] ${ch.title}`);
          } else {
-            await supabase.from('code_challenges').update(ch).eq('id', ch.id);
+            await supabase.from('code_challenges').update(challengeRecord).eq('id', existingList[0].id);
             console.log(` 🔄 Updated Code Arena challenge: [${ch.id}] ${ch.title}`);
          }
       }
