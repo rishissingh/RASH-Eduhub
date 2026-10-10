@@ -36,7 +36,7 @@ router.get('/teachers/:id/reviews', async (req, res, next) => {
       const { data: courses } = await supabase
          .from('courses')
          .select('id')
-         .eq('tutor_id', teacherId);
+         .eq('teacher_id', teacherId);
 
       const courseIds = (courses || []).map(c => c.id);
 
@@ -69,7 +69,7 @@ router.get('/student/stats', protect, async (req, res, next) => {
       if (enrolledIds.length > 0) {
          const { data: coursesData } = await supabase
             .from('courses')
-            .select('*')
+            .select('*, lessons(*)')
             .in('id', enrolledIds);
          enrolledCourses = (coursesData || []).map(formatCourse);
       }
@@ -105,8 +105,8 @@ router.get('/teacher/stats', protect, async (req, res, next) => {
    try {
       const { data: teacherCoursesData } = await supabase
          .from('courses')
-         .select('*')
-         .eq('tutor_id', req.user.id);
+         .select('*, lessons(*)')
+         .eq('teacher_id', req.user.id);
 
       const teacherCourses = (teacherCoursesData || []).map(formatCourse);
 

@@ -11,11 +11,10 @@ const { protect } = require('../middleware/auth');
 // GET /api/notifications — Get current user's notifications
 router.get('/', protect, async (req, res, next) => {
    try {
-      const userIdStr = String(req.user.id);
       const { data, error } = await supabase
          .from('notifications')
          .select('*')
-         .or(`user_id.eq.${userIdStr},user_id.eq.all`)
+         .eq('user_id', req.user.id)
          .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -30,11 +29,10 @@ router.get('/', protect, async (req, res, next) => {
 // GET /api/notifications/unread-count
 router.get('/unread-count', protect, async (req, res, next) => {
    try {
-      const userIdStr = String(req.user.id);
       const { count, error } = await supabase
          .from('notifications')
          .select('id', { count: 'exact', head: true })
-         .or(`user_id.eq.${userIdStr},user_id.eq.all`)
+         .eq('user_id', req.user.id)
          .eq('read', false);
 
       if (error) throw error;
