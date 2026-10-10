@@ -58,7 +58,7 @@ const SidebarComponent = {
                </span>
                <span style="font-family: 'Outfit', sans-serif; font-size: 1.75rem; font-weight: 800; color: var(--black);">RASH <span style="color: var(--main-color);">EduHub</span></span>
             </a>
-            <div id="close-btn" style="position: static; font-size: 1.8rem; color: var(--black); cursor: pointer; display: flex; align-items: center; justify-content: center; width: 3.2rem; height: 3.2rem; border-radius: 50%; background: var(--light-bg);">
+            <div id="close-btn" role="button" tabindex="0" aria-label="Close navigation sidebar" title="Close" style="position: static; font-size: 1.8rem; color: var(--black); cursor: pointer; display: flex; align-items: center; justify-content: center; width: 3.2rem; height: 3.2rem; border-radius: 50%; background: var(--light-bg);">
                <i class="fas fa-times"></i>
             </div>
          </div>
@@ -86,7 +86,6 @@ const SidebarComponent = {
       const currentPath = window.location.pathname;
       const navLinks = sidebarEl.querySelectorAll('.navbar a');
       navLinks.forEach(link => {
-         const hrefAttr = link.getAttribute('href');
          // Normalize paths
          const linkPath = new URL(link.href, window.location.origin).pathname;
          if (currentPath === linkPath || (currentPath.endsWith('/') && linkPath.endsWith('index.html'))) {
@@ -97,57 +96,101 @@ const SidebarComponent = {
       this.bindEvents();
    },
 
-   bindEvents() {
-      const sidebar = document.querySelector('.side-bar');
-      const menuBtn = document.querySelector('#menu-btn');
-      const closeBtn = document.querySelector('#close-btn');
-
+   ensureOverlay() {
       let overlay = document.querySelector('.sidebar-overlay');
       if (!overlay) {
          overlay = document.createElement('div');
          overlay.className = 'sidebar-overlay';
+         overlay.setAttribute('aria-hidden', 'true');
          document.body.appendChild(overlay);
+         overlay.addEventListener('click', () => {
+            this.close();
+         });
       }
+      return overlay;
+   },
 
-      const openSidebar = () => {
-         if (sidebar) sidebar.classList.add('active');
-         if (overlay) overlay.classList.add('active');
-      };
+   open() {
+      const sidebar = document.querySelector('.side-bar');
+      const overlay = this.ensureOverlay();
+      const menuBtn = document.querySelector('#menu-btn');
+      if (sidebar) sidebar.classList.add('active');
+      if (overlay) overlay.classList.add('active');
+      if (menuBtn) menuBtn.setAttribute('aria-expanded', 'true');
+   },
 
-      const closeSidebar = () => {
-         if (sidebar) sidebar.classList.remove('active');
-         if (overlay) overlay.classList.remove('active');
-      };
+   close() {
+      const sidebar = document.querySelector('.side-bar');
+      const overlay = document.querySelector('.sidebar-overlay');
+      const menuBtn = document.querySelector('#menu-btn');
+      if (sidebar) sidebar.classList.remove('active');
+      if (overlay) overlay.classList.remove('active');
+      if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
+   },
 
-      const toggleSidebar = () => {
-         if (sidebar?.classList.contains('active')) {
-            closeSidebar();
-         } else {
-            openSidebar();
+   toggle() {
+      const sidebar = document.querySelector('.side-bar');
+      if (sidebar && sidebar.classList.contains('active')) {
+         this.close();
+      } else {
+         this.open();
+      }
+   },
+
+   bindEvents() {
+      this.ensureOverlay();
+
+      // Guard against duplicate listener binding
+      if (this._eventsBound) return;
+      this._eventsBound = true;
+
+      // Document-level event delegation for menu toggle & close buttons
+      document.addEventListener('click', (e) => {
+         const menuBtn = e.target.closest('#menu-btn');
+         if (menuBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.toggle();
+            return;
          }
-      };
 
-      if (menuBtn) {
-         menuBtn.addEventListener('click', (e) => {
+         const closeBtn = e.target.closest('#close-btn');
+         if (closeBtn) {
+            e.preventDefault();
             e.stopPropagation();
-            toggleSidebar();
-         });
-      }
+            this.close();
+            return;
+         }
 
-      if (closeBtn) {
-         closeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            closeSidebar();
-         });
-      }
+         // Close sidebar if clicking outside when open
+         const sidebar = document.querySelector('.side-bar');
+         if (sidebar && sidebar.classList.contains('active')) {
+            if (!sidebar.contains(e.target) && !e.target.closest('#menu-btn')) {
+               this.close();
+            }
+         }
+      });
 
-      if (overlay) {
-         overlay.addEventListener('click', closeSidebar);
-      }
+      // Close sidebar when clicking any navigation link inside it
+      document.addEventListener('click', (e) => {
+         const navLink = e.target.closest('.side-bar .navbar a, .side-bar .profile a');
+         if (navLink) {
+            this.close();
+         }
+      });
 
+      // Keyboard accessibility
       document.addEventListener('keydown', (e) => {
-         if (e.key === 'Escape' && sidebar?.classList.contains('active')) {
-            closeSidebar();
+         if (e.key === 'Escape') {
+            this.close();
+         }
+
+         if (e.key === 'Enter' || e.key === ' ') {
+            const closeBtn = e.target.closest('#close-btn');
+            if (closeBtn) {
+               e.preventDefault();
+               this.close();
+            }
          }
       });
    }

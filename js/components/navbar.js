@@ -31,10 +31,20 @@ const NavbarComponent = {
       await this.ensureScriptLoaded(relativeRoot + 'js/components/toast.js', 'Toast');
       await this.ensureScriptLoaded(relativeRoot + 'js/services/notificationService.js', 'NotificationService');
 
-      const user = AuthService.getCurrentUser();
+      let user = AuthService.getCurrentUser();
+      if (!user && localStorage.getItem('eduhub_jwt_token') && typeof AuthService.ensureCurrentUser === 'function') {
+         try {
+            user = await AuthService.ensureCurrentUser();
+         } catch (e) {
+            console.warn('Could not auto-fetch current user profile:', e);
+         }
+      }
 
       const avatarPath = user?.avatar ? (user.avatar.startsWith('http') ? user.avatar : relativeRoot + user.avatar) : relativeRoot + 'images/pic-1.jpg';
       const roleBadgeClass = user?.role === 'teacher' ? 'badge-teacher' : (user?.role === 'admin' ? 'badge-admin' : 'badge-student');
+      const roleName = (user?.role || 'student').toUpperCase();
+      const displayName = user?.name || 'User';
+      const shortName = displayName.split(' ')[0];
 
       headerEl.innerHTML = `
          <section class="flex">
@@ -61,15 +71,15 @@ const NavbarComponent = {
             </form>
 
             <div class="icons header-actions">
-               <div id="search-btn" class="fas fa-search header-icon-btn" title="Search"></div>
-               <div id="toggle-btn" class="fas fa-sun header-icon-btn" title="Toggle Theme"></div>
-               <div id="notif-btn" class="fas fa-bell notification-bell header-icon-btn" title="Notifications"></div>
+               <div id="search-btn" class="fas fa-search header-icon-btn" title="Search" role="button" tabindex="0" aria-label="Search courses"></div>
+               <div id="toggle-btn" class="fas fa-sun header-icon-btn" title="Toggle Theme" role="button" tabindex="0" aria-label="Toggle theme"></div>
+               <div id="notif-btn" class="fas fa-bell notification-bell header-icon-btn" title="Notifications" role="button" tabindex="0" aria-label="Notifications" aria-haspopup="true" aria-expanded="false" aria-controls="notif-popup"></div>
                
                ${user ? `
-                  <div id="user-btn" class="nav-user-chip" title="${user.name}">
-                     <img src="${avatarPath}" alt="${user.name}" class="nav-user-avatar">
-                     <span class="nav-user-name">${user.name.split(' ')[0]}</span>
-                     <i class="fas fa-chevron-down" style="font-size: 1.1rem; opacity: 0.6;"></i>
+                  <div id="user-btn" class="nav-user-chip" title="${displayName}" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false" aria-controls="profile-dropdown" aria-label="User profile menu">
+                     <img src="${avatarPath}" alt="${displayName}" class="nav-user-avatar">
+                     <span class="nav-user-name">${shortName}</span>
+                     <i class="fas fa-chevron-down nav-user-arrow" style="font-size: 1.1rem; opacity: 0.6; transition: transform 0.25s ease;"></i>
                   </div>
                ` : `
                   <div class="guest-nav-actions">
@@ -79,17 +89,17 @@ const NavbarComponent = {
                         <i class="fas fa-arrow-right"></i>
                      </a>
                   </div>
-                  <div id="user-btn" class="fas fa-user header-icon-btn" style="display: none;"></div>
+                  <div id="user-btn" class="fas fa-user header-icon-btn" style="display: none;" role="button" tabindex="0" aria-label="User menu"></div>
                `}
 
-               <div id="menu-btn" class="fas fa-bars menu-drawer-toggle header-icon-btn" title="Menu"></div>
+               <div id="menu-btn" class="fas fa-bars menu-drawer-toggle header-icon-btn" title="Menu" role="button" tabindex="0" aria-label="Toggle navigation menu" aria-haspopup="true" aria-expanded="false" aria-controls="side-bar"></div>
             </div>
 
             <!-- Notification Popup Dropdown -->
-            <div class="profile notif-popup" id="notif-popup" style="width: 36rem;">
+            <div class="profile notif-popup" id="notif-popup" role="region" aria-label="Notifications Panel">
                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: var(--border); padding-bottom: 1rem;">
                   <h3 style="font-size: 1.6rem; margin: 0; color: var(--black);">Notifications</h3>
-                  <button id="mark-all-read-btn" style="background: none; font-size: 1.3rem; color: var(--main-color); cursor: pointer; font-weight: 600;">Mark all read</button>
+                  <button id="mark-all-read-btn" style="background: none; border: none; font-size: 1.3rem; color: var(--main-color); cursor: pointer; font-weight: 600;">Mark all read</button>
                </div>
                <div id="notif-popup-list" style="max-height: 25rem; overflow-y: auto; text-align: left; display: flex; flex-direction: column; gap: 1rem;">
                   <!-- Dynamically rendered -->
@@ -99,20 +109,77 @@ const NavbarComponent = {
                </div>
             </div>
 
-            <div class="profile">
+            <!-- Profile Dropdown Menu -->
+            <div class="profile" id="profile-dropdown" role="region" aria-label="User Account Menu">
                ${user ? `
-                  <img src="${avatarPath}" class="image" alt="${user.name}" referrerpolicy="no-referrer">
-                  <h3 class="name">${user.name}</h3>
-                  <p class="role"><span class="badge ${roleBadgeClass}">${user.role.toUpperCase()}</span></p>
-                  <a href="${user.role === 'teacher' ? relativeRoot + 'teacher/profile.html' : relativeRoot + 'student/profile.html'}" class="btn">View Profile</a>
-                  <div class="flex-btn" style="margin-top: 1rem;">
-                     <button id="logout-btn" class="delete-btn">Logout</button>
+                  <div class="profile-header-info">
+                     <img src="${avatarPath}" class="image" alt="${displayName}" referrerpolicy="no-referrer">
+                     <h3 class="name">${displayName}</h3>
+                     <p class="email">${user.email || ''}</p>
+                     <p class="role"><span class="badge ${roleBadgeClass}">${roleName}</span></p>
+                  </div>
+
+                  <nav class="profile-nav-menu" aria-label="Account navigation">
+                     ${user.role === 'teacher' ? `
+                        <a href="${relativeRoot}teacher/dashboard.html" class="profile-menu-item">
+                           <i class="fas fa-chalkboard-user"></i>
+                           <span>Teacher Studio</span>
+                        </a>
+                        <a href="${relativeRoot}teacher/profile.html" class="profile-menu-item">
+                           <i class="fas fa-user-circle"></i>
+                           <span>Teacher Profile</span>
+                        </a>
+                        <a href="${relativeRoot}teacher/create-course.html" class="profile-menu-item">
+                           <i class="fas fa-folder-plus"></i>
+                           <span>Create Course</span>
+                        </a>
+                        <a href="${relativeRoot}teacher/manage-course.html" class="profile-menu-item">
+                           <i class="fas fa-tasks"></i>
+                           <span>Manage Courses</span>
+                        </a>
+                     ` : user.role === 'student' ? `
+                        <a href="${relativeRoot}student/dashboard.html" class="profile-menu-item">
+                           <i class="fas fa-chart-line"></i>
+                           <span>Student Dashboard</span>
+                        </a>
+                        <a href="${relativeRoot}student/profile.html" class="profile-menu-item">
+                           <i class="fas fa-user-circle"></i>
+                           <span>My Profile</span>
+                        </a>
+                        <a href="${relativeRoot}student/my-courses.html" class="profile-menu-item">
+                           <i class="fas fa-book-open"></i>
+                           <span>My Courses</span>
+                        </a>
+                        <a href="${relativeRoot}student/code-practice.html" class="profile-menu-item">
+                           <i class="fas fa-terminal"></i>
+                           <span>Code Arena</span>
+                        </a>
+                     ` : `
+                        <a href="${relativeRoot}admin/dashboard.html" class="profile-menu-item">
+                           <i class="fas fa-user-shield"></i>
+                           <span>Admin Command</span>
+                        </a>
+                     `}
+                     <a href="${relativeRoot}update.html" class="profile-menu-item">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                     </a>
+                  </nav>
+
+                  <div class="profile-dropdown-footer">
+                     <button id="logout-btn" class="delete-btn profile-logout-btn" type="button">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                     </button>
                   </div>
                ` : `
-                  <p class="role" style="margin-bottom: 1.5rem;">Welcome Guest</p>
+                  <div style="padding-bottom: 1.5rem; border-bottom: var(--border); margin-bottom: 1.5rem;">
+                     <p class="role" style="font-size: 1.5rem; font-weight: 600; color: var(--black); margin-bottom: 0.5rem;">Welcome Guest</p>
+                     <p style="font-size: 1.3rem; color: var(--light-color);">Sign in to access your dashboard & courses</p>
+                  </div>
                   <div class="flex-btn">
-                     <a href="${relativeRoot}login.html" class="option-btn">Login</a>
-                     <a href="${relativeRoot}register.html" class="btn">Register</a>
+                     <a href="${relativeRoot}login.html" class="option-btn" style="flex: 1; text-align: center;">Login</a>
+                     <a href="${relativeRoot}register.html" class="btn" style="flex: 1; text-align: center;">Register</a>
                   </div>
                `}
             </div>
@@ -127,51 +194,165 @@ const NavbarComponent = {
    },
 
    bindEvents() {
-      const profilePopup = document.querySelector('.header .flex .profile:not(.notif-popup)');
+      const profilePopup = document.querySelector('#profile-dropdown');
       const notifPopup = document.querySelector('#notif-popup');
       const userBtn = document.querySelector('#user-btn');
       const notifBtn = document.querySelector('#notif-btn');
+      const menuBtn = document.querySelector('#menu-btn');
       const searchBtn = document.querySelector('#search-btn');
       const searchForm = document.querySelector('.header .flex .search-form');
       const logoutBtn = document.querySelector('#logout-btn');
       const markAllReadBtn = document.querySelector('#mark-all-read-btn');
 
-      if (userBtn && profilePopup) {
-         userBtn.addEventListener('click', () => {
-            profilePopup.classList.toggle('active');
-            if (searchForm) searchForm.classList.remove('active');
-            if (notifPopup) notifPopup.classList.remove('active');
-         });
-      }
+      // Helper to close profile dropdown
+      const closeProfile = () => {
+         if (profilePopup) {
+            profilePopup.classList.remove('active');
+         }
+         if (userBtn) {
+            userBtn.classList.remove('active');
+            userBtn.setAttribute('aria-expanded', 'false');
+         }
+      };
 
-      if (notifBtn && notifPopup) {
-         notifBtn.addEventListener('click', () => {
-            notifPopup.classList.toggle('active');
+      // Helper to open profile dropdown
+      const openProfile = () => {
+         if (profilePopup) {
+            profilePopup.classList.add('active');
+         }
+         if (userBtn) {
+            userBtn.classList.add('active');
+            userBtn.setAttribute('aria-expanded', 'true');
+         }
+         closeNotif();
+         if (searchForm) searchForm.classList.remove('active');
+      };
+
+      // Helper to toggle profile dropdown
+      const toggleProfile = () => {
+         if (profilePopup && profilePopup.classList.contains('active')) {
+            closeProfile();
+         } else {
+            openProfile();
+         }
+      };
+
+      // Helper to close notifications popup
+      const closeNotif = () => {
+         if (notifPopup) {
+            notifPopup.classList.remove('active');
+         }
+         if (notifBtn) {
+            notifBtn.setAttribute('aria-expanded', 'false');
+         }
+      };
+
+      // Helper to toggle notifications popup
+      const toggleNotif = () => {
+         if (notifPopup && notifPopup.classList.contains('active')) {
+            closeNotif();
+         } else {
+            if (notifPopup) notifPopup.classList.add('active');
+            if (notifBtn) notifBtn.setAttribute('aria-expanded', 'true');
+            closeProfile();
             if (searchForm) searchForm.classList.remove('active');
-            if (profilePopup) profilePopup.classList.remove('active');
-            
-            if (notifPopup.classList.contains('active')) {
-               this.renderNotificationsList();
+            this.renderNotificationsList();
+         }
+      };
+
+      // User profile button click & keyboard handlers
+      if (userBtn && profilePopup) {
+         userBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleProfile();
+         });
+
+         userBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+               e.preventDefault();
+               e.stopPropagation();
+               toggleProfile();
             }
          });
       }
 
-      if (searchBtn && searchForm) {
-         searchBtn.addEventListener('click', () => {
-            searchForm.classList.toggle('active');
-            if (profilePopup) profilePopup.classList.remove('active');
-            if (notifPopup) notifPopup.classList.remove('active');
+      // Close profile dropdown when clicking any navigation link inside it
+      if (profilePopup) {
+         profilePopup.addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (link) {
+               closeProfile();
+            }
          });
       }
 
+      // Hamburger menu button click & keyboard handlers
+      if (menuBtn) {
+         menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeProfile();
+            closeNotif();
+            if (searchForm) searchForm.classList.remove('active');
+
+            if (window.SidebarComponent && typeof window.SidebarComponent.toggle === 'function') {
+               window.SidebarComponent.toggle();
+            } else {
+               const sidebar = document.querySelector('.side-bar');
+               const overlay = document.querySelector('.sidebar-overlay');
+               if (sidebar) sidebar.classList.toggle('active');
+               if (overlay) overlay.classList.toggle('active');
+            }
+         });
+
+         menuBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+               e.preventDefault();
+               e.stopPropagation();
+               menuBtn.click();
+            }
+         });
+      }
+
+      // Notifications button click & keyboard handlers
+      if (notifBtn && notifPopup) {
+         notifBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleNotif();
+         });
+
+         notifBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+               e.preventDefault();
+               e.stopPropagation();
+               toggleNotif();
+            }
+         });
+      }
+
+      // Search button toggle
+      if (searchBtn && searchForm) {
+         searchBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            searchForm.classList.toggle('active');
+            closeProfile();
+            closeNotif();
+         });
+      }
+
+      // Logout handler
       if (logoutBtn) {
-         logoutBtn.addEventListener('click', () => {
+         logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeProfile();
             AuthService.logout();
          });
       }
 
+      // Mark all read button
       if (markAllReadBtn) {
-         markAllReadBtn.addEventListener('click', () => {
+         markAllReadBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             if (window.NotificationService) {
                window.NotificationService.markAllAsRead();
                this.renderNotificationsList();
@@ -179,13 +360,25 @@ const NavbarComponent = {
          });
       }
 
-      // Close popups on outside click
+      // Outside click handler to close popups
       document.addEventListener('click', (e) => {
-         if (!e.target.closest('#user-btn') && !e.target.closest('.profile:not(.notif-popup)')) {
-            if (profilePopup) profilePopup.classList.remove('active');
+         if (!e.target.closest('#user-btn') && !e.target.closest('#profile-dropdown')) {
+            closeProfile();
          }
          if (!e.target.closest('#notif-btn') && !e.target.closest('#notif-popup')) {
-            if (notifPopup) notifPopup.classList.remove('active');
+            closeNotif();
+         }
+         if (!e.target.closest('#search-btn') && !e.target.closest('.header .flex .search-form')) {
+            if (searchForm) searchForm.classList.remove('active');
+         }
+      });
+
+      // Escape key to close any open dropdowns
+      document.addEventListener('keydown', (e) => {
+         if (e.key === 'Escape') {
+            closeProfile();
+            closeNotif();
+            if (searchForm) searchForm.classList.remove('active');
          }
       });
    },
